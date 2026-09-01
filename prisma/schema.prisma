@@ -6,6 +6,10 @@
 // Regra central: Estudo guarda só entrada crua (`dados`) — nada derivado é persistido
 // enquanto está aberto. Mapa guarda o snapshot congelado de tudo que foi calculado, mais os
 // fatores usados na geração. Ver src/lib/calc.ts para o motor de cálculo.
+//
+// Convenção de nomes: campos em camelCase (padrão TypeScript/Prisma Client) — cada um mapeado
+// pra uma coluna snake_case no Postgres via @map, pra bater com os nomes de tabela (@@map) e
+// não deixar coluna tipo "capitalAProteger" exigindo aspas em toda consulta SQL direta.
 
 generator client {
   provider = "prisma-client-js"
@@ -23,36 +27,36 @@ model Corretor {
   id        String   @id @default(cuid())
   nome      String
   email     String   @unique
-  senhaHash String
+  senhaHash String   @map("senha_hash")
 
   // Campos de "Acesso e Identidade" — aparecem nos documentos gerados (Acesso e Identidade.dc.html)
   cargo         String? // ex.: "Consultor de proteção familiar"
   corretora     String? // nome fantasia
   susep         String?
   whatsapp      String?
-  emailContato  String?
-  razaoSocial   String? // razão social + CNPJ, rodapé dos documentos
-  fotoUrl       String?
-  logoClaroUrl  String? // logo para fundo escuro
-  logoEscuroUrl String? // logo para fundo claro
-  corDestaque   String  @default("#39CC00")
+  emailContato  String? @map("email_contato")
+  razaoSocial   String? @map("razao_social") // razão social + CNPJ, rodapé dos documentos
+  fotoUrl       String? @map("foto_url")
+  logoClaroUrl  String? @map("logo_claro_url") // logo para fundo escuro
+  logoEscuroUrl String? @map("logo_escuro_url") // logo para fundo claro
+  corDestaque   String  @default("#39CC00") @map("cor_destaque")
 
-  // Integrações (n8n) — cada uma com URL de webhook própria e toggle ativa/desligada.
-  // webhookLead e webhookEsquecer não têm tela própria no protótipo de Integrações; adicionados
-  // por consistência com a tabela de 6 webhooks do README — a confirmar com o Edgar na Etapa 5/6.
-  webhookLead              String?
-  webhookAgendar           String?
-  webhookNotificar         String?
-  webhookEnviarMapa        String?
-  webhookGerarTexto        String?
-  webhookEsquecer          String?
-  integracaoAgendaAtiva    Boolean @default(false)
-  integracaoWhatsappAtiva  Boolean @default(false)
-  integracaoEmailAtiva     Boolean @default(false)
-  integracaoIaAtiva        Boolean @default(false)
+  // Integrações (n8n). Seis endereços de webhook (a "canalização", sempre ativa); só quatro têm
+  // toggle na tela de Integrações — lead e esquecer disparam sozinhos quando o evento acontece,
+  // sem chave de ligar/desligar (Acesso e Identidade.dc.html, tela 6, atualizado 2026-09-01).
+  webhookLead             String? @map("webhook_lead")
+  webhookAgendar          String? @map("webhook_agendar")
+  webhookNotificar        String? @map("webhook_notificar")
+  webhookEnviarMapa       String? @map("webhook_enviar_mapa")
+  webhookGerarTexto       String? @map("webhook_gerar_texto")
+  webhookEsquecer         String? @map("webhook_esquecer")
+  integracaoAgendaAtiva   Boolean @default(false) @map("integracao_agenda_ativa")
+  integracaoWhatsappAtiva Boolean @default(false) @map("integracao_whatsapp_ativa")
+  integracaoEmailAtiva    Boolean @default(false) @map("integracao_email_ativa")
+  integracaoIaAtiva       Boolean @default(false) @map("integracao_ia_ativa")
 
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
 
   clientes          Cliente[]
   fatoresCalculo    FatoresCalculo?
@@ -68,27 +72,27 @@ model Corretor {
 // deles já guarda os fatores que usou, em Mapa.fatoresUsados).
 model FatoresCalculo {
   id         String   @id @default(cuid())
-  corretorId String   @unique
+  corretorId String   @unique @map("corretor_id")
   corretor   Corretor @relation(fields: [corretorId], references: [id], onDelete: Cascade)
 
-  pctCustoTransmissao  Float @default(15) // vitalícia
-  mesesVitalicia       Int   @default(12)
-  prazoManutencaoAnos  Int   @default(5) // temporária
-  tetoMultiplicador    Float @default(8)
-  prazoPensaoAnosPadrao Int  @default(15) // educação
-  idadeIndependencia   Int   @default(25)
-  fatorClt             Float @default(1) // fatores por vínculo — CLT e servidor ficam travados
-  fatorServidor        Float @default(1) // em 1,00 na UI (Ajustes.dc.html), mas o campo existe
-  fatorPensaoServidor  Float @default(0.6)
-  fatorAutonomo        Float @default(1.25)
-  anosInvalidez        Int   @default(5) // invalidez e complementares
-  pctInvalidezDoenca   Float @default(50)
-  pctRendaInvalidez    Float @default(50)
-  pctDit               Float @default(70)
-  fatorDoencasGraves   Float @default(1.5)
-  diasRetencao         Int   @default(120) // fila de limpeza dos mapas parados
+  pctCustoTransmissao   Float @default(15) @map("pct_custo_transmissao") // vitalícia
+  mesesVitalicia        Int   @default(12) @map("meses_vitalicia")
+  prazoManutencaoAnos   Int   @default(5) @map("prazo_manutencao_anos") // temporária
+  tetoMultiplicador     Float @default(8) @map("teto_multiplicador")
+  prazoPensaoAnosPadrao Int   @default(15) @map("prazo_pensao_anos_padrao") // educação
+  idadeIndependencia    Int   @default(25) @map("idade_independencia")
+  fatorClt              Float @default(1) @map("fator_clt") // fatores por vínculo — CLT e
+  fatorServidor         Float @default(1) @map("fator_servidor") // servidor ficam travados em
+  fatorPensaoServidor   Float @default(0.6) @map("fator_pensao_servidor") // 1,00 na UI, mas
+  fatorAutonomo         Float @default(1.25) @map("fator_autonomo") // o campo existe
+  anosInvalidez         Int   @default(5) @map("anos_invalidez") // invalidez e complementares
+  pctInvalidezDoenca    Float @default(50) @map("pct_invalidez_doenca")
+  pctRendaInvalidez     Float @default(50) @map("pct_renda_invalidez")
+  pctDit                Float @default(70) @map("pct_dit")
+  fatorDoencasGraves    Float @default(1.5) @map("fator_doencas_graves")
+  diasRetencao          Int   @default(120) @map("dias_retencao") // fila de limpeza dos 120 dias
 
-  atualizadoEm DateTime @updatedAt
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
 
   @@map("fatores_calculo")
 }
@@ -116,7 +120,7 @@ enum LgpdStatus {
 // Isso acontece quando o único mapa/estudo dele é excluído (ciclo dos 120 dias ou manual).
 model Cliente {
   id         String   @id @default(cuid())
-  corretorId String
+  corretorId String   @map("corretor_id")
   corretor   Corretor @relation(fields: [corretorId], references: [id], onDelete: Cascade)
 
   nome               String
@@ -124,22 +128,22 @@ model Cliente {
   email              String?
   nascimento         DateTime? @db.Date
   sexo               String? // "F" | "M" — só para a flexão dos textos, não entra no cálculo
-  estadoCivil        String?
+  estadoCivil        String?   @map("estado_civil")
   profissao          String?
-  idadeAposentadoria Int?
+  idadeAposentadoria Int?      @map("idade_aposentadoria")
 
   origem      String? // "Link · campanha família" | "Indicação · Marina" | "Contato direto" etc.
-  utmCampanha String?
+  utmCampanha String? @map("utm_campanha")
 
-  estagioFunil        EstagioFunil?
-  estagioAtualizadoEm DateTime?
+  estagioFunil        EstagioFunil? @map("estagio_funil")
+  estagioAtualizadoEm DateTime?     @map("estagio_atualizado_em")
 
-  lgpdStatus   LgpdStatus @default(pendente)
-  lgpdOrigem   String? // onde o consentimento foi coletado (link, verbal, etc.)
-  lgpdAceitoEm DateTime?
+  lgpdStatus   LgpdStatus @default(pendente) @map("lgpd_status")
+  lgpdOrigem   String?    @map("lgpd_origem") // onde o consentimento foi coletado (link, verbal, etc.)
+  lgpdAceitoEm DateTime?  @map("lgpd_aceito_em")
 
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
 
   estudos      Estudo[]
   eventos      EventoHistorico[]
@@ -162,16 +166,16 @@ enum StatusEstudo {
 // fonte de verdade das respostas — nada derivado (vitalícia, temporária, etc.) é persistido
 // aqui; o motor de cálculo (src/lib/calc.ts) recalcula a cada leitura enquanto status=aberto.
 model Estudo {
-  id         String @id @default(cuid())
-  clienteId  String
-  cliente    Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
-  corretorId String // denormalizado de propósito — corretor_id em toda tabela de domínio
+  id         String   @id @default(cuid())
+  clienteId  String   @map("cliente_id")
+  cliente    Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  corretorId String   @map("corretor_id") // denormalizado de propósito — corretor_id em toda tabela de domínio
 
   status StatusEstudo @default(aberto)
 
-  duplicadoDeEstudoId String?
+  duplicadoDeEstudoId String?  @map("duplicado_de_estudo_id")
   duplicadoDe         Estudo?  @relation("Duplicacao", fields: [duplicadoDeEstudoId], references: [id])
-  duplicados           Estudo[] @relation("Duplicacao")
+  duplicados          Estudo[] @relation("Duplicacao")
 
   // Formato do EstudoDados em src/lib/calc.ts: perfil, vínculos, cônjuge, terceiros,
   // dependentes, educação (fases + extras), prazos, teto, objetivos, bens, reservas,
@@ -180,12 +184,12 @@ model Estudo {
 
   // Regeneráveis à vontade enquanto o estudo está aberto (decisão 7). Travam junto com o
   // Mapa quando gerado — ver Mapa.resumoParaVoce / Mapa.analiseInterna.
-  resumoParaVoce String?
-  analiseInterna String?
+  resumoParaVoce String? @map("resumo_para_voce")
+  analiseInterna String? @map("analise_interna")
 
-  criadoEm     DateTime  @default(now())
-  atualizadoEm DateTime  @updatedAt
-  geradoEm     DateTime?
+  criadoEm     DateTime  @default(now()) @map("criado_em")
+  atualizadoEm DateTime  @updatedAt @map("atualizado_em")
+  geradoEm     DateTime? @map("gerado_em")
 
   mapa Mapa?
 
@@ -200,32 +204,32 @@ model Estudo {
 // novo Mapa. Não existe (e não deve existir) nenhuma rota/UI de update aqui.
 model Mapa {
   id         String @id @default(cuid())
-  estudoId   String @unique
+  estudoId   String @unique @map("estudo_id")
   estudo     Estudo @relation(fields: [estudoId], references: [id], onDelete: Cascade)
-  clienteId  String // denormalizado — evita join pra listar mapas de um cliente
-  corretorId String // denormalizado
+  clienteId  String @map("cliente_id") // denormalizado — evita join pra listar mapas de um cliente
+  corretorId String @map("corretor_id") // denormalizado
 
-  numeroVersao Int // 1, 2, 3... por cliente
+  numeroVersao Int @map("numero_versao") // 1, 2, 3... por cliente
 
   // Números principais (glossário) — também replicados dentro de `derivados`, mas ficam como
   // colunas próprias por serem usados em listagens/filtros (funil, dashboard, comparar mapas).
-  capitalAProteger      Float
+  capitalAProteger      Float @map("capital_a_proteger")
   vitalicia             Float
   temporaria            Float
-  custoEducacionalTotal Float
-  pensaoMensal          Float
+  custoEducacionalTotal Float @map("custo_educacional_total")
+  pensaoMensal          Float @map("pensao_mensal")
 
   // Resto do retorno de calc() (CalcResultado completo), para a tela de Memória de Cálculo.
   derivados Json
 
   // Fatores em vigor no momento da geração (snapshot de FatoresCalculo) — nunca mudam depois,
   // mesmo que o corretor edite os fatores em Ajustes.
-  fatoresUsados Json
+  fatoresUsados Json @map("fatores_usados")
 
-  resumoParaVoce String? // trava com o snapshot; nunca entra em PDF/e-mail além da proposta
-  analiseInterna String? // NUNCA sai da tela do corretor — nunca em PDF nem e-mail, em nenhuma rota
+  resumoParaVoce String? @map("resumo_para_voce") // trava com o snapshot; só entra na proposta
+  analiseInterna String? @map("analise_interna") // NUNCA sai da tela do corretor — nunca em PDF/e-mail, em nenhuma rota
 
-  geradoEm DateTime @default(now())
+  geradoEm DateTime @default(now()) @map("gerado_em")
 
   @@index([clienteId])
   @@index([corretorId])
@@ -237,14 +241,14 @@ model Mapa {
 // — não gera evento_historico.
 model EventoHistorico {
   id         String  @id @default(cuid())
-  clienteId  String
+  clienteId  String  @map("cliente_id")
   cliente    Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
-  corretorId String
+  corretorId String  @map("corretor_id")
 
   tipo  String // "sistema" | "manual"
   texto String
 
-  criadoEm DateTime @default(now())
+  criadoEm DateTime @default(now()) @map("criado_em")
 
   @@index([clienteId])
   @@map("eventos_historico")
@@ -253,13 +257,13 @@ model EventoHistorico {
 // Anotações de venda — nunca entram em PDF nem e-mail (aba "Anotações" da página do cliente).
 model NotaCrm {
   id         String  @id @default(cuid())
-  clienteId  String
+  clienteId  String  @map("cliente_id")
   cliente    Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
-  corretorId String
+  corretorId String  @map("corretor_id")
 
   texto String
 
-  criadoEm DateTime @default(now())
+  criadoEm DateTime @default(now()) @map("criado_em")
 
   @@index([clienteId])
   @@map("notas_crm")
@@ -268,12 +272,12 @@ model NotaCrm {
 // Campanhas do link de captação (UTM), gerenciadas pelo corretor.
 model Campanha {
   id          String   @id @default(cuid())
-  corretorId  String
+  corretorId  String   @map("corretor_id")
   corretor    Corretor @relation(fields: [corretorId], references: [id], onDelete: Cascade)
   nome        String
-  utmCampanha String
+  utmCampanha String   @map("utm_campanha")
 
-  criadoEm DateTime @default(now())
+  criadoEm DateTime @default(now()) @map("criado_em")
 
   @@unique([corretorId, utmCampanha])
   @@map("campanhas")
@@ -282,14 +286,14 @@ model Campanha {
 // Reunião marcada pelo lead (ou proposta no campo aberto). O evento no Google Agenda leva só
 // nome e contato — nenhum valor do estudo (decisão de arquitetura, README "Agendamento").
 model Agendamento {
-  id            String  @id @default(cuid())
-  clienteId     String
-  cliente       Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
-  dataHora      DateTime
+  id            String   @id @default(cuid())
+  clienteId     String   @map("cliente_id")
+  cliente       Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  dataHora      DateTime @map("data_hora")
   origem        String // "horario1" | "horario2" | "horario3" | "campo_aberto"
-  googleEventId String?
+  googleEventId String?  @map("google_event_id")
 
-  criadoEm DateTime @default(now())
+  criadoEm DateTime @default(now()) @map("criado_em")
 
   @@index([clienteId])
   @@map("agendamentos")
@@ -300,12 +304,12 @@ model Agendamento {
 // manhã de depois de amanhã, tarde de depois de amanhã.
 model HorarioSugerido {
   id          String   @id @default(cuid())
-  corretorId  String
+  corretorId  String   @map("corretor_id")
   corretor    Corretor @relation(fields: [corretorId], references: [id], onDelete: Cascade)
   ordem       Int // 1, 2, 3
-  diaRelativo String // "amanha" | "depois_de_amanha" | "em_tres_dias"
+  diaRelativo String   @map("dia_relativo") // "amanha" | "depois_de_amanha" | "em_tres_dias"
   hora        String // "15:00"
-  duracaoMin  Int      @default(60)
+  duracaoMin  Int      @default(60) @map("duracao_min")
 
   @@unique([corretorId, ordem])
   @@map("horarios_sugeridos")
@@ -315,10 +319,10 @@ model HorarioSugerido {
 // apagada de verdade (hard delete), e fica só isto — sem nome, telefone ou e-mail.
 model ExclusaoLgpd {
   id         String   @id @default(cuid())
-  corretorId String
+  corretorId String   @map("corretor_id")
   corretor   Corretor @relation(fields: [corretorId], references: [id], onDelete: Cascade)
   canal      String // "whatsapp" | "email" | "verbal"
-  dataPedido DateTime @default(now())
+  dataPedido DateTime @default(now()) @map("data_pedido")
 
   @@map("exclusoes_lgpd")
 }
