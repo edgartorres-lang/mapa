@@ -31,6 +31,27 @@ valores congelados) × Duplicar estudo (único caminho de correção depois de g
 proteger (necessidade total − receitas liquidáveis). Corretor · Lead · Cliente · Segurado ·
 Dependente. Ver o glossário completo em ESPECIFICACAO.md no handoff de design.
 
+## Vocabulário: chave de código × texto de interface
+
+Regra fechada com o Edgar em 2026-09-01: **chaves de código curtas, texto de interface por
+extenso.** `calc.ts` usa os identificadores do protótipo (`pre`/`fund`/`medio`/`sup`/`pos`,
+`vitalicia`, `temporaria`, `pensaoMensal`, `teto`) — não renomeie, é a fonte da verdade das
+fórmulas e já está testado contra o caso da Marina. Mas em qualquer lugar que o corretor ou o
+cliente **leem** (rótulo de tela, cabeçalho de PDF, texto de e-mail, nome de campo de formulário),
+use a forma por extenso do glossário: "Pré-escola", "Fundamental", "Médio", "Superior",
+"Pós-graduação"; "Cobertura vitalícia"; "Cobertura temporária"; "Pensão de educação"; "Teto de
+razoabilidade". Nunca "temporária" sem "cobertura", nunca "pós" sozinho na tela.
+
+## Limitação conhecida: Dependente e Bem vivem dentro do JSON do Estudo
+
+Por decisão do Edgar (2026-09-01): `Dependente` e `Bem` não são tabelas relacionais — moram dentro
+de `Estudo.dados` (JSON) enquanto o estudo está aberto, igual ao protótipo. Isso significa que
+**não dá pra consultar hoje** algo como "todo cliente com filho entre 15 e 17 anos" sem varrer o
+JSON de cada estudo em aplicação. Aceito de propósito porque esse tipo de consulta é para campanha
+de prospecção, fora da V1. Quando isso virar necessidade real, `Dependente` e `Bem` viram tabelas
+próprias (com `clienteId`, não mais só dentro do estudo) — é migração de dado, não só de schema.
+Não é bug nem esquecimento: é a V1 pagando esse preço de propósito por simplicidade agora.
+
 ## Não-negociáveis
 
 - **Nunca existe botão de editar um Mapa gerado.** Em lugar nenhum da UI ou da API.
