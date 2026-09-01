@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#F3F6FA; }
+  a { color:#1B72BE; } a:hover { color:#0F3D63; }
+  button { font-family:Inter, sans-serif; }
+</style>
+</helmet>
+
+<div style="font-family:Inter,sans-serif;min-height:100vh;padding-bottom:60px">
+
+  <div style="background:#0F3D63;padding:34px 44px 30px;color:#fff">
+    <div style="max-width:1180px;margin:0 auto">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#39CC00">Mapa da Proteção</div>
+      <div style="font:600 34px Fraunces,serif;margin:8px 0 10px">Mapa do site e escopo da primeira versão</div>
+      <div style="font:400 14px/1.7 Inter,sans-serif;color:rgba(255,255,255,.72);max-width:720px">Cada cartão é uma tela. Clique para alternar entre <strong style="color:#39CC00">V1</strong> e <strong style="color:rgba(255,255,255,.9)">depois</strong>. As marcações ficam salvas neste arquivo.</div>
+      <div style="display:flex;gap:26px;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.18)">
+        <sc-for list="{{ totais }}" as="t" hint-placeholder-count="4">
+          <div>
+            <div style="font:400 11px Inter,sans-serif;color:rgba(255,255,255,.6)">{{ t.rotulo }}</div>
+            <div style="font:600 22px Fraunces,serif;color:{{ t.cor }};margin-top:2px">{{ t.valor }}</div>
+          </div>
+        </sc-for>
+        <div style="flex:1"></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button onClick="{{ marcarTudo }}" style="font:600 12px Inter,sans-serif;color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.32);background:transparent;padding:9px 15px;border-radius:999px;cursor:pointer">Tudo na V1</button>
+          <button onClick="{{ recomendado }}" style="font:600 12px Inter,sans-serif;color:#0F3D63;border:none;background:#fff;padding:10px 15px;border-radius:999px;cursor:pointer">Voltar ao recomendado</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1180px;margin:0 auto;padding:26px 44px 0">
+    <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 24px;margin-bottom:26px">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:14px">Decisões que já orientam o desenho</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:22px">
+        <sc-for list="{{ decisoes }}" as="dc" hint-placeholder-count="3">
+          <div style="border-left:3px solid #39CC00;padding-left:14px">
+            <div style="font:600 13px Inter,sans-serif;color:#0F3D63;margin-bottom:4px">{{ dc.titulo }}</div>
+            <div style="font:400 12px/1.65 Inter,sans-serif;color:#5B6B7A">{{ dc.texto }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:30px">
+      <sc-for list="{{ grupos }}" as="g" hint-placeholder-count="6">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px">
+            <div style="font:600 20px Fraunces,serif;color:#0F3D63">{{ g.nome }}</div>
+            <div style="font:600 11px Inter,sans-serif;color:#8FA0AF">{{ g.contagem }}</div>
+          </div>
+          <div style="font:400 12.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:14px;max-width:760px">{{ g.sub }}</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <sc-for list="{{ g.telas }}" as="t" hint-placeholder-count="4">
+              <div onClick="{{ t.alternar }}" style="cursor:pointer;background:#fff;border:1.5px solid {{ t.borda }};border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+                  <div style="font:600 13.5px Inter,sans-serif;color:#1A1A1A">{{ t.nome }}</div>
+                  <span style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.07em;padding:4px 8px;border-radius:99px;white-space:nowrap;color:{{ t.selCor }};background:{{ t.selBg }};border:1px solid {{ t.selBorda }}">{{ t.selo }}</span>
+                </div>
+                <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A">{{ t.desc }}</div>
+                <div style="font:600 10.5px Inter,sans-serif;color:{{ t.estadoCor }};margin-top:auto">{{ t.estado }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top:32px;background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:20px 24px">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8a6a00;margin-bottom:12px">Perguntas que ainda vão aparecer</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <sc-for list="{{ pendentes }}" as="p" hint-placeholder-count="4">
+          <div style="font:400 12.5px/1.65 Inter,sans-serif;color:#1A1A1A">{{ p }}</div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1280, &quot;height&quot;: 900 }
+}">
+const GRUPOS = [
+  {
+    id: 'conta', nome: 'Entrada e conta',
+    sub: 'O caminho até o painel. Enquanto você trabalha sozinho, é curto — mas precisa existir para o dia em que outros corretores entrarem.',
+    telas: [
+      { k: 'login', nome: 'Login', desc: 'E-mail e senha, com a marca no topo.', v1: true, estado: 'mockado em 3a' },
+      { k: 'criar', nome: 'Criar conta', desc: 'Nome, e-mail, senha e aceite dos termos.', v1: true, estado: 'mockado em 3b' },
+      { k: 'senha', nome: 'Recuperar senha', desc: 'Envio do link por e-mail e a tela de nova senha.', v1: true, estado: 'a desenhar' },
+      { k: 'onboard', nome: 'Primeiro acesso', desc: 'Três passos: logo, contato e conferir os fatores de cálculo.', v1: false, estado: 'a desenhar' }
+    ]
+  },
+  {
+    id: 'painel', nome: 'Painel do corretor',
+    sub: 'O centro do dia. Dashboard, funil e o histórico de cada cliente.',
+    telas: [
+      { k: 'dash', nome: 'Dashboard', desc: 'Estudos em andamento, leads novos, o que precisa de resposta hoje e os avisos de mapas parados há 120 dias.', v1: true, estado: 'mockado em 1b' },
+      { k: 'funil', nome: 'Funil do CRM', desc: 'Colunas por estágio: lead, estudo, apresentado, cotando, fechado, perdido. Todo preenchimento entra no topo; quem fica sem estudo sai do funil e volta a ser contato.', v1: true, estado: 'a desenhar' },
+      { k: 'clientes', nome: 'Lista de clientes', desc: 'Busca, filtro por estágio e data do último contato. Guarda também os contatos sem estudo, que ficam fora do funil.', v1: true, estado: 'mockado em 1e' },
+      { k: 'cliente', nome: 'Página do cliente', desc: 'Dados, histórico de estudos, versões e anotações da conversa.', v1: true, estado: 'a desenhar' },
+      { k: 'tarefas', nome: 'Tarefas e follow-up', desc: 'Lembretes com data, ligados ao cliente. Motivo de perda quando cai.', v1: false, estado: 'a desenhar' },
+      { k: 'cotacoes', nome: 'Cotações por seguradora', desc: 'Prêmios lado a lado para o capital calculado. Estudo diz quanto precisa; a cotação diz quanto custa.', v1: false, estado: 'a desenhar' }
+    ]
+  },
+  {
+    id: 'estudo', nome: 'Estudo',
+    sub: 'A ferramenta em si, já pronta nos três formatos de preenchimento.',
+    telas: [
+      { k: 'wizard', nome: 'Estudo — etapas e abas', desc: 'O mesmo estudo em modo guiado ou livre, com o racional definido.', v1: true, estado: 'funcional em 1a+1b' },
+      { k: 'celular', nome: 'Estudo no celular do corretor', desc: 'Modo conversa, uma pergunta por tela, ao lado do cliente.', v1: true, estado: 'mockado em 1c' },
+      { k: 'gerar', nome: 'Gerar Mapa da Proteção', desc: 'Salvar permite quantas alterações quiser. Gerar fecha o estudo: os números param de mudar, mesmo que os fatores mudem depois.', v1: true, estado: 'a desenhar' },
+      { k: 'versoes', nome: 'Duplicar estudo', desc: 'Informação nova entra em um estudo novo. Os mapas anteriores continuam visíveis na página do cliente, lado a lado.', v1: true, estado: 'a desenhar' },
+      { k: 'excluir', nome: 'Excluir mapa', desc: 'Apaga o mapa e o estudo que o gerou; o cadastro do cliente permanece. Aos 120 dias sem movimento o aviso aparece no dashboard e espera sua autorização. Cliente fechado não entra na contagem.', v1: true, estado: 'a desenhar' },
+      { k: 'fatores', nome: 'Memória de cálculo', desc: 'Painel que mostra conta por conta, para você conferir antes de apresentar.', v1: true, estado: 'parcial no relatório' }
+    ]
+  },
+  {
+    id: 'captacao', nome: 'Captação pelo link',
+    sub: 'Um único link público, usado no tráfego pago. Cada preenchimento com nome, telefone e e-mail vira um lead novo e gera a apresentação.',
+    telas: [
+      { k: 'gerarlink', nome: 'Link público de captação', desc: 'Um link geral para anúncios e bio, com UTM por campanha e QR code. Não é link por cliente.', v1: true, estado: 'mockado em 3c' },
+      { k: 'publica', nome: 'Página do lead', desc: 'As perguntas na redação do cliente. Nome, telefone e e-mail identificam o lead; LGPD no fim.', v1: true, estado: 'protótipo pronto' },
+      { k: 'dedupe', nome: 'Lead repetido', desc: 'Mesmo telefone ou e-mail preenchendo de novo: vira nova versão do estudo, não um cliente duplicado.', v1: true, estado: 'a desenhar' },
+      { k: 'agenda', nome: 'Agendar a apresentação', desc: 'O lead escolhe um horário sugerido e a ferramenta lança no Google Agenda com nome e contato. Horário ocupado é aceito — você remarca depois.', v1: true, estado: 'a desenhar' },
+      { k: 'horarios', nome: 'Horários sugeridos', desc: 'Três opções fixas — tarde de amanhã, manhã e tarde de depois de amanhã — mais um campo aberto. Qualquer escolha, inclusive a proposta pelo lead, vai direto para a agenda; a confirmação você faz com ele.', v1: true, estado: 'a desenhar' },
+      { k: 'obrigado', nome: 'Confirmação', desc: 'Reunião marcada, o que levar, seu contato.', v1: true, estado: 'a desenhar' },
+      { k: 'origem', nome: 'Origem das campanhas', desc: 'De qual anúncio veio cada lead, e quantos agendaram. Sustenta a decisão de onde investir.', v1: false, estado: 'a desenhar' },
+      { k: 'aviso', nome: 'Aviso de lead novo', desc: 'Mensagem no seu WhatsApp quando alguém termina de preencher.', v1: true, estado: 'a desenhar' }
+    ]
+  },
+  {
+    id: 'saidas', nome: 'Saídas do estudo',
+    sub: 'Três formatos do mesmo cálculo. O cliente só recebe se você decidir mandar.',
+    telas: [
+      { k: 'apres', nome: 'PDF apresentação', desc: 'Seis telas 16:9 para a reunião, com cartão de contato no fim.', v1: true, estado: 'funcional' },
+      { k: 'prop', nome: 'PDF proposta', desc: 'Três páginas A4 para imprimir e deixar com o cliente.', v1: true, estado: 'funcional' },
+      { k: 'email', nome: 'E-mail do estudo', desc: 'Resumo no corpo da mensagem, A4 anexado, envio revisado por você.', v1: true, estado: 'funcional' },
+      { k: 'zap', nome: 'Mensagem de WhatsApp', desc: 'Modelo editável para o convite e o retorno depois da reunião.', v1: true, estado: 'a desenhar' }
+    ]
+  },
+  {
+    id: 'ajustes', nome: 'Ajustes',
+    sub: 'Tudo o que muda o resultado sem mexer no código — inclusive os fatores do racional.',
+    telas: [
+      { k: 'perfil', nome: 'Perfil', desc: 'Nome, SUSEP, contato, foto.', v1: true, estado: 'mockado em 3a' },
+      { k: 'marca', nome: 'Marca e logo', desc: 'Logo, cores e assinatura aplicados nos PDFs e no e-mail.', v1: true, estado: 'mockado em 3b' },
+      { k: 'calculo', nome: 'Fatores de cálculo', desc: 'Percentual de sucessão, prazos, fator do autônomo, DIT e doenças graves. A tela avisa quantos estudos em aberto mudam de valor ao salvar; mapas gerados ficam intactos.', v1: true, estado: 'a desenhar' },
+      { k: 'integra', nome: 'Integrações', desc: 'Agenda, Evolution, e-mail e IA. Configuração de credenciais; a orquestração fica no n8n.', v1: true, estado: 'mockado em 3d' },
+      { k: 'modelos', nome: 'Modelos de mensagem', desc: 'Textos do e-mail, do WhatsApp e do convite de reunião.', v1: false, estado: 'a desenhar' },
+      { k: 'lgpd', nome: 'LGPD e exclusão de dados', desc: 'Consentimentos registrados, pedido de exclusão do cliente e a lista de limpeza dos 120 dias, que espera sua autorização.', v1: true, estado: 'a desenhar' },
+      { k: 'privacidade', nome: 'Política de privacidade', desc: 'Página pública, linkada no formulário e no rodapé do e-mail.', v1: true, estado: 'a desenhar' }
+    ]
+  },
+  {
+    id: 'futuro', nome: 'Quando abrir para outros corretores',
+    sub: 'Nada disso entra agora, mas condiciona como os dados são separados desde o começo: cada estudo precisa nascer com um dono.',
+    telas: [
+      { k: 'corretores', nome: 'Cadastro de corretores', desc: 'Convite, ativação e desativação.', v1: false, estado: 'depois' },
+      { k: 'marcamulti', nome: 'Marca por corretor', desc: 'Cada um com logo e contato próprios nos documentos.', v1: false, estado: 'depois' },
+      { k: 'permissoes', nome: 'Permissões', desc: 'Quem vê os clientes de quem, e quem edita os fatores de cálculo.', v1: false, estado: 'depois' },
+      { k: 'assinatura', nome: 'Assinatura e cobrança', desc: 'Planos, pagamento e limite de estudos.', v1: false, estado: 'depois' }
+    ]
+  }
+];
+
+const DECISOES = [
+  { titulo: 'Um corretor agora, vários depois', texto: 'A primeira versão é sua. Mesmo assim cada estudo nasce ligado a um dono, para que abrir a ferramenta a outros corretores depois não exija refazer os dados.' },
+  { titulo: 'Fatores editáveis em Ajustes', texto: 'Percentual de sucessão, prazos, fator do autônomo, DIT e doenças graves saem do código e vão para uma tela. Estudo em aberto recalcula com os fatores atuais; mapa gerado não muda mais.' },
+  { titulo: 'Salvar é rascunho, gerar é definitivo', texto: 'Enquanto salva, você altera o quanto quiser. Ao gerar o Mapa da Proteção o estudo trava e os valores ficam. Informação nova depois disso pede duplicar o estudo e gerar outro mapa — os anteriores continuam visíveis.' },
+  { titulo: 'Limpeza avisada, nunca automática', texto: 'Aos 120 dias sem movimento no CRM o dashboard avisa e você autoriza — nada sai sozinho. Excluir apaga o mapa e o estudo dele; o cadastro do cliente fica. Cliente fechado nem entra na contagem.' },
+  { titulo: 'O lead agenda, não recebe PDF', texto: 'O formulário termina em uma reunião marcada. Os números só aparecem com você na frente; o PDF vai depois, se você quiser mandar.' },
+  { titulo: 'Um link só, para tráfego pago', texto: 'Não há link por cliente. O mesmo endereço vai nos anúncios, e cada preenchimento com nome, telefone e e-mail abre um lead novo com o estudo já gerado.' }
+];
+
+const PENDENTES = [
+  'A cotação por seguradora é digitada por você ou vem de alguma integração? — a definir depois; fica fora da V1.'
+];
+
+class Component extends DCLogic {
+  state = { sel: null };
+
+  componentDidMount() {
+    try {
+      const s = JSON.parse(localStorage.getItem('mp-escopo') || 'null');
+      if (s) this.setState({ sel: s });
+    } catch (e) {}
+  }
+  base() {
+    const o = {};
+    GRUPOS.forEach(g => g.telas.forEach(t => { o[t.k] = !!t.v1; }));
+    return o;
+  }
+  atual() { return this.state.sel || this.base(); }
+  aplicar(o) {
+    this.setState({ sel: o });
+    try { localStorage.setItem('mp-escopo', JSON.stringify(o)); } catch (e) {}
+  }
+
+  renderVals() {
+    const sel = this.atual();
+    const total = Object.keys(sel).length;
+    const emV1 = Object.keys(sel).filter(k => sel[k]).length;
+    let prontas = 0;
+    GRUPOS.forEach(g => g.telas.forEach(t => {
+      if (sel[t.k] && /mockado|funcional|protótipo|parcial/.test(t.estado)) prontas++;
+    }));
+
+    const grupos = GRUPOS.map(g => {
+      const n = g.telas.filter(t => sel[t.k]).length;
+      return {
+        nome: g.nome, sub: g.sub, contagem: n + ' de ' + g.telas.length + ' na V1',
+        telas: g.telas.map(t => {
+          const on = !!sel[t.k];
+          const feito = /mockado|funcional|protótipo|parcial/.test(t.estado);
+          return {
+            nome: t.nome, desc: t.desc, estado: t.estado,
+            estadoCor: feito ? '#2f8a12' : '#8FA0AF',
+            selo: on ? 'V1' : 'depois',
+            selCor: on ? '#fff' : '#8FA0AF',
+            selBg: on ? '#39CC00' : '#F3F6FA',
+            selBorda: on ? '#39CC00' : '#DEE7EF',
+            borda: on ? '#C8EFB7' : '#DEE7EF',
+            alternar: () => { const o = Object.assign({}, this.atual()); o[t.k] = !o[t.k]; this.aplicar(o); }
+          };
+        })
+      };
+    });
+
+    return {
+      grupos, decisoes: DECISOES, pendentes: PENDENTES,
+      totais: [
+        { rotulo: 'Telas mapeadas', valor: String(total), cor: '#fff' },
+        { rotulo: 'Marcadas para a V1', valor: String(emV1), cor: '#39CC00' },
+        { rotulo: 'Dessas, já desenhadas', valor: String(prontas), cor: '#fff' },
+        { rotulo: 'Ainda por desenhar', valor: String(emV1 - prontas), cor: '#FCF3D9' }
+      ],
+      marcarTudo: () => { const o = {}; Object.keys(this.atual()).forEach(k => { o[k] = true; }); this.aplicar(o); },
+      recomendado: () => this.aplicar(this.base())
+    };
+  }
+}
+
+</script>
+</body>
+</html>

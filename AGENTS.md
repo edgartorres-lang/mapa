@@ -14,13 +14,15 @@ Ferramenta de estudo de seguro de vida para Edgar Torres, corretor único da Set
 (Amapá). Produto 100% em português do Brasil. Não é dev — explique decisões técnicas em
 português claro; se algo for um risco, diga em que situação concreta isso morde.
 
-**Handoff de design (fonte de verdade de UI e fórmulas), fora deste repositório**:
-`G:\Meu Drive\1 Setor Norte\Comunicação Visual\Sites\Claude\Mapa da Proteção mockups\design_handoff_mapa_protecao\`
-— leia `README.md` e `ESPECIFICACAO.md` de lá antes de mexer em telas ou fórmulas. Os `.dc.html`
-são protótipos de referência (Claude Design canvases), não código a copiar. `calc()` em
-`Mapa da Proteção 1a+1b - Unificado.dc.html` é a fonte da verdade do racional — este repo porta
-essas fórmulas em `src/lib/calc.ts`, já testado contra o caso da Marina (`src/lib/calc.test.ts`).
-Não altere `calc.ts` sem reconferir contra o protótipo.
+**Handoff de design (fonte de verdade de UI e fórmulas)**: `design_handoff_mapa_protecao/` na raiz
+deste repositório (versionado junto do código desde 2026-09-01) — leia `README.md` e
+`ESPECIFICACAO.md` de lá antes de mexer em telas ou fórmulas. É uma cópia; o original de trabalho
+do Edgar continua em `G:\Meu Drive\1 Setor Norte\Comunicação Visual\Sites\Claude\Mapa da Proteção mockups\design_handoff_mapa_protecao\`
+— se o design mudar lá, essa cópia precisa ser atualizada de novo (ainda não é sincronização
+automática). Os `.dc.html` são protótipos de referência (Claude Design canvases), não código a
+copiar. `calc()` em `Mapa da Proteção 1a+1b - Unificado.dc.html` é a fonte da verdade do
+racional — este repo porta essas fórmulas em `src/lib/calc.ts`, já testado contra o caso da
+Marina (`src/lib/calc.test.ts`). Não altere `calc.ts` sem reconferir contra o protótipo.
 
 ## Vocabulário obrigatório (não traduzir/renomear)
 
@@ -51,7 +53,18 @@ Dependente. Ver o glossário completo em ESPECIFICACAO.md no handoff de design.
 
 ## Stack
 
-Next.js (TypeScript, App Router) + PostgreSQL via Prisma. PDF real (para o e-mail do mapa) sai de
+Next.js (TypeScript, App Router) + PostgreSQL via Prisma 7 (driver adapter `@prisma/adapter-pg` —
+Prisma 7 não lê mais a URL de conexão do `schema.prisma`; ela vive em `prisma.config.ts` e é
+passada de novo, explicitamente, em `src/lib/prisma.ts`). PDF real (para o e-mail do mapa) sai de
 um serviço separado (Chromium headless) — não roda no processo do Next. Testes com Vitest
 (`npm test`).
+
+## Notas operacionais
+
+- **Nunca rode dois `npm install` ao mesmo tempo nesta pasta** (nem em background nem em
+  terminais diferentes) — já corrompeu o `node_modules` uma vez nesta sessão (pacotes de um
+  processo pisando nos do outro, `ENOTEMPTY`). Rode um de cada vez e espere terminar.
+- Prisma está pinado em `7.10.0` **de propósito** — a tag `latest` do pacote aponta pra uma
+  release candidate (`8.0.0-rc.12`) por enquanto. Não rode `npm i @prisma/client@latest` nem
+  `prisma@latest` sem checar se o Prisma 8 já saiu estável.
 

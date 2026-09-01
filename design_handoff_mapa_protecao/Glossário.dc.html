@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="omelette-owns-print">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#F3F6FA; }
+  a { color:#1B72BE; } a:hover { color:#0F3D63; }
+  input { font-family:Inter, sans-serif; }
+  input:focus { outline:none; border-color:#1B72BE; box-shadow:0 0 0 3px #E7F0FA; }
+  @media print { body { background:#fff; } .noprint { display:none !important; } }
+</style>
+</helmet>
+
+<div style="font-family:Inter,sans-serif;min-height:100vh;padding-bottom:60px">
+
+  <div style="background:#0F3D63;padding:34px 44px 30px;color:#fff">
+    <div style="max-width:1080px;margin:0 auto">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#39CC00">Mapa da Proteção</div>
+      <div style="font:600 34px Fraunces,serif;margin:8px 0 10px">Glossário</div>
+      <div style="font:400 14px/1.7 Inter,sans-serif;color:rgba(255,255,255,.72);max-width:700px">Uma palavra por conceito. Quando um pedido usa estes termos, não sobra ambiguidade sobre qual tela, qual número ou qual etapa você quer mudar.</div>
+      <div class="noprint" style="margin-top:22px">
+        <input type="text" placeholder="Filtrar termo…" value="{{ busca.value }}" onChange="{{ busca.onChange }}" style="width:320px;padding:11px 14px;border:1.5px solid rgba(255,255,255,.28);border-radius:999px;font:500 13px Inter,sans-serif;color:#fff;background:rgba(255,255,255,.1);box-sizing:border-box">
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1080px;margin:0 auto;padding:26px 44px 0">
+    <div style="display:flex;flex-direction:column;gap:28px">
+      <sc-for list="{{ secoes }}" as="s" hint-placeholder-count="5">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px">
+            <div style="font:600 20px Fraunces,serif;color:#0F3D63">{{ s.nome }}</div>
+            <div style="font:600 11px Inter,sans-serif;color:#8FA0AF">{{ s.contagem }}</div>
+          </div>
+          <div style="font:400 12.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:14px;max-width:720px">{{ s.sub }}</div>
+          <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;overflow:hidden">
+            <sc-for list="{{ s.termos }}" as="t" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:210px 1fr;gap:22px;padding:16px 22px;border-bottom:1px solid #EDF2F7">
+                <div>
+                  <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63">{{ t.termo }}</div>
+                  <div style="font:400 11px Inter,sans-serif;color:#8FA0AF;margin-top:3px">{{ t.onde }}</div>
+                </div>
+                <div>
+                  <div style="font:400 12.5px/1.7 Inter,sans-serif;color:#1A1A1A">{{ t.def }}</div>
+                  <div style="font:500 11.5px/1.6 Inter,sans-serif;color:{{ t.notaCor }};margin-top:5px">{{ t.nota }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top:30px;background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+      <div style="font:600 17px Fraunces,serif;color:#0F3D63;margin-bottom:4px">Pares que costumam se confundir</div>
+      <div style="font:400 12.5px Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">São os que geram retrabalho quando trocados em um pedido.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <sc-for list="{{ pares }}" as="p" hint-placeholder-count="4">
+          <div style="border:1px solid #DEE7EF;border-radius:10px;padding:15px 17px">
+            <div style="font:700 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:7px">{{ p.titulo }}</div>
+            <div style="font:400 12px/1.7 Inter,sans-serif;color:#1A1A1A">{{ p.texto }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="margin-top:22px;background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:20px 24px">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8a6a00;margin-bottom:12px">Como fica um pedido usando o glossário</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ exemplos }}" as="e" hint-placeholder-count="3">
+          <div style="font:400 12.5px/1.7 Inter,sans-serif;color:#1A1A1A">{{ e }}</div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1180, &quot;height&quot;: 900 }
+}">
+const SECOES = [
+  {
+    nome: 'Pessoas', sub: 'Quem aparece no sistema, e em que momento cada nome passa a valer.',
+    termos: [
+      { termo: 'Corretor', onde: 'usuário do sistema', def: 'Você. Quem faz login, preenche, apresenta e envia. Hoje é um só; a estrutura já separa os dados por corretor.' },
+      { termo: 'Lead', onde: 'link de captação', def: 'Quem preencheu o formulário público com nome, telefone e e-mail. Nasce no topo do funil, com ou sem reunião marcada.' },
+      { termo: 'Cliente', onde: 'CRM', def: 'A pessoa cadastrada, com página própria e histórico. Um lead vira cliente no primeiro preenchimento; preencher de novo com o mesmo telefone ou e-mail não cria outro.' },
+      { termo: 'Segurado', onde: 'estudo', def: 'A pessoa cuja renda está sendo protegida no estudo. Quase sempre é o cliente, mas o termo é o que aparece nas contas.' },
+      { termo: 'Dependente', onde: 'estudo', def: 'Quem depende financeiramente da renda do segurado: filho, cônjuge, pai, mãe.' }
+    ]
+  },
+  {
+    nome: 'Estados do estudo', sub: 'A distinção mais importante do sistema: o que ainda muda e o que já está fechado.',
+    termos: [
+      { termo: 'Estudo', onde: 'aba Estudo', def: 'O conjunto de respostas do cliente. Enquanto está em aberto, aceita alteração e recalcula com os fatores atuais.', nota: 'Salvar quantas vezes quiser.' },
+      { termo: 'Mapa da Proteção', onde: 'botão Gerar', def: 'O estudo fechado. Ao gerar, os valores param de mudar mesmo que os fatores de cálculo mudem depois. É o que você apresenta.', nota: 'Não aceita mais edição.' },
+      { termo: 'Duplicar estudo', onde: 'página do cliente', def: 'Único caminho depois de gerar. Copia as respostas para um estudo novo, que você altera e gera como outro mapa.', nota: 'Informação nova vira estudo novo, não correção do antigo.' },
+      { termo: 'Fatores de cálculo', onde: 'Ajustes', def: 'Os parâmetros do racional: custo de transmissão, prazos, fator do autônomo, meses de DIT e de doenças graves.', nota: 'Mudar afeta estudos em aberto; mapas gerados ficam intactos.' }
+    ]
+  },
+  {
+    nome: 'Números do racional', sub: 'O vocabulário do cálculo. Cada termo tem uma conta atrás dele.',
+    termos: [
+      { termo: 'Renda equivalente', onde: 'etapa Perfil', def: 'A renda de cada vínculo ajustada pelo fator de risco daquele vínculo, somada. O fator incide por fonte, não sobre o total.' },
+      { termo: 'Renda familiar', onde: 'etapa Perfil', def: 'Renda do segurado mais o cônjuge, quando incluído, mais as rendas permanentes de terceiros.' },
+      { termo: 'Participação', onde: 'etapa Perfil', def: 'Quanto a renda do segurado representa da renda familiar. Multiplica a temporária e a pensão de educação.' },
+      { termo: 'Cobertura vitalícia', onde: 'resultado', def: 'Patrimônio total × percentual de custo de transmissão, mais um ano de renda do segurado. Resolve inventário e transição.' },
+      { termo: 'Cobertura temporária', onde: 'resultado', def: 'Manutenção do padrão de vida pelo prazo escolhido, ajustada pela participação, menos as receitas liquidáveis, mais os objetivos incluídos.' },
+      { termo: 'Pensão de educação', onde: 'resultado', def: 'Custo educacional total diluído no prazo da pensão, como renda mensal em vez de pagamento único.' },
+      { termo: 'Custo educacional', onde: 'etapa Dependentes', def: 'Soma, por filho e por fase, do valor mensal até os 25 anos, mais as despesas extras de estudo pelo prazo de cada uma.' },
+      { termo: 'Bem liquidável', onde: 'etapa Patrimônio', def: 'Bem que vira dinheiro em poucos dias. Entra no custo de transmissão como qualquer outro, mas também abate a necessidade de capital.' },
+      { termo: 'Receitas liquidáveis', onde: 'etapa Patrimônio', def: 'Patrimônio liquidável, FGTS, INSS, previdência privada e o seguro já contratado. É o que a família já tem.' },
+      { termo: 'Capital a proteger', onde: 'resultado', def: 'A necessidade total menos as receitas liquidáveis. O número que a proposta apresenta.' },
+      { termo: 'Teto de razoabilidade', onde: 'etapa Dependentes', def: 'Limite em múltiplos da renda anual. Quando a necessidade passa dele, o valor apresentado é cortado e o sistema avisa.' },
+      { termo: 'DIT', onde: 'resultado', def: 'Diária por incapacidade temporária. Renda mensal enquanto durar o afastamento.' },
+      { termo: 'Doenças graves', onde: 'resultado', def: 'Capital pago no diagnóstico, calculado em múltiplos da renda anual.' }
+    ]
+  },
+  {
+    nome: 'Saídas', sub: 'Três formatos do mesmo mapa. Nomear certo evita mexer no documento errado.',
+    termos: [
+      { termo: 'Apresentação', onde: 'PDF 16:9', def: 'Seis telas para a reunião, letras grandes, cartão de contato no fim. Vai na tela ou na TV.' },
+      { termo: 'Proposta', onde: 'PDF A4', def: 'Três páginas para imprimir e deixar com o cliente: resumo, gráficos e detalhamento das coberturas.' },
+      { termo: 'E-mail do mapa', onde: 'compositor', def: 'Resumo no corpo da mensagem com a proposta anexada. Só sai se você enviar.' },
+      { termo: 'Análise interna', onde: 'resultado', def: 'Os argumentos de venda gerados pela IA. Fica só na sua tela — nunca entra no PDF nem no e-mail.' },
+      { termo: 'Resumo para você', onde: 'resultado e PDF', def: 'O texto do cliente, escrito a partir dos números. Esse sim vai na proposta.' }
+    ]
+  },
+  {
+    nome: 'Captação e CRM', sub: 'O caminho do anúncio até a reunião.',
+    termos: [
+      { termo: 'Link de captação', onde: 'aba Link', def: 'Um único endereço público, usado no tráfego pago. Não existe link por cliente.' },
+      { termo: 'Página do lead', onde: 'público', def: 'O formulário que o lead preenche sozinho, na redação dele, com consentimento LGPD no fim.' },
+      { termo: 'Horários sugeridos', onde: 'Ajustes', def: 'Dias, faixas e duração que a página do lead oferece. Ele escolhe um e a ferramenta lança no Google Agenda com nome e contato.' },
+      { termo: 'Funil', onde: 'Dashboard', def: 'Os estágios do acompanhamento: lead, estudo, apresentado, cotando, fechado, perdido.' },
+      { termo: 'Cotação', onde: 'depois da V1', def: 'Os prêmios das seguradoras para o capital calculado. Não se confunde com o estudo.' }
+    ]
+  }
+];
+
+const PARES = [
+  { titulo: 'Estudo × Mapa da Proteção', texto: 'Estudo é o que ainda muda; mapa é o que foi gerado e travou. "Ajuste o estudo" mexe no formulário. "Ajuste o mapa" é impossível — nesse caso o caminho é duplicar.' },
+  { titulo: 'Apresentação × Proposta', texto: 'Apresentação é o PDF 16:9 da reunião. Proposta é o A4 de imprimir. Pedir "mexer no PDF" sem dizer qual custa uma rodada.' },
+  { titulo: 'Lead × Cliente', texto: 'Lead é quem chegou pelo link. Cliente é quem tem página e histórico. Todo lead é cliente; nem todo cliente veio de lead.' },
+  { titulo: 'Renda equivalente × renda familiar', texto: 'A equivalente é a do segurado com o fator de risco aplicado. A familiar soma cônjuge e terceiros, e serve para achar a participação.' },
+  { titulo: 'Cobertura vitalícia × temporária', texto: 'Vitalícia resolve inventário e o primeiro ano. Temporária mantém o padrão de vida pelo prazo escolhido.' },
+  { titulo: 'Custo educacional × pensão de educação', texto: 'O custo é o total até a formação. A pensão é esse total diluído em mensalidades pelo prazo escolhido.' }
+];
+
+const EXEMPLOS = [
+  'Em vez de "muda o cálculo dos filhos": "no custo educacional, considerar a fase superior até os 24 e não 22".',
+  'Em vez de "arruma o PDF": "na proposta, página 3, tirar as referências do cálculo".',
+  'Em vez de "o valor está errado": "a cobertura temporária não deveria abater o seguro atual, só o INSS e a previdência".',
+  'Em vez de "adiciona no dashboard": "no funil, incluir o estágio cotando entre apresentado e fechado".'
+];
+
+class Component extends DCLogic {
+  state = { q: '' };
+  renderVals() {
+    const q = (this.state.q || '').trim().toLowerCase();
+    const passa = t => !q || (t.termo + ' ' + t.def + ' ' + t.onde).toLowerCase().indexOf(q) !== -1;
+    const secoes = SECOES.map(s => {
+      const termos = s.termos.filter(passa).map(t => ({
+        termo: t.termo, onde: t.onde, def: t.def,
+        nota: t.nota || '', notaCor: t.nota ? '#C4570B' : 'transparent'
+      }));
+      return { nome: s.nome, sub: s.sub, contagem: termos.length + (termos.length === 1 ? ' termo' : ' termos'), termos };
+    }).filter(s => s.termos.length);
+    return {
+      secoes, pares: PARES, exemplos: EXEMPLOS,
+      busca: { value: this.state.q, onChange: e => this.setState({ q: e.target.value }) }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

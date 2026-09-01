@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#F3F6FA; }
+  a { color:#1B72BE; } a:hover { color:#0F3D63; }
+  input, button, select { font-family:Inter, sans-serif; }
+  input:focus, select:focus { outline:none; border-color:#1B72BE; box-shadow:0 0 0 3px #E7F0FA; }
+</style>
+</helmet>
+
+<div style="font-family:Inter,sans-serif;min-height:100vh;display:flex;align-items:stretch">
+
+  <div style="width:216px;flex:none;box-sizing:border-box;background:#0F3D63;padding:20px 16px;display:flex;flex-direction:column;gap:22px">
+    <div style="display:flex;align-items:center;gap:10px;padding:0 4px">
+      <div style="width:32px;height:32px;border-radius:8px;border:1px dashed rgba(255,255,255,.45);display:grid;place-items:center;font:600 7.5px Inter,sans-serif;color:rgba(255,255,255,.6);flex:none">LOGO</div>
+      <div>
+        <div style="font:600 13px Fraunces,serif;color:#fff">Mapa da Proteção</div>
+        <div style="font:400 10px Inter,sans-serif;color:rgba(255,255,255,.5)">Setor Norte</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <sc-for list="{{ menu }}" as="m" hint-placeholder-count="6">
+        <div onClick="{{ m.ir }}" style="display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:10px 12px;border-radius:8px;font:600 12.5px Inter,sans-serif;color:{{ m.cor }};background:{{ m.bg }}">
+          <span>{{ m.rotulo }}</span>
+          <span style="font:700 10px Inter,sans-serif;color:{{ m.badgeCor }};background:{{ m.badgeBg }};padding:2px 6px;border-radius:99px">{{ m.badge }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top:auto;border-top:1px solid rgba(255,255,255,.14);padding-top:16px">
+      <div onClick="{{ irEstudo }}" style="cursor:pointer;font:700 12.5px Inter,sans-serif;color:#0F3D63;background:#39CC00;padding:11px;border-radius:8px;text-align:center">+ Novo estudo</div>
+      <div style="display:flex;align-items:center;gap:9px;margin-top:16px;padding:0 2px">
+        <div style="width:30px;height:30px;border-radius:50%;border:1px dashed rgba(255,255,255,.4);display:grid;place-items:center;font:600 7px Inter,sans-serif;color:rgba(255,255,255,.55);flex:none">FOTO</div>
+        <div>
+          <div style="font:600 11.5px Inter,sans-serif;color:#fff">Edgar Torres</div>
+          <div style="font:400 10px Inter,sans-serif;color:rgba(255,255,255,.5)">SUSEP 202087923</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1;min-width:0">
+
+    <!-- DASHBOARD -->
+    <sc-if value="{{ ehDash }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:28px 32px 60px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:24px">
+        <div>
+          <div style="font:600 27px Fraunces,serif;color:#0F3D63">{{ saudacao }}</div>
+          <div style="font:400 13px Inter,sans-serif;color:#5B6B7A;margin-top:4px">{{ resumoDia }}</div>
+        </div>
+        <div style="font:400 11.5px Inter,sans-serif;color:#8FA0AF">{{ dataHoje }}</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px">
+        <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+          <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:17px 19px">
+            <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF">{{ k.rotulo }}</div>
+            <div style="font:600 26px Fraunces,serif;color:{{ k.cor }};margin:5px 0 3px">{{ k.valor }}</div>
+            <div style="font:400 11px Inter,sans-serif;color:#5B6B7A">{{ k.nota }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ temAvisos }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:18px 22px;margin-bottom:22px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:12px">
+          <div>
+            <div style="font:600 14.5px Inter,sans-serif;color:#8a6a00">Mapas parados há mais de 120 dias</div>
+            <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#8a6a00;margin-top:2px">Nada é excluído sem a sua autorização. Cliente fechado não entra nesta contagem.</div>
+          </div>
+          <div style="font:700 26px Fraunces,serif;color:#8a6a00">{{ nAvisos }}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ avisos }}" as="a" hint-placeholder-count="1">
+            <div style="background:#fff;border:1px solid #EEDCA6;border-radius:9px;padding:12px 15px;display:flex;align-items:center;gap:14px">
+              <div onClick="{{ a.abrir }}" style="flex:1;cursor:pointer">
+                <div style="font:600 13px Inter,sans-serif;color:#0F3D63">{{ a.nome }}</div>
+                <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-top:2px">{{ a.detalhe }}</div>
+              </div>
+              <div onClick="{{ a.abrir }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE;white-space:nowrap">Retomar contato</div>
+              <div onClick="{{ a.excluir }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#C4570B;border:1.5px solid #F0CBA8;padding:8px 13px;border-radius:999px;white-space:nowrap">Excluir mapa</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+            <div style="font:600 16px Fraunces,serif;color:#0F3D63">Precisa de você hoje</div>
+            <div onClick="{{ irFunil }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE">ver o funil</div>
+          </div>
+          <div style="font:400 11.5px Inter,sans-serif;color:#8FA0AF;margin-bottom:14px">Ordenado por quanto tempo está parado.</div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ fila }}" as="i" hint-placeholder-count="5">
+              <div onClick="{{ i.abrir }}" style="cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid #EDF2F7">
+                <div>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="width:7px;height:7px;border-radius:50%;flex:none;background:{{ i.cor }}"></span>
+                    <span style="font:600 13px Inter,sans-serif;color:#1A1A1A">{{ i.nome }}</span>
+                    <span style="font:600 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:{{ i.cor }};background:{{ i.tagBg }};padding:3px 7px;border-radius:99px">{{ i.estagio }}</span>
+                  </div>
+                  <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-top:4px">{{ i.acao }}</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font:700 12px Inter,sans-serif;color:{{ i.diasCor }}">{{ i.diasTexto }}</div>
+                  <div style="font:400 11px Inter,sans-serif;color:#8FA0AF;margin-top:2px">{{ i.capital }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+            <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:14px">Funil agora</div>
+            <div style="display:flex;flex-direction:column;gap:11px">
+              <sc-for list="{{ barrasFunil }}" as="b" hint-placeholder-count="6">
+                <div onClick="{{ b.ir }}" style="cursor:pointer">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+                    <span style="font:600 12px Inter,sans-serif;color:#1A1A1A">{{ b.nome }}</span>
+                    <span style="font:700 12px Inter,sans-serif;color:{{ b.cor }}">{{ b.n }}</span>
+                  </div>
+                  <div style="height:8px;border-radius:99px;background:#F3F6FA;overflow:hidden"><div style="height:100%;background:{{ b.cor }};width:{{ b.largura }}"></div></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+            <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:4px">Link de captação</div>
+            <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:12px">Um link só, para todos os anúncios.</div>
+            <div style="background:#F3F6FA;border:1px solid #DEE7EF;border-radius:8px;padding:11px 13px;font:500 11.5px Inter,sans-serif;color:#0F3D63;word-break:break-all">{{ link }}</div>
+            <div style="display:flex;gap:22px;margin-top:14px">
+              <sc-for list="{{ statsLink }}" as="s" hint-placeholder-count="3">
+                <div>
+                  <div style="font:400 10.5px Inter,sans-serif;color:#8FA0AF">{{ s.rotulo }}</div>
+                  <div style="font:700 16px Inter,sans-serif;color:#0F3D63;margin-top:1px">{{ s.valor }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- FUNIL -->
+    <sc-if value="{{ ehFunil }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:28px 32px 60px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:6px">
+        <div style="font:600 27px Fraunces,serif;color:#0F3D63">Funil</div>
+        <div style="font:400 11.5px Inter,sans-serif;color:#8FA0AF">{{ totalFunil }}</div>
+      </div>
+      <div style="font:400 12.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:20px;max-width:640px">Todo preenchimento do link entra em Lead, com reunião marcada ou não. Um cliente sem nenhum estudo sai do funil e volta a ser contato na lista.</div>
+
+      <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;align-items:start">
+        <sc-for list="{{ colunas }}" as="c" hint-placeholder-count="6">
+          <div style="background:#EDF2F7;border-radius:12px;padding:12px 11px;min-height:200px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px">
+              <div style="display:flex;align-items:center;gap:7px;min-width:0">
+                <span style="width:8px;height:8px;border-radius:50%;flex:none;background:{{ c.cor }}"></span>
+                <span style="font:700 11.5px Inter,sans-serif;color:#0F3D63;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.nome }}</span>
+              </div>
+              <span style="font:700 11px Inter,sans-serif;color:#5B6B7A;flex:none">{{ c.n }}</span>
+            </div>
+            <div style="font:400 10.5px Inter,sans-serif;color:#8FA0AF;margin-bottom:11px">{{ c.soma }}</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ c.cards }}" as="cd" hint-placeholder-count="2">
+                <div onClick="{{ cd.abrir }}" style="cursor:pointer;background:#fff;border:1px solid #DEE7EF;border-left:3px solid {{ cd.cor }};border-radius:8px;padding:11px 12px">
+                  <div style="font:600 12px/1.35 Inter,sans-serif;color:#1A1A1A">{{ cd.nome }}</div>
+                  <div style="font:400 10.5px Inter,sans-serif;color:#8FA0AF;margin-top:3px">{{ cd.profissao }}</div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:8px">
+                    <span style="font:700 11.5px Inter,sans-serif;color:#0F3D63">{{ cd.capital }}</span>
+                    <span style="font:600 10px Inter,sans-serif;color:{{ cd.diasCor }};white-space:nowrap">{{ cd.dias }}</span>
+                  </div>
+                </div>
+              </sc-for>
+              <sc-if value="{{ c.vazio }}" hint-placeholder-val="{{ false }}">
+                <div style="border:1.5px dashed #CBD6E1;border-radius:8px;padding:14px 12px;font:500 11px/1.5 Inter,sans-serif;color:#8FA0AF;text-align:center">{{ c.textoVazio }}</div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:18px 22px;margin-top:18px;display:flex;gap:34px;align-items:center;flex-wrap:wrap">
+        <sc-for list="{{ metricasFunil }}" as="m" hint-placeholder-count="4">
+          <div>
+            <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF">{{ m.rotulo }}</div>
+            <div style="font:600 21px Fraunces,serif;color:{{ m.cor }};margin-top:3px">{{ m.valor }}</div>
+          </div>
+        </sc-for>
+        <div style="flex:1;min-width:200px;font:400 11.5px/1.6 Inter,sans-serif;color:#8FA0AF;text-align:right">Cotação por seguradora fica para depois da V1. Enquanto isso, o prêmio anotado é o que você levantou por fora.</div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- CLIENTES -->
+    <sc-if value="{{ ehClientes }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:28px 32px 60px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:18px">
+        <div>
+          <div style="font:600 27px Fraunces,serif;color:#0F3D63">Clientes</div>
+          <div style="font:400 12.5px Inter,sans-serif;color:#5B6B7A;margin-top:4px">{{ resumoClientes }}</div>
+        </div>
+        <input type="text" placeholder="Buscar por nome, profissão ou telefone…" value="{{ busca.value }}" onChange="{{ busca.onChange }}" style="width:300px;padding:11px 14px;border:1.5px solid #DEE7EF;border-radius:999px;font:500 12.5px Inter,sans-serif;background:#fff;box-sizing:border-box">
+      </div>
+
+      <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap">
+        <sc-for list="{{ filtros }}" as="fl" hint-placeholder-count="8">
+          <div onClick="{{ fl.escolher }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;padding:8px 14px;border-radius:999px;color:{{ fl.cor }};background:{{ fl.bg }};border:1.5px solid {{ fl.borda }}">{{ fl.rotulo }}</div>
+        </sc-for>
+      </div>
+
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:1.7fr 1.1fr 1fr 1fr 0.9fr;gap:14px;padding:12px 22px;background:#F7FAFD;border-bottom:1px solid #DEE7EF">
+          <sc-for list="{{ colunasTabela }}" as="ct" hint-placeholder-count="5">
+            <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#8FA0AF;text-align:{{ ct.align }}">{{ ct.rotulo }}</div>
+          </sc-for>
+        </div>
+        <sc-for list="{{ linhas }}" as="l" hint-placeholder-count="8">
+          <div onClick="{{ l.abrir }}" style="cursor:pointer;display:grid;grid-template-columns:1.7fr 1.1fr 1fr 1fr 0.9fr;gap:14px;padding:14px 22px;border-bottom:1px solid #EDF2F7;align-items:center">
+            <div>
+              <div style="font:600 13px Inter,sans-serif;color:#1A1A1A">{{ l.nome }}</div>
+              <div style="font:400 11px Inter,sans-serif;color:#8FA0AF;margin-top:2px">{{ l.sub }}</div>
+            </div>
+            <div>
+              <span style="font:600 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:{{ l.cor }};background:{{ l.tagBg }};padding:4px 9px;border-radius:99px">{{ l.estagio }}</span>
+            </div>
+            <div style="font:500 12px Inter,sans-serif;color:#5B6B7A">{{ l.mapas }}</div>
+            <div style="font:700 12.5px Inter,sans-serif;color:#0F3D63;text-align:right">{{ l.capital }}</div>
+            <div style="font:600 11.5px Inter,sans-serif;color:{{ l.diasCor }};text-align:right">{{ l.dias }}</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ semResultado }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:34px;text-align:center;font:500 13px Inter,sans-serif;color:#8FA0AF">Nenhum cliente com esse filtro.</div>
+        </sc-if>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- PÁGINA DO CLIENTE -->
+    <sc-if value="{{ ehCliente }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="background:#fff;border-bottom:1px solid #DEE7EF;padding:22px 32px 0">
+        <div onClick="{{ voltarLista }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE;margin-bottom:14px">← Clientes</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:24px">
+          <div style="display:flex;gap:16px;align-items:flex-start">
+            <div style="width:54px;height:54px;border-radius:50%;background:#E7F0FA;display:grid;place-items:center;font:600 19px Fraunces,serif;color:#0F3D63;flex:none">{{ c.inicial }}</div>
+            <div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="font:600 25px Fraunces,serif;color:#0F3D63">{{ c.nome }}</div>
+                <span style="font:600 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:{{ c.cor }};background:{{ c.tagBg }};padding:4px 10px;border-radius:99px">{{ c.estagio }}</span>
+              </div>
+              <div style="font:400 12.5px Inter,sans-serif;color:#5B6B7A;margin-top:5px">{{ c.subtitulo }}</div>
+              <div style="display:flex;gap:16px;margin-top:9px;font:500 12px Inter,sans-serif;color:#1B72BE;flex-wrap:wrap">
+                <span>{{ c.tel }}</span>
+                <span>{{ c.email }}</span>
+                <span style="color:#8FA0AF">{{ c.origem }}</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div onClick="{{ irEstudo }}" style="cursor:pointer;font:600 12px Inter,sans-serif;color:#0F3D63;border:1.5px solid #DEE7EF;background:#fff;padding:10px 16px;border-radius:999px;white-space:nowrap">Duplicar estudo</div>
+            <div onClick="{{ irEstudo }}" style="cursor:pointer;font:700 12.5px Inter,sans-serif;color:#fff;background:#1B72BE;padding:11px 18px;border-radius:999px;white-space:nowrap">Abrir mapa atual</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:2px;margin-top:20px">
+          <sc-for list="{{ abasCliente }}" as="ab" hint-placeholder-count="3">
+            <div onClick="{{ ab.ir }}" style="cursor:pointer;font:600 12.5px Inter,sans-serif;padding:11px 18px;border-radius:8px 8px 0 0;color:{{ ab.cor }};background:{{ ab.bg }};border-bottom:2px solid {{ ab.linha }}">{{ ab.rotulo }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="padding:24px 32px 60px">
+        <sc-if value="{{ abaResumo }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px">
+            <div>
+              <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px;margin-bottom:16px">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
+                  <div style="font:600 16px Fraunces,serif;color:#0F3D63">Mapas gerados</div>
+                  <div style="font:400 11.5px Inter,sans-serif;color:#8FA0AF">{{ c.contaMapas }}</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:9px">
+                  <sc-for list="{{ c.mapas }}" as="mp" hint-placeholder-count="2">
+                    <div style="border:1.5px solid {{ mp.borda }};border-radius:10px;padding:14px 16px;background:{{ mp.bg }}">
+                      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px">
+                        <div>
+                          <div style="display:flex;align-items:center;gap:8px">
+                            <span style="font:600 13.5px Inter,sans-serif;color:#0F3D63">{{ mp.rotulo }}</span>
+                            <span style="font:700 9px Inter,sans-serif;text-transform:uppercase;letter-spacing:.07em;color:{{ mp.seloCor }};background:{{ mp.seloBg }};padding:3px 7px;border-radius:99px">{{ mp.selo }}</span>
+                          </div>
+                          <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-top:4px">{{ mp.data }} · {{ mp.nota }}</div>
+                        </div>
+                        <div style="text-align:right;flex:none">
+                          <div style="font:600 17px Fraunces,serif;color:#0F3D63">{{ mp.capital }}</div>
+                          <div style="font:400 10.5px Inter,sans-serif;color:#8FA0AF">capital sugerido</div>
+                        </div>
+                      </div>
+                      <div style="display:flex;gap:14px;margin-top:12px;padding-top:11px;border-top:1px solid #EDF2F7">
+                        <span onClick="{{ irEstudo }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE">Abrir</span>
+                        <span onClick="{{ irEstudo }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE">Apresentação</span>
+                        <span onClick="{{ irEstudo }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE">Proposta</span>
+                        <span onClick="{{ irEstudo }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE">Duplicar</span>
+                        <span onClick="{{ pedirExcluir }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#C4570B;margin-left:auto">Excluir mapa</span>
+                      </div>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ c.semMapa }}" hint-placeholder-val="{{ false }}">
+                    <div style="border:1.5px dashed #CBD6E1;border-radius:10px;padding:26px;text-align:center">
+                      <div style="font:600 13.5px Inter,sans-serif;color:#5B6B7A">{{ c.textoSemMapa }}</div>
+                      <div onClick="{{ irEstudo }}" style="cursor:pointer;display:inline-block;font:700 12.5px Inter,sans-serif;color:#fff;background:#1B72BE;padding:11px 20px;border-radius:999px;margin-top:14px">Abrir o estudo</div>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+
+              <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+                <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:14px">Histórico</div>
+                <div style="display:flex;flex-direction:column">
+                  <sc-for list="{{ c.historico }}" as="h" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:52px 1fr;gap:14px;padding:11px 0;border-bottom:1px solid #EDF2F7">
+                      <div style="font:700 11px Inter,sans-serif;color:#8FA0AF;padding-top:1px">{{ h.data }}</div>
+                      <div style="font:400 12.5px/1.65 Inter,sans-serif;color:#1A1A1A">{{ h.texto }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+                <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:14px">Estágio no funil</div>
+                <div style="display:flex;flex-direction:column;gap:5px">
+                  <sc-for list="{{ c.etapasFunil }}" as="ef" hint-placeholder-count="6">
+                    <div onClick="{{ ef.mover }}" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:{{ ef.bg }};border:1px solid {{ ef.borda }}">
+                      <span style="width:18px;height:18px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 10px Inter,sans-serif;color:#fff;background:{{ ef.dot }}">{{ ef.marca }}</span>
+                      <span style="font:600 12.5px Inter,sans-serif;color:{{ ef.cor }}">{{ ef.nome }}</span>
+                      <span style="margin-left:auto;font:400 10.5px Inter,sans-serif;color:#8FA0AF">{{ ef.quando }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+                <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:12px">Dados do cadastro</div>
+                <div style="display:flex;flex-direction:column;gap:9px">
+                  <sc-for list="{{ c.cadastro }}" as="cd" hint-placeholder-count="6">
+                    <div style="display:flex;justify-content:space-between;gap:12px;font:500 12px Inter,sans-serif;color:#5B6B7A;padding-bottom:8px;border-bottom:1px dotted #DEE7EF">
+                      <span>{{ cd.rotulo }}</span><span style="font-weight:700;color:#1A1A1A;text-align:right">{{ cd.valor }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="font:400 11px/1.6 Inter,sans-serif;color:#8FA0AF;margin-top:12px">O cadastro sobrevive à exclusão de um mapa. Só sai do sistema a pedido do cliente, em Ajustes.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ abaMapas }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 17px Fraunces,serif;color:#0F3D63;margin-bottom:4px">Comparar mapas</div>
+          <div style="font:400 12px Inter,sans-serif;color:#5B6B7A;margin-bottom:18px">{{ c.textoComparar }}</div>
+          <sc-if value="{{ c.podeComparar }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ c.comparacao }}" as="cp" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 0.8fr;gap:16px;padding:13px 0;border-bottom:1px solid #EDF2F7;align-items:baseline">
+                <div style="font:600 12.5px Inter,sans-serif;color:#1A1A1A">{{ cp.rotulo }}</div>
+                <div style="font:500 13px Inter,sans-serif;color:#8FA0AF;text-align:right">{{ cp.antes }}</div>
+                <div style="font:700 13px Inter,sans-serif;color:#0F3D63;text-align:right">{{ cp.depois }}</div>
+                <div style="font:600 12px Inter,sans-serif;color:{{ cp.difCor }};text-align:right">{{ cp.dif }}</div>
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ abaNotas }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;max-width:720px">
+          <div style="font:600 17px Fraunces,serif;color:#0F3D63;margin-bottom:4px">Anotações da conversa</div>
+          <div style="font:400 12px Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">Ficam só com você. Não entram em PDF nem em e-mail.</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+            <sc-for list="{{ c.notas }}" as="n" hint-placeholder-count="2">
+              <div style="border-left:3px solid #39CC00;padding:2px 0 2px 14px">
+                <div style="font:700 10.5px Inter,sans-serif;color:#8FA0AF;margin-bottom:3px">{{ n.data }}</div>
+                <div style="font:400 12.5px/1.7 Inter,sans-serif;color:#1A1A1A">{{ n.texto }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <input type="text" placeholder="Escrever uma anotação…" style="width:100%;padding:12px 14px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 12.5px Inter,sans-serif;background:#fbfdff;box-sizing:border-box">
+        </div>
+        </sc-if>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ confirmando }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;background:rgba(15,61,99,.42);display:grid;place-items:center;z-index:20;padding:20px">
+    <div style="background:#fff;border-radius:14px;padding:26px 28px;width:440px;max-width:100%;box-sizing:border-box">
+      <div style="font:600 19px Fraunces,serif;color:#C4570B;margin-bottom:8px">Excluir este mapa?</div>
+      <div style="font:400 12.5px/1.75 Inter,sans-serif;color:#1A1A1A;margin-bottom:8px">{{ textoExcluir }}</div>
+      <div style="background:#FDF1E7;border:1px solid #F0CBA8;border-radius:9px;padding:12px 14px;font:400 12px/1.65 Inter,sans-serif;color:#C4570B;margin-bottom:18px">Apaga o mapa e o estudo que o gerou. O cadastro com os dados pessoais fica. Se este for o único estudo, o cliente sai do funil e passa a ser só um contato.</div>
+      <div style="display:flex;gap:9px;justify-content:flex-end">
+        <div onClick="{{ cancelarExcluir }}" style="cursor:pointer;font:600 12.5px Inter,sans-serif;color:#5B6B7A;border:1.5px solid #DEE7EF;padding:11px 18px;border-radius:999px">Cancelar</div>
+        <div onClick="{{ cancelarExcluir }}" style="cursor:pointer;font:700 12.5px Inter,sans-serif;color:#fff;background:#C4570B;padding:12px 20px;border-radius:999px">Excluir mapa e estudo</div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1440, &quot;height&quot;: 940 }
+}">
+const ESTAGIOS = [
+  { k: 'lead',        nome: 'Lead',        cor: '#8FA0AF', vazio: 'Leads novos aparecem aqui' },
+  { k: 'estudo',      nome: 'Estudo',      cor: '#1B72BE', vazio: 'Nenhum estudo em aberto' },
+  { k: 'apresentado', nome: 'Apresentado', cor: '#0F3D63', vazio: 'Nada apresentado ainda' },
+  { k: 'cotando',     nome: 'Cotando',     cor: '#D9A400', vazio: 'Nenhuma cotação aberta' },
+  { k: 'fechado',     nome: 'Fechado',     cor: '#39CC00', vazio: 'Nenhuma apólice este mês' },
+  { k: 'perdido',     nome: 'Perdido',     cor: '#C4570B', vazio: 'Nada perdido' }
+];
+
+const CLIENTES = [
+  { id: 'marina', nome: 'Marina Albuquerque', profissao: 'Arquiteta', idade: 43, civil: 'Casada',
+    tel: '(96) 99123-4567', email: 'marina@email.com', origem: 'Link · campanha família',
+    estagio: 'apresentado', dias: 6, capital: 747785, filhos: 'Theo (14) e João (11)',
+    acao: 'Quer ver o prêmio parcelado. Sem retorno desde a apresentação.',
+    mapas: [
+      { rotulo: 'Mapa da Proteção v2', data: '25/08/2026', capital: 747785, atual: true, nota: 'apresentado em 26/08', vitalicia: 358500, temporaria: 389285, educacao: 759360, pensao: 3013 },
+      { rotulo: 'Mapa da Proteção v1', data: '12/08/2026', capital: 651000, atual: false, nota: 'antes do apartamento alugado', vitalicia: 306000, temporaria: 345000, educacao: 684000, pensao: 2714 }
+    ],
+    historico: [
+      { data: '26/08', texto: 'Apresentação por vídeo. Gostou da pensão de educação; pediu o prêmio parcelado.' },
+      { data: '25/08', texto: 'Mapa da Proteção v2 gerado. Capital subiu para R$ 1.284.000.' },
+      { data: '22/08', texto: 'Corrigiu a renda de conta própria: R$ 9.000, não R$ 7.500. Estudo duplicado.' },
+      { data: '12/08', texto: 'Preencheu o link de captação. Escolheu a tarde de 26/08.' }
+    ],
+    notas: [
+      { data: '26/08', texto: 'Decide junto com o marido, que é resistente a seguro. Vale mandar a proposta em PDF para os dois lerem no fim de semana.' },
+      { data: '12/08', texto: 'Trabalha por conta própria desde 2019 e sabe que não tem afastamento pago. Entrou no assunto sozinha.' }
+    ] },
+
+  { id: 'rogerio', nome: 'Rogério Tavares', profissao: 'Servidor público', idade: 51, civil: 'Casado',
+    tel: '(96) 98877-1200', email: 'rogerio.tavares@email.com', origem: 'Indicação · Marina',
+    estagio: 'cotando', dias: 3, capital: 640000, filhos: 'Lívia (19)',
+    acao: 'Cotação em três seguradoras prometida para sexta.',
+    mapas: [{ rotulo: 'Mapa da Proteção v1', data: '28/08/2026', capital: 640000, atual: true, nota: 'RPPS reduz a lacuna', vitalicia: 198000, temporaria: 442000, educacao: 192000, pensao: 890 }],
+    historico: [
+      { data: '28/08', texto: 'Pediu cotação em três seguradoras. Prazo até sexta.' },
+      { data: '27/08', texto: 'Mapa gerado e apresentado no escritório.' },
+      { data: '20/08', texto: 'Indicado pela Marina. Primeiro contato por WhatsApp.' }
+    ],
+    notas: [{ data: '27/08', texto: 'Já entende que o RPPS cobre a pensão. O que o pegou foi o custo do inventário do sítio.' }] },
+
+  { id: 'juliana', nome: 'Juliana Serra', profissao: 'Dentista', idade: 36, civil: 'União estável',
+    tel: '(96) 99400-3311', email: 'ju.serra@email.com', origem: 'Link · campanha autônomos',
+    estagio: 'estudo', dias: 1, capital: 0, filhos: 'Bento (4)',
+    acao: 'Falta o patrimônio para fechar o estudo. Reunião hoje à tarde.',
+    mapas: [], historico: [
+      { data: '30/08', texto: 'Preencheu o link. Falta o patrimônio.' },
+      { data: '30/08', texto: 'Escolheu a tarde de 01/09. Lançado na agenda.' }
+    ], notas: [] },
+
+  { id: 'anderson', nome: 'Anderson Pinho', profissao: 'Comerciante', idade: 47, civil: 'Casado',
+    tel: '(96) 98122-7788', email: 'anderson.pinho@email.com', origem: 'Link · campanha família',
+    estagio: 'fechado', dias: 11, capital: 980000, filhos: 'Ana (16) e Pedro (9)',
+    acao: 'Apólice emitida. Pedir indicações.',
+    mapas: [{ rotulo: 'Mapa da Proteção v1', data: '14/08/2026', capital: 980000, atual: true, nota: 'apólice emitida em 20/08', vitalicia: 231000, temporaria: 749000, educacao: 512000, pensao: 2140 }],
+    historico: [
+      { data: '20/08', texto: 'Apólice emitida. Vitalícia e temporária conforme o mapa.' },
+      { data: '16/08', texto: 'Escolheu a proposta com pensão de educação de 15 anos.' },
+      { data: '14/08', texto: 'Mapa gerado e apresentado.' }
+    ],
+    notas: [{ data: '20/08', texto: 'Indicou o Heitor. Prometeu falar com dois sócios em setembro.' }] },
+
+  { id: 'carla', nome: 'Carla Buriti', profissao: 'Professora', idade: 39, civil: 'Solteira',
+    tel: '(96) 99655-2044', email: 'carla.buriti@email.com', origem: 'Link · campanha família',
+    estagio: 'lead', dias: 0, capital: 0, filhos: 'Sofia (7)',
+    acao: 'Preencheu há 40 minutos e não escolheu horário. Ligar hoje.',
+    mapas: [], historico: [{ data: '31/08', texto: 'Preencheu o link. Não escolheu horário.' }], notas: [] },
+
+  { id: 'wesley', nome: 'Wesley Damasceno', profissao: 'Motorista de aplicativo', idade: 33, civil: 'União estável',
+    tel: '(96) 98033-9911', email: 'wesley.d@email.com', origem: 'Link · campanha autônomos',
+    estagio: 'lead', dias: 2, capital: 0, filhos: 'sem filhos',
+    acao: 'Propôs sábado de manhã no campo aberto. Confirmar.',
+    mapas: [], historico: [{ data: '29/08', texto: 'Preencheu o link. Propôs sábado de manhã.' }], notas: [] },
+
+  { id: 'silvana', nome: 'Silvana Kruger', profissao: 'Farmacêutica', idade: 44, civil: 'Divorciada',
+    tel: '(96) 99711-4050', email: 'silvana.k@email.com', origem: 'Link · campanha família',
+    estagio: 'apresentado', dias: 128, capital: 720000, filhos: 'Otávio (12)',
+    acao: 'Sem retorno há 128 dias. Mapa na fila de limpeza.',
+    mapas: [{ rotulo: 'Mapa da Proteção v1', data: '24/04/2026', capital: 720000, atual: true, nota: 'sem retorno desde a apresentação', vitalicia: 186000, temporaria: 534000, educacao: 288000, pensao: 1180 }],
+    historico: [
+      { data: '25/04', texto: 'Apresentado. Disse que ia pensar até o mês seguinte.' },
+      { data: '24/04', texto: 'Mapa gerado.' }
+    ], notas: [] },
+
+  { id: 'heitor', nome: 'Heitor Braga', profissao: 'Engenheiro', idade: 41, civil: 'Casado',
+    tel: '(96) 98466-3322', email: 'heitor.braga@email.com', origem: 'Indicação · Anderson',
+    estagio: 'perdido', dias: 34, capital: 1420000, filhos: 'Manuela (6) e Tomás (3)',
+    acao: 'Perdido por prêmio. Retomar em janeiro.',
+    mapas: [{ rotulo: 'Mapa da Proteção v1', data: '22/07/2026', capital: 1420000, atual: true, nota: 'prêmio acima do orçamento', vitalicia: 312000, temporaria: 1108000, educacao: 890000, pensao: 3710 }],
+    historico: [
+      { data: '28/07', texto: 'Perdido. Motivo: prêmio acima do orçamento. Retomar em janeiro.' },
+      { data: '23/07', texto: 'Apresentado. Achou o capital correto e o prêmio alto.' }
+    ], notas: [{ data: '28/07', texto: 'Não é objeção de valor, é de fluxo: acabou de financiar a casa. Janeiro é real.' }] },
+
+  { id: 'patricia', nome: 'Patrícia Nunes', profissao: 'Nutricionista', idade: 30, civil: 'Solteira',
+    tel: '(96) 99288-1177', email: 'patricia.nunes@email.com', origem: 'Link · campanha autônomos',
+    estagio: 'estudo', dias: 4, capital: 0, filhos: 'sem filhos',
+    acao: 'Reunião marcada para 02/09 à tarde.',
+    mapas: [], historico: [{ data: '27/08', texto: 'Preencheu o link. Reunião em 02/09.' }], notas: [] },
+
+  { id: 'edmilson', nome: 'Edmilson Rocha', profissao: 'Pescador', idade: 55, civil: 'Casado',
+    tel: '(96) 98544-6600', email: '—', origem: 'Contato direto',
+    estagio: null, dias: 61, capital: 0, filhos: 'três filhos adultos',
+    acao: 'Contato sem estudo. Fora do funil.',
+    mapas: [], historico: [{ data: '01/07', texto: 'Mapa anterior excluído; cadastro mantido.' }], notas: [] }
+];
+
+const brl = n => 'R$ ' + Math.round(n || 0).toLocaleString('pt-BR');
+const brlCurto = n => {
+  n = Math.round(n || 0);
+  if (n >= 1000000) return 'R$ ' + (n / 1000000).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + ' mi';
+  if (n >= 1000) return 'R$ ' + Math.round(n / 1000) + ' mil';
+  return brl(n);
+};
+const est = k => ESTAGIOS.find(e => e.k === k) || { nome: 'Contato', cor: '#8FA0AF' };
+const suave = hex => hex === '#8FA0AF' ? '#F3F6FA' : hex === '#1B72BE' ? '#E7F0FA' : hex === '#0F3D63' ? '#E7F0FA'
+  : hex === '#D9A400' ? '#FCF3D9' : hex === '#39CC00' ? '#EAFBE3' : '#FDF1E7';
+const diasTexto = d => d === 0 ? 'hoje' : d === 1 ? 'ontem' : d + ' dias';
+const diasCor = d => d >= 120 ? '#C4570B' : d >= 30 ? '#D9A400' : '#5B6B7A';
+
+class Component extends DCLogic {
+  state = { tela: 'dash', cliente: 'marina', abaCliente: 'resumo', filtro: 'todos', q: '', confirmando: null };
+
+  ir(tela, extra) { this.setState(Object.assign({ tela: tela }, extra || {})); }
+  abrirCliente(id) { this.setState({ tela: 'cliente', cliente: id, abaCliente: 'resumo' }); }
+
+  renderVals() {
+    const s = this.state;
+    const noFunil = CLIENTES.filter(c => c.estagio);
+    const leadsNovos = CLIENTES.filter(c => c.estagio === 'lead').length;
+    const parados = CLIENTES.filter(c => c.dias >= 120 && c.estagio !== 'fechado' && c.mapas.length);
+    const emAberto = CLIENTES.filter(c => c.estagio === 'estudo' || c.estagio === 'lead').length;
+    const fechados = CLIENTES.filter(c => c.estagio === 'fechado');
+    const pipeline = noFunil.filter(c => c.estagio !== 'perdido' && c.estagio !== 'fechado').reduce((a, c) => a + c.capital, 0);
+
+    const menuDef = [
+      { k: 'dash', rotulo: 'Dashboard', badge: parados.length ? String(parados.length) : '' },
+      { k: 'funil', rotulo: 'Funil', badge: String(noFunil.length) },
+      { k: 'clientes', rotulo: 'Clientes', badge: String(CLIENTES.length) },
+      { k: 'estudo', rotulo: 'Estudos', badge: emAberto ? String(emAberto) : '' },
+      { k: 'link', rotulo: 'Link de captação', badge: '' },
+      { k: 'ajustes', rotulo: 'Ajustes', badge: '' }
+    ];
+    const menu = menuDef.map(m => {
+      const on = s.tela === m.k || (m.k === 'clientes' && s.tela === 'cliente');
+      return { rotulo: m.rotulo, badge: m.badge,
+        ir: () => this.ir(m.k === 'clientes' ? 'clientes' : m.k),
+        cor: on ? '#0F3D63' : 'rgba(255,255,255,.78)',
+        bg: on ? '#fff' : 'transparent',
+        badgeCor: on ? '#fff' : '#0F3D63',
+        badgeBg: m.badge ? (on ? '#1B72BE' : 'rgba(255,255,255,.85)') : 'transparent' };
+    });
+
+    // dashboard
+    const fila = noFunil.filter(c => c.estagio !== 'fechado' && c.estagio !== 'perdido')
+      .slice().sort((a, b) => b.dias - a.dias).slice(0, 6).map(c => {
+        const e = est(c.estagio);
+        return { nome: c.nome, estagio: e.nome, cor: e.cor, tagBg: suave(e.cor), acao: c.acao,
+          diasTexto: diasTexto(c.dias), diasCor: diasCor(c.dias),
+          capital: c.capital ? brlCurto(c.capital) : 'sem mapa',
+          abrir: () => this.abrirCliente(c.id) };
+      });
+
+    const maxFunil = Math.max.apply(null, ESTAGIOS.map(e => noFunil.filter(c => c.estagio === e.k).length).concat([1]));
+    const barrasFunil = ESTAGIOS.map(e => {
+      const n = noFunil.filter(c => c.estagio === e.k).length;
+      return { nome: e.nome, n: String(n), cor: e.cor, largura: Math.round(n / maxFunil * 100) + '%', ir: () => this.ir('funil') };
+    });
+
+    const colunas = ESTAGIOS.map(e => {
+      const cs = noFunil.filter(c => c.estagio === e.k).slice().sort((a, b) => b.capital - a.capital);
+      const soma = cs.reduce((a, c) => a + c.capital, 0);
+      return { nome: e.nome, cor: e.cor, n: String(cs.length),
+        soma: soma ? brlCurto(soma) : '—',
+        vazio: cs.length === 0, textoVazio: e.vazio,
+        cards: cs.map(c => ({ nome: c.nome, profissao: c.profissao, cor: e.cor,
+          capital: c.capital ? brlCurto(c.capital) : 'sem mapa',
+          dias: diasTexto(c.dias), diasCor: diasCor(c.dias),
+          abrir: () => this.abrirCliente(c.id) })) };
+    });
+
+    // clientes
+    const filtrosDef = [{ k: 'todos', rotulo: 'Todos' }]
+      .concat(ESTAGIOS.map(e => ({ k: e.k, rotulo: e.nome })))
+      .concat([{ k: 'semfunil', rotulo: 'Fora do funil' }, { k: 'parados', rotulo: 'Parados 120+ dias' }]);
+    const filtros = filtrosDef.map(fl => {
+      const on = s.filtro === fl.k;
+      return { rotulo: fl.rotulo, escolher: () => this.setState({ filtro: fl.k }),
+        cor: on ? '#fff' : '#5B6B7A', bg: on ? '#0F3D63' : '#fff', borda: on ? '#0F3D63' : '#DEE7EF' };
+    });
+
+    const q = (s.q || '').trim().toLowerCase();
+    const lista = CLIENTES.filter(c => {
+      if (s.filtro === 'semfunil' && c.estagio) return false;
+      if (s.filtro === 'parados' && !(c.dias >= 120 && c.mapas.length)) return false;
+      if (s.filtro !== 'todos' && s.filtro !== 'semfunil' && s.filtro !== 'parados' && c.estagio !== s.filtro) return false;
+      if (q && (c.nome + ' ' + c.profissao + ' ' + c.tel).toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+    const linhas = lista.map(c => {
+      const e = est(c.estagio);
+      return { nome: c.nome, sub: c.profissao + ' · ' + c.idade + ' anos · ' + c.filhos,
+        estagio: c.estagio ? e.nome : 'Contato', cor: e.cor, tagBg: suave(e.cor),
+        mapas: c.mapas.length ? c.mapas.length + (c.mapas.length > 1 ? ' mapas' : ' mapa') : 'nenhum',
+        capital: c.capital ? brlCurto(c.capital) : '—',
+        dias: diasTexto(c.dias), diasCor: diasCor(c.dias),
+        abrir: () => this.abrirCliente(c.id) };
+    });
+
+    // página do cliente
+    const cl = CLIENTES.find(x => x.id === s.cliente) || CLIENTES[0];
+    const e = est(cl.estagio);
+    const atual = cl.mapas.find(m => m.atual);
+    const anterior = cl.mapas.filter(m => !m.atual)[0];
+    const ordem = ESTAGIOS.slice(0, 5);
+    const idxAtual = ordem.findIndex(o => o.k === cl.estagio);
+
+    const comparacao = (atual && anterior) ? [
+      { rotulo: 'Capital a proteger', a: anterior.capital, b: atual.capital },
+      { rotulo: 'Cobertura vitalícia', a: anterior.vitalicia, b: atual.vitalicia },
+      { rotulo: 'Cobertura temporária', a: anterior.temporaria, b: atual.temporaria },
+      { rotulo: 'Custo educacional', a: anterior.educacao, b: atual.educacao },
+      { rotulo: 'Pensão de educação (mês)', a: anterior.pensao, b: atual.pensao }
+    ].map(x => {
+      const dif = x.b - x.a;
+      const pctv = x.a ? Math.round(dif / x.a * 100) : 0;
+      return { rotulo: x.rotulo, antes: brl(x.a), depois: brl(x.b),
+        dif: (dif > 0 ? '+' : '') + pctv + '%', difCor: dif > 0 ? '#2f8a12' : dif < 0 ? '#C4570B' : '#8FA0AF' };
+    }) : [];
+
+    const c = {
+      nome: cl.nome, inicial: cl.nome.charAt(0),
+      estagio: cl.estagio ? e.nome : 'Contato · fora do funil', cor: e.cor, tagBg: suave(e.cor),
+      subtitulo: [cl.profissao, cl.idade + ' anos', cl.civil, cl.filhos].join(' · '),
+      tel: cl.tel, email: cl.email, origem: cl.origem,
+      contaMapas: cl.mapas.length ? cl.mapas.length + (cl.mapas.length > 1 ? ' versões' : ' versão') : 'nenhum mapa gerado',
+      semMapa: cl.mapas.length === 0,
+      textoSemMapa: cl.estagio ? 'O estudo está em aberto. Gere o Mapa da Proteção quando os dados estiverem completos.' : 'Este contato não tem estudo. Fora do funil até você abrir um.',
+      mapas: cl.mapas.map(m => ({
+        rotulo: m.rotulo, data: m.data, nota: m.nota, capital: brlCurto(m.capital),
+        selo: m.atual ? 'atual' : 'anterior',
+        seloCor: m.atual ? '#fff' : '#5B6B7A', seloBg: m.atual ? '#39CC00' : '#F3F6FA',
+        borda: m.atual ? '#C8EFB7' : '#DEE7EF', bg: m.atual ? '#F8FEF5' : '#fff'
+      })),
+      historico: cl.historico, notas: cl.notas.length ? cl.notas : [{ data: '—', texto: 'Nenhuma anotação ainda.' }],
+      etapasFunil: ordem.map((o, i) => {
+        const feito = idxAtual >= 0 && i < idxAtual, aqui = i === idxAtual;
+        return { nome: o.nome, marca: feito ? '✓' : aqui ? '●' : String(i + 1),
+          dot: feito ? '#39CC00' : aqui ? o.cor : '#CBD6E1',
+          bg: aqui ? suave(o.cor) : 'transparent', borda: aqui ? o.cor : 'transparent',
+          cor: aqui ? '#0F3D63' : feito ? '#5B6B7A' : '#8FA0AF',
+          quando: aqui ? diasTexto(cl.dias) : feito ? 'feito' : '',
+          mover: () => {} };
+      }),
+      cadastro: [
+        { rotulo: 'Nascimento', valor: (2026 - cl.idade) + ' · ' + cl.idade + ' anos' },
+        { rotulo: 'Estado civil', valor: cl.civil },
+        { rotulo: 'Profissão', valor: cl.profissao },
+        { rotulo: 'Dependentes', valor: cl.filhos },
+        { rotulo: 'WhatsApp', valor: cl.tel },
+        { rotulo: 'E-mail', valor: cl.email },
+        { rotulo: 'Origem', valor: cl.origem },
+        { rotulo: 'Consentimento LGPD', valor: 'aceito' }
+      ],
+      podeComparar: comparacao.length > 0, comparacao,
+      textoComparar: comparacao.length
+        ? 'O mapa anterior continua aqui. Comparar mostra o que a informação nova mudou.'
+        : 'Comparar exige pelo menos dois mapas gerados. Duplique o estudo quando surgir informação nova.'
+    };
+
+    return {
+      menu,
+      ehDash: s.tela === 'dash', ehFunil: s.tela === 'funil',
+      ehClientes: s.tela === 'clientes', ehCliente: s.tela === 'cliente',
+      saudacao: 'Bom dia, Edgar',
+      resumoDia: leadsNovos + (leadsNovos === 1 ? ' lead novo' : ' leads novos') + ' · ' + emAberto + ' estudos em aberto · ' + brlCurto(pipeline) + ' em capital no funil',
+      dataHoje: 'Segunda, 31 de agosto de 2026',
+      kpis: [
+        { rotulo: 'Leads este mês', valor: '14', nota: '6 agendaram reunião', cor: '#0F3D63' },
+        { rotulo: 'Capital no funil', valor: brlCurto(pipeline), nota: 'sem os fechados e perdidos', cor: '#1B72BE' },
+        { rotulo: 'Fechados no mês', valor: String(fechados.length), nota: brlCurto(fechados.reduce((a, x) => a + x.capital, 0)) + ' em capital', cor: '#2f8a12' },
+        { rotulo: 'Parados 120+ dias', valor: String(parados.length), nota: 'aguardam sua autorização', cor: parados.length ? '#C4570B' : '#8FA0AF' }
+      ],
+      temAvisos: parados.length > 0, nAvisos: String(parados.length),
+      avisos: parados.map(p => ({ nome: p.nome,
+        detalhe: p.mapas[0].rotulo + ' de ' + p.mapas[0].data + ' · ' + p.dias + ' dias sem movimento · ' + brlCurto(p.capital),
+        abrir: () => this.abrirCliente(p.id),
+        excluir: () => this.setState({ confirmando: p.id }) })),
+      fila, barrasFunil, colunas,
+      link: 'setornorteseguros.com.br/mapa?utm_campaign=familia',
+      statsLink: [
+        { rotulo: 'Aberturas', valor: '312' },
+        { rotulo: 'Preenchidos', valor: '14' },
+        { rotulo: 'Agendaram', valor: '6' }
+      ],
+      totalFunil: noFunil.length + ' clientes no funil · ' + (CLIENTES.length - noFunil.length) + ' contato fora',
+      metricasFunil: [
+        { rotulo: 'Capital em jogo', valor: brlCurto(pipeline), cor: '#0F3D63' },
+        { rotulo: 'Conversão lead → fechado', valor: '18%', cor: '#2f8a12' },
+        { rotulo: 'Tempo médio até fechar', valor: '11 dias', cor: '#0F3D63' },
+        { rotulo: 'Perdidos no mês', valor: '1', cor: '#C4570B' }
+      ],
+      resumoClientes: CLIENTES.length + ' cadastros · ' + noFunil.length + ' no funil · ' + (CLIENTES.length - noFunil.length) + ' contato sem estudo',
+      busca: { value: s.q, onChange: ev => this.setState({ q: ev.target.value }) },
+      filtros,
+      colunasTabela: [
+        { rotulo: 'Cliente', align: 'left' }, { rotulo: 'Estágio', align: 'left' },
+        { rotulo: 'Mapas', align: 'left' }, { rotulo: 'Capital', align: 'right' },
+        { rotulo: 'Último movimento', align: 'right' }
+      ],
+      linhas, semResultado: linhas.length === 0,
+      c,
+      abasCliente: [
+        { k: 'resumo', rotulo: 'Resumo' },
+        { k: 'mapas', rotulo: 'Comparar mapas' },
+        { k: 'notas', rotulo: 'Anotações' }
+      ].map(a => {
+        const on = s.abaCliente === a.k;
+        return { rotulo: a.rotulo, ir: () => this.setState({ abaCliente: a.k }),
+          cor: on ? '#0F3D63' : '#8FA0AF', bg: on ? '#F3F6FA' : 'transparent', linha: on ? '#1B72BE' : 'transparent' };
+      }),
+      abaResumo: s.abaCliente === 'resumo', abaMapas: s.abaCliente === 'mapas', abaNotas: s.abaCliente === 'notas',
+      voltarLista: () => this.ir('clientes'),
+      irEstudo: () => { window.location.href = 'Mapa da Proteção 1a+1b - Unificado.dc.html'; },
+      irFunil: () => this.ir('funil'),
+      confirmando: !!s.confirmando,
+      textoExcluir: s.confirmando
+        ? (CLIENTES.find(x => x.id === s.confirmando) || {}).nome + ' — ' + ((CLIENTES.find(x => x.id === s.confirmando) || { mapas: [{}] }).mapas[0].rotulo || 'mapa') + '.'
+        : '',
+      pedirExcluir: () => this.setState({ confirmando: cl.id }),
+      cancelarExcluir: () => this.setState({ confirmando: null })
+    };
+  }
+}
+
+</script>
+</body>
+</html>

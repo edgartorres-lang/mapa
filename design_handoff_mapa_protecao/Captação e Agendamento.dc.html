@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#F3F6FA; }
+  a { color:#1B72BE; } a:hover { color:#0F3D63; }
+  input, button, textarea { font-family:Inter, sans-serif; }
+  input:focus, textarea:focus { outline:none; border-color:#1B72BE; box-shadow:0 0 0 3px #E7F0FA; }
+</style>
+</helmet>
+
+<div style="font-family:Inter,sans-serif;min-height:100vh;display:flex;align-items:stretch">
+
+  <div style="width:250px;flex:none;box-sizing:border-box;background:#fff;border-right:1px solid #DEE7EF;padding:22px 18px">
+    <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#8FA0AF">Bloco 3</div>
+    <div style="font:600 18px Fraunces,serif;color:#0F3D63;margin:5px 0 6px">Captação</div>
+    <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:18px">Do anúncio até a reunião na sua agenda. O lead sai com horário marcado, não com PDF.</div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <sc-for list="{{ passos }}" as="p" hint-placeholder-count="5">
+        <div onClick="{{ p.ir }}" style="cursor:pointer;display:flex;gap:11px;padding:11px 12px;border-radius:9px;background:{{ p.bg }};border:1px solid {{ p.borda }}">
+          <div style="width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 10.5px Inter,sans-serif;color:#fff;background:{{ p.dot }}">{{ p.n }}</div>
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:{{ p.cor }}">{{ p.nome }}</div>
+            <div style="font:400 11px/1.5 Inter,sans-serif;color:#8FA0AF;margin-top:2px">{{ p.sub }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin-top:20px;padding:14px;border-radius:9px;background:#EAFBE3;border:1px solid #C8EFB7;font:400 11.5px/1.65 Inter,sans-serif;color:#2f8a12">Um link só para todas as campanhas. Nome, telefone e e-mail identificam o lead; repetido vira nova versão do estudo.</div>
+    <div onClick="{{ irPainel }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE;margin-top:18px">← Painel do corretor</div>
+  </div>
+
+  <div style="flex:1;min-width:0;padding:26px 32px 60px">
+    <div style="margin-bottom:20px">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF">{{ passoContador }}</div>
+      <div style="font:600 26px Fraunces,serif;color:#0F3D63;margin:5px 0 4px">{{ tituloTela }}</div>
+      <div style="font:400 13px/1.6 Inter,sans-serif;color:#5B6B7A;max-width:660px">{{ subTela }}</div>
+    </div>
+
+    <!-- 1. LINK DE CAPTAÇÃO -->
+    <sc-if value="{{ eh1 }}" hint-placeholder-val="{{ true }}">
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start">
+      <div>
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:4px">O endereço público</div>
+          <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-bottom:14px">Vale para tráfego pago, bio, QR em material impresso. Não existe link por cliente.</div>
+          <div style="display:flex;gap:9px;align-items:center;margin-bottom:16px">
+            <div style="flex:1;background:#F3F6FA;border:1px solid #DEE7EF;border-radius:9px;padding:13px 15px;font:600 13px Inter,sans-serif;color:#0F3D63;word-break:break-all">{{ linkBase }}</div>
+            <div style="font:700 12px Inter,sans-serif;color:#fff;background:#1B72BE;padding:13px 18px;border-radius:999px;cursor:pointer;white-space:nowrap">Copiar</div>
+          </div>
+          <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:10px">Uma variação por campanha</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ campanhas }}" as="cp" hint-placeholder-count="3">
+              <div style="border:1px solid #DEE7EF;border-radius:10px;padding:13px 15px;display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center">
+                <div>
+                  <div style="font:600 12.5px Inter,sans-serif;color:#1A1A1A">{{ cp.nome }}</div>
+                  <div style="font:400 11px Inter,sans-serif;color:#8FA0AF;margin-top:2px">{{ cp.url }}</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font:700 13px Inter,sans-serif;color:#0F3D63">{{ cp.leads }}</div>
+                  <div style="font:400 10px Inter,sans-serif;color:#8FA0AF">leads</div>
+                </div>
+                <div style="text-align:right;min-width:64px">
+                  <div style="font:700 13px Inter,sans-serif;color:{{ cp.taxaCor }}">{{ cp.taxa }}</div>
+                  <div style="font:400 10px Inter,sans-serif;color:#8FA0AF">agendaram</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font:600 12px Inter,sans-serif;color:#1B72BE;margin-top:14px;cursor:pointer">+ nova campanha</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:14px">Últimos 30 dias</div>
+          <div style="display:flex;gap:32px;margin-bottom:18px">
+            <sc-for list="{{ funilLink }}" as="fl" hint-placeholder-count="4">
+              <div>
+                <div style="font:400 10.5px Inter,sans-serif;color:#8FA0AF">{{ fl.rotulo }}</div>
+                <div style="font:600 24px Fraunces,serif;color:{{ fl.cor }};margin-top:2px">{{ fl.valor }}</div>
+                <div style="font:400 10.5px Inter,sans-serif;color:#8FA0AF;margin-top:1px">{{ fl.nota }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ barrasLink }}" as="b" hint-placeholder-count="4">
+              <div>
+                <div style="display:flex;justify-content:space-between;font:500 11.5px Inter,sans-serif;color:#5B6B7A;margin-bottom:4px"><span>{{ b.rotulo }}</span><span style="font-weight:700;color:#1A1A1A">{{ b.valor }}</span></div>
+                <div style="height:10px;border-radius:99px;background:#F3F6FA;overflow:hidden"><div style="height:100%;background:{{ b.cor }};width:{{ b.largura }}"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#0F3D63;border-radius:12px;padding:22px 24px;color:#fff;text-align:center">
+          <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.11em;color:#39CC00;margin-bottom:14px">QR para material impresso</div>
+          <div style="width:150px;height:150px;margin:0 auto;border:1px dashed rgba(255,255,255,.4);border-radius:10px;display:grid;place-items:center;font:600 9px Inter,sans-serif;color:rgba(255,255,255,.55);text-align:center;line-height:1.5">QR CODE<br>do link<br>de captação</div>
+          <div style="font:400 11.5px/1.65 Inter,sans-serif;color:rgba(255,255,255,.7);margin-top:14px">Aponta para o mesmo endereço, com a campanha "impresso".</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:12px">O que o lead vê</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ oQueVe }}" as="ov" hint-placeholder-count="4">
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <span style="width:18px;height:18px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 9.5px Inter,sans-serif;color:#fff;background:#1B72BE;margin-top:1px">{{ ov.n }}</span>
+                <div style="font:400 12px/1.65 Inter,sans-serif;color:#1A1A1A">{{ ov.texto }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div onClick="{{ irForm }}" style="cursor:pointer;font:600 12px Inter,sans-serif;color:#1B72BE;margin-top:14px">abrir o formulário do lead →</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 2. AGENDAR -->
+    <sc-if value="{{ eh2 }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+      <div style="width:390px;flex:none;background:#1A1A1A;border-radius:34px;padding:9px">
+        <div style="background:#fff;border-radius:27px;overflow:hidden">
+          <div style="height:26px;background:#0F3D63"></div>
+          <div style="background:#0F3D63;padding:0 22px 20px;color:#fff">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px">
+              <div style="width:78px;height:22px;border:1px dashed rgba(255,255,255,.4);border-radius:4px;display:grid;place-items:center;font:600 6.5px Inter,sans-serif;color:rgba(255,255,255,.55)">LOGO</div>
+              <div style="font:600 10.5px Inter,sans-serif;color:rgba(255,255,255,.6)">passo 5 de 5</div>
+            </div>
+            <div style="height:4px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden;margin-bottom:18px"><div style="height:100%;width:100%;background:#39CC00"></div></div>
+            <div style="font:600 22px/1.25 Fraunces,serif">Marina, seu estudo está pronto.</div>
+            <div style="font:400 12.5px/1.7 Inter,sans-serif;color:rgba(255,255,255,.75);margin-top:8px">Os números pedem uma conversa: em 20 minutos eu explico o que cada cobertura resolve na sua situação. Escolha o melhor horário.</div>
+          </div>
+
+          <div style="padding:20px 22px 26px">
+            <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:11px">Horários disponíveis</div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <sc-for list="{{ horarios }}" as="h" hint-placeholder-count="3">
+                <div onClick="{{ h.escolher }}" style="cursor:pointer;border:1.5px solid {{ h.borda }};border-radius:11px;padding:14px 15px;background:{{ h.bg }};display:flex;align-items:center;gap:12px">
+                  <span style="width:19px;height:19px;border-radius:50%;flex:none;border:2px solid {{ h.radioBorda }};background:{{ h.radioBg }};display:grid;place-items:center;font:700 9px Inter,sans-serif;color:#fff">{{ h.marca }}</span>
+                  <div>
+                    <div style="font:600 13.5px Inter,sans-serif;color:{{ h.cor }}">{{ h.dia }}</div>
+                    <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-top:2px">{{ h.hora }}</div>
+                  </div>
+                </div>
+              </sc-for>
+
+              <div onClick="{{ escolherOutro }}" style="cursor:pointer;border:1.5px {{ outroTracejado }} {{ outroBorda }};border-radius:11px;padding:14px 15px;background:{{ outroBg }}">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <span style="width:19px;height:19px;border-radius:50%;flex:none;border:2px solid {{ outroRadioBorda }};background:{{ outroRadioBg }};display:grid;place-items:center;font:700 9px Inter,sans-serif;color:#fff">{{ outroMarca }}</span>
+                  <div>
+                    <div style="font:600 13.5px Inter,sans-serif;color:{{ outroCor }}">Nenhum desses serve</div>
+                    <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-top:2px">Digo o meu melhor dia e horário</div>
+                  </div>
+                </div>
+                <sc-if value="{{ mostrarCampo }}" hint-placeholder-val="{{ false }}">
+                  <input type="text" placeholder="Ex.: sábado de manhã, ou quinta depois das 18h" style="width:100%;margin-top:12px;padding:11px 13px;border:1.5px solid #C9E0F5;border-radius:9px;font:500 12.5px Inter,sans-serif;background:#fff;box-sizing:border-box">
+                </sc-if>
+              </div>
+            </div>
+
+            <div onClick="{{ confirmar }}" style="cursor:pointer;font:700 14px Inter,sans-serif;color:#fff;background:{{ corBotao }};padding:15px;border-radius:999px;text-align:center;margin-top:16px">{{ rotuloBotao }}</div>
+            <div style="font:400 11px/1.6 Inter,sans-serif;color:#8FA0AF;text-align:center;margin-top:12px">Reunião por vídeo ou presencial, você escolhe na conversa. Sem compromisso de contratação.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:4px">Como os três horários são montados</div>
+          <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">Regra fixa, calculada a partir do dia em que o lead preenche. Hoje é segunda, 31 de agosto.</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ regras }}" as="rg" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:150px 1fr;gap:14px;padding:11px 0;border-bottom:1px solid #EDF2F7;align-items:baseline">
+                <div style="font:600 12px Inter,sans-serif;color:#0F3D63">{{ rg.regra }}</div>
+                <div>
+                  <div style="font:500 12px Inter,sans-serif;color:#1A1A1A">{{ rg.resultado }}</div>
+                  <div style="font:400 11px Inter,sans-serif;color:#8FA0AF;margin-top:2px">{{ rg.nota }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:20px 22px">
+          <div style="font:600 14.5px Inter,sans-serif;color:#8a6a00;margin-bottom:8px">Horário ocupado não é recusado</div>
+          <div style="font:400 12px/1.7 Inter,sans-serif;color:#8a6a00">Se o lead escolher um horário que já tem compromisso na sua agenda, a ferramenta aceita e lança o evento em cima. Você vê o conflito na agenda e remarca com o cliente. Melhor um horário para remarcar do que um lead que desistiu na tela.</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:14px">O que vai para o Google Agenda</div>
+          <div style="background:#F7FAFD;border-radius:10px;padding:16px 18px;border-left:4px solid #1B72BE">
+            <div style="font:600 13px Inter,sans-serif;color:#0F3D63">Mapa da Proteção · Marina Albuquerque</div>
+            <div style="font:400 11.5px/1.7 Inter,sans-serif;color:#5B6B7A;margin-top:6px">Terça, 1 de setembro · 15:00 às 15:30<br>(96) 99123-4567 · marina@email.com</div>
+          </div>
+          <div style="font:400 11.5px/1.7 Inter,sans-serif;color:#8FA0AF;margin-top:12px">Só nome e contato. Nenhum número do estudo entra no evento — a agenda pode ser vista por quem você compartilha.</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 3. CONFIRMAÇÃO -->
+    <sc-if value="{{ eh3 }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+      <div style="width:390px;flex:none;background:#1A1A1A;border-radius:34px;padding:9px">
+        <div style="background:#fff;border-radius:27px;overflow:hidden">
+          <div style="height:26px;background:#0F3D63"></div>
+          <div style="background:#0F3D63;padding:24px 22px 30px;color:#fff;text-align:center">
+            <div style="width:52px;height:52px;border-radius:50%;background:#39CC00;display:grid;place-items:center;font:700 22px Inter,sans-serif;color:#0F3D63;margin:0 auto 16px">✓</div>
+            <div style="font:600 23px/1.25 Fraunces,serif">Reunião marcada</div>
+            <div style="font:400 12.5px/1.7 Inter,sans-serif;color:rgba(255,255,255,.75);margin-top:8px">Terça, 1 de setembro, às 15h. Você recebe a confirmação no WhatsApp.</div>
+          </div>
+          <div style="padding:22px">
+            <div style="border:1.5px solid #C8EFB7;background:#F8FEF5;border-radius:11px;padding:16px 18px;margin-bottom:18px">
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#2f8a12;margin-bottom:9px">O que acontece agora</div>
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <sc-for list="{{ proximos }}" as="pr" hint-placeholder-count="3">
+                  <div style="display:flex;gap:10px;align-items:flex-start">
+                    <span style="width:17px;height:17px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 9px Inter,sans-serif;color:#fff;background:#39CC00;margin-top:1px">{{ pr.n }}</span>
+                    <div style="font:400 12px/1.65 Inter,sans-serif;color:#1A1A1A">{{ pr.texto }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:10px">Quem vai te atender</div>
+            <div style="display:flex;gap:13px;align-items:center;padding-bottom:18px;border-bottom:1px solid #EDF2F7">
+              <div style="width:48px;height:48px;border-radius:50%;border:1px dashed #8FA0AF;display:grid;place-items:center;font:600 7px Inter,sans-serif;color:#8FA0AF;flex:none">FOTO</div>
+              <div>
+                <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63">Edgar Torres</div>
+                <div style="font:400 11px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:2px">Setor Norte Seguros · SUSEP 202087923<br>(96) 98133-9955</div>
+              </div>
+            </div>
+
+            <div style="font:700 12.5px Inter,sans-serif;color:#0F3D63;border:1.5px solid #DEE7EF;padding:13px;border-radius:999px;text-align:center;margin-top:16px;cursor:pointer">Adicionar ao meu calendário</div>
+            <div style="font:400 10.5px/1.6 Inter,sans-serif;color:#8FA0AF;text-align:center;margin-top:14px">Precisa remarcar? Chame no WhatsApp acima.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:4px">O que o lead não recebe</div>
+          <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">A regra que sustenta o modelo: os números aparecem com você na frente.</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ naoRecebe }}" as="nr" hint-placeholder-count="4">
+              <div style="display:flex;gap:11px;align-items:flex-start;padding:12px 14px;border-radius:9px;background:{{ nr.bg }};border:1px solid {{ nr.borda }}">
+                <span style="font:700 12px Inter,sans-serif;color:{{ nr.cor }};flex:none">{{ nr.icone }}</span>
+                <div>
+                  <div style="font:600 12.5px Inter,sans-serif;color:{{ nr.cor }}">{{ nr.titulo }}</div>
+                  <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:2px">{{ nr.texto }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:14px">Quando o lead não agenda</div>
+          <div style="font:400 12px/1.7 Inter,sans-serif;color:#1A1A1A;margin-bottom:14px">A tela final muda de texto, mas o lead entra no funil do mesmo jeito. É você que liga.</div>
+          <div style="background:#FDF1E7;border:1px solid #F0CBA8;border-radius:10px;padding:15px 17px">
+            <div style="font:600 13px Inter,sans-serif;color:#C4570B;margin-bottom:6px">Respostas recebidas</div>
+            <div style="font:400 11.5px/1.7 Inter,sans-serif;color:#C4570B">"Obrigado, Carla. Vou preparar o seu estudo e falo com você pelo WhatsApp para combinarmos o melhor horário."</div>
+          </div>
+          <div style="font:400 11.5px/1.7 Inter,sans-serif;color:#8FA0AF;margin-top:12px">No dashboard ela aparece em Lead, com a observação de que não escolheu horário.</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 4. LEAD REPETIDO -->
+    <sc-if value="{{ eh4 }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+        <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:4px">O sistema reconhece e não duplica</div>
+        <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">Telefone ou e-mail iguais bastam. O lead não percebe nada — para ele é só o formulário.</div>
+
+        <div style="border:1.5px solid #C9E0F5;background:#F7FBFF;border-radius:11px;padding:16px 18px;margin-bottom:14px">
+          <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#1B72BE;margin-bottom:10px">Preenchimento de hoje, 09:14</div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <sc-for list="{{ novoPreenchimento }}" as="np" hint-placeholder-count="3">
+              <div style="display:flex;justify-content:space-between;gap:12px;font:500 12px Inter,sans-serif;color:#5B6B7A"><span>{{ np.rotulo }}</span><span style="font-weight:700;color:#1A1A1A">{{ np.valor }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
+          <div style="flex:1;height:1px;background:#DEE7EF"></div>
+          <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#39CC00">encontrou cadastro existente</div>
+          <div style="flex:1;height:1px;background:#DEE7EF"></div>
+        </div>
+
+        <div style="border:1.5px solid #C8EFB7;background:#F8FEF5;border-radius:11px;padding:16px 18px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:12px">
+            <div>
+              <div style="font:600 14px Inter,sans-serif;color:#0F3D63">Marina Albuquerque</div>
+              <div style="font:400 11px Inter,sans-serif;color:#5B6B7A;margin-top:2px">cadastrada em 12/08/2026 · mesmo telefone</div>
+            </div>
+            <span style="font:700 9px Inter,sans-serif;text-transform:uppercase;letter-spacing:.07em;color:#fff;background:#39CC00;padding:4px 9px;border-radius:99px;flex:none">cliente existente</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ acoesDedupe }}" as="ad" hint-placeholder-count="4">
+              <div style="display:flex;gap:10px;align-items:flex-start;font:400 12px/1.65 Inter,sans-serif;color:#1A1A1A">
+                <span style="color:#2f8a12;font-weight:700;flex:none">{{ ad.icone }}</span>{{ ad.texto }}
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:14px">O que o corretor vê no dashboard</div>
+          <div style="border:1.5px solid #C9E0F5;background:#F7FBFF;border-radius:10px;padding:15px 17px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+              <div>
+                <div style="font:600 13px Inter,sans-serif;color:#0F3D63">Marina Albuquerque preencheu de novo</div>
+                <div style="font:400 11.5px/1.65 Inter,sans-serif;color:#5B6B7A;margin-top:4px">Informou renda de conta própria diferente: R$ 11.000 em vez de R$ 9.000. Um estudo v3 foi aberto com as respostas novas.</div>
+              </div>
+              <span style="font:600 10px Inter,sans-serif;color:#1B72BE;white-space:nowrap;flex:none">há 6 min</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <div style="font:700 11.5px Inter,sans-serif;color:#fff;background:#1B72BE;padding:9px 15px;border-radius:999px;cursor:pointer">Abrir o v3</div>
+              <div style="font:600 11.5px Inter,sans-serif;color:#0F3D63;border:1.5px solid #C9E0F5;padding:8px 14px;border-radius:999px;cursor:pointer">Comparar com o v2</div>
+            </div>
+          </div>
+          <div style="font:400 11.5px/1.7 Inter,sans-serif;color:#8FA0AF;margin-top:14px">O v2 apresentado em 26/08 continua travado e visível. Nada é sobrescrito por um preenchimento novo.</div>
+        </div>
+
+        <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:20px 22px">
+          <div style="font:600 14.5px Inter,sans-serif;color:#8a6a00;margin-bottom:8px">Sem confirmação de telefone</div>
+          <div style="font:400 12px/1.7 Inter,sans-serif;color:#8a6a00">Com link aberto no tráfego pago, aceitamos o risco de dado falso: nenhum código de verificação. O custo de um cadastro inútil é menor que o de um lead real que abandona o formulário na tela de código.</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 5. AVISO DE LEAD NOVO -->
+    <sc-if value="{{ eh5 }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+      <div style="width:360px;flex:none;background:#1A1A1A;border-radius:32px;padding:9px">
+        <div style="background:#E5DDD5;border-radius:25px;overflow:hidden">
+          <div style="background:#0F3D63;padding:14px 18px;display:flex;align-items:center;gap:11px">
+            <div style="width:34px;height:34px;border-radius:50%;background:#39CC00;display:grid;place-items:center;font:700 13px Inter,sans-serif;color:#0F3D63;flex:none">MP</div>
+            <div>
+              <div style="font:600 13px Inter,sans-serif;color:#fff">Mapa da Proteção</div>
+              <div style="font:400 10.5px Inter,sans-serif;color:rgba(255,255,255,.6)">automação · online</div>
+            </div>
+          </div>
+          <div style="padding:18px 14px 22px;display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ mensagens }}" as="ms" hint-placeholder-count="2">
+              <div style="background:#fff;border-radius:10px;border-top-left-radius:3px;padding:13px 15px;box-shadow:0 1px 2px rgba(0,0,0,.08)">
+                <div style="font:700 11px Inter,sans-serif;color:#2f8a12;margin-bottom:6px">{{ ms.titulo }}</div>
+                <div style="font:400 12.5px/1.7 Inter,sans-serif;color:#1A1A1A">{{ ms.corpo }}</div>
+                <sc-if value="{{ ms.temAcao }}" hint-placeholder-val="{{ false }}">
+                  <div style="font:600 12px Inter,sans-serif;color:#1B72BE;margin-top:9px;padding-top:9px;border-top:1px solid #EDF2F7">{{ ms.acao }}</div>
+                </sc-if>
+                <div style="font:400 10px Inter,sans-serif;color:#8FA0AF;text-align:right;margin-top:6px">{{ ms.hora }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:320px;display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:4px">Quando o aviso sai</div>
+          <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">Três gatilhos, nenhum deles em horário de sono.</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ gatilhos }}" as="g" hint-placeholder-count="3">
+              <div style="display:grid;grid-template-columns:1fr auto;gap:14px;padding:12px 0;border-bottom:1px solid #EDF2F7;align-items:center">
+                <div>
+                  <div style="font:600 12.5px Inter,sans-serif;color:#1A1A1A">{{ g.evento }}</div>
+                  <div style="font:400 11px Inter,sans-serif;color:#8FA0AF;margin-top:2px">{{ g.canal }}</div>
+                </div>
+                <span style="font:600 10.5px Inter,sans-serif;color:{{ g.cor }};background:{{ g.bg }};padding:5px 10px;border-radius:99px;white-space:nowrap">{{ g.quando }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:4px">Quem dispara</div>
+          <div style="font:400 12px/1.7 Inter,sans-serif;color:#1A1A1A;margin-bottom:14px">O formulário grava o lead e chama um webhook. O n8n cuida do resto: monta a mensagem, envia pela Evolution, lança o evento na agenda e devolve o status para o dashboard.</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <sc-for list="{{ fluxo }}" as="fx" hint-placeholder-count="5">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font:600 11.5px Inter,sans-serif;color:{{ fx.cor }};background:{{ fx.bg }};border:1px solid {{ fx.borda }};padding:8px 13px;border-radius:8px;white-space:nowrap">{{ fx.nome }}</span>
+                <span style="font:700 12px Inter,sans-serif;color:#CBD6E1">{{ fx.seta }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font:400 11px/1.7 Inter,sans-serif;color:#8FA0AF;margin-top:14px">Nenhum número do estudo entra na mensagem nem no evento da agenda. Só nome, contato e a origem da campanha.</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1440, &quot;height&quot;: 940 }
+}">
+const PASSOS = [
+  { k: 1, nome: 'Link de captação', sub: 'um endereço para tudo', titulo: 'Link de captação',
+    sub2: 'Um único endereço público, com uma variação de UTM por campanha. A aba mostra quanto cada anúncio trouxe e quantos agendaram.' },
+  { k: 2, nome: 'Agendar a apresentação', sub: 'três horários + campo aberto', titulo: 'Agendar a apresentação',
+    sub2: 'Última tela do formulário. Três horários calculados a partir de hoje, mais um campo para o lead propor o dele. Qualquer escolha vai para o Google Agenda.' },
+  { k: 3, nome: 'Confirmação', sub: 'o lead sai sem PDF', titulo: 'Confirmação',
+    sub2: 'Reunião marcada, o que acontece depois e o seu contato. Os números do estudo ficam para a conversa.' },
+  { k: 4, nome: 'Lead repetido', sub: 'nova versão, não duplicata', titulo: 'Lead repetido',
+    sub2: 'Mesmo telefone ou e-mail preenchendo de novo: o cadastro é reaproveitado e as respostas novas abrem um estudo novo.' },
+  { k: 5, nome: 'Aviso de lead novo', sub: 'WhatsApp e dashboard', titulo: 'Aviso de lead novo',
+    sub2: 'A mensagem que chega no seu telefone quando alguém termina de preencher, e os gatilhos que a disparam.' }
+];
+
+class Component extends DCLogic {
+  state = { passo: 1, horario: 0, outro: false };
+
+  renderVals() {
+    const s = this.state;
+
+    const passos = PASSOS.map(p => {
+      const on = s.passo === p.k;
+      return { n: String(p.k), nome: p.nome, sub: p.sub,
+        ir: () => this.setState({ passo: p.k }),
+        bg: on ? '#E7F0FA' : 'transparent', borda: on ? '#C9E0F5' : 'transparent',
+        dot: on ? '#1B72BE' : '#CBD6E1', cor: on ? '#0F3D63' : '#1A1A1A' };
+    });
+    const atual = PASSOS.find(p => p.k === s.passo) || PASSOS[0];
+
+    const HORARIOS = [
+      { dia: 'Amanhã, terça 1 de setembro', hora: '15:00 · 30 minutos' },
+      { dia: 'Quarta, 2 de setembro', hora: '09:00 · 30 minutos' },
+      { dia: 'Quarta, 2 de setembro', hora: '16:00 · 30 minutos' }
+    ];
+    const horarios = HORARIOS.map((h, i) => {
+      const on = !s.outro && s.horario === i + 1;
+      return { dia: h.dia, hora: h.hora, escolher: () => this.setState({ horario: i + 1, outro: false }),
+        marca: on ? '✓' : '', cor: on ? '#0F3D63' : '#1A1A1A',
+        bg: on ? '#E7F0FA' : '#fff', borda: on ? '#1B72BE' : '#DEE7EF',
+        radioBg: on ? '#1B72BE' : 'transparent', radioBorda: on ? '#1B72BE' : '#CBD6E1' };
+    });
+    const escolheu = s.outro || s.horario > 0;
+
+    const naoRecebe = [
+      { icone: '✕', titulo: 'Nenhum valor de cobertura', texto: 'Capital, vitalícia, temporária e pensão só aparecem na reunião.', cor: '#C4570B', bg: '#FDF1E7', borda: '#F0CBA8' },
+      { icone: '✕', titulo: 'Nenhum PDF anexado', texto: 'A apresentação e a proposta saem depois, se você decidir mandar.', cor: '#C4570B', bg: '#FDF1E7', borda: '#F0CBA8' },
+      { icone: '✓', titulo: 'Confirmação da reunião', texto: 'Dia, hora, seu nome, SUSEP e telefone. É o que ele precisa agora.', cor: '#2f8a12', bg: '#EAFBE3', borda: '#C8EFB7' },
+      { icone: '✓', titulo: 'Um jeito de remarcar', texto: 'O WhatsApp fica visível. Remarcar é melhor do que faltar.', cor: '#2f8a12', bg: '#EAFBE3', borda: '#C8EFB7' }
+    ];
+
+    return {
+      passos, passoContador: 'Tela ' + s.passo + ' de 5',
+      tituloTela: atual.titulo, subTela: atual.sub2,
+      eh1: s.passo === 1, eh2: s.passo === 2, eh3: s.passo === 3, eh4: s.passo === 4, eh5: s.passo === 5,
+
+      linkBase: 'setornorteseguros.com.br/mapa',
+      campanhas: [
+        { nome: 'Famílias com filhos', url: '?utm_campaign=familia', leads: '8', taxa: '50%', taxaCor: '#2f8a12' },
+        { nome: 'Autônomos e liberais', url: '?utm_campaign=autonomos', leads: '5', taxa: '20%', taxaCor: '#D9A400' },
+        { nome: 'Material impresso · QR', url: '?utm_campaign=impresso', leads: '1', taxa: '100%', taxaCor: '#2f8a12' }
+      ],
+      funilLink: [
+        { rotulo: 'Aberturas', valor: '312', nota: 'do anúncio ao formulário', cor: '#0F3D63' },
+        { rotulo: 'Começaram', valor: '47', nota: '15% das aberturas', cor: '#1B72BE' },
+        { rotulo: 'Preencheram', valor: '14', nota: '30% de quem começou', cor: '#1B72BE' },
+        { rotulo: 'Agendaram', valor: '6', nota: '43% dos leads', cor: '#2f8a12' }
+      ],
+      barrasLink: [
+        { rotulo: 'Abriram o formulário', valor: '312', cor: '#CBD6E1', largura: '100%' },
+        { rotulo: 'Responderam a primeira pergunta', valor: '47', cor: '#8FA0AF', largura: '15%' },
+        { rotulo: 'Terminaram o formulário', valor: '14', cor: '#1B72BE', largura: '5%' },
+        { rotulo: 'Escolheram um horário', valor: '6', cor: '#39CC00', largura: '2%' }
+      ],
+      oQueVe: [
+        { n: '1', texto: 'Nome primeiro. A partir dele o formulário passa a falar com a pessoa pelo nome.' },
+        { n: '2', texto: 'De 12 a 16 perguntas, na redação do cliente: renda, quem depende, escola, patrimônio.' },
+        { n: '3', texto: 'Resumo do que respondeu, com botão de voltar em qualquer ponto.' },
+        { n: '4', texto: 'Contato e consentimento LGPD, e a escolha do horário da reunião.' }
+      ],
+
+      horarios, mostrarCampo: s.outro,
+      escolherOutro: () => this.setState({ outro: true, horario: 0 }),
+      outroMarca: s.outro ? '✓' : '',
+      outroCor: s.outro ? '#0F3D63' : '#1A1A1A',
+      outroBg: s.outro ? '#E7F0FA' : '#fff',
+      outroBorda: s.outro ? '#1B72BE' : '#CBD6E1',
+      outroTracejado: s.outro ? 'solid' : 'dashed',
+      outroRadioBg: s.outro ? '#1B72BE' : 'transparent',
+      outroRadioBorda: s.outro ? '#1B72BE' : '#CBD6E1',
+      corBotao: escolheu ? '#39CC00' : '#CBD6E1',
+      rotuloBotao: escolheu ? 'Confirmar reunião' : 'Escolha um horário',
+      confirmar: () => { if (escolheu) this.setState({ passo: 3 }); },
+      regras: [
+        { regra: 'Primeira opção', resultado: 'Amanhã à tarde · terça 1/09, 15:00', nota: 'Nunca no mesmo dia: dá tempo de você se preparar.' },
+        { regra: 'Segunda opção', resultado: 'Depois de amanhã de manhã · quarta 2/09, 09:00', nota: 'Para quem só consegue falar cedo.' },
+        { regra: 'Terceira opção', resultado: 'Depois de amanhã à tarde · quarta 2/09, 16:00', nota: 'Fecha o par do mesmo dia.' },
+        { regra: 'Campo aberto', resultado: 'O lead escreve o dia e a hora que preferir', nota: 'Vai para a agenda como está; a confirmação você faz com ele.' }
+      ],
+
+      proximos: [
+        { n: '1', texto: 'Você recebe a confirmação no WhatsApp, com o link da reunião.' },
+        { n: '2', texto: 'Na conversa, o Edgar mostra o estudo na tela e explica cada cobertura.' },
+        { n: '3', texto: 'Se fizer sentido, ele envia a proposta em PDF para você decidir com calma.' }
+      ],
+      naoRecebe,
+
+      novoPreenchimento: [
+        { rotulo: 'Nome', valor: 'Marina Albuquerque' },
+        { rotulo: 'Telefone', valor: '(96) 99123-4567' },
+        { rotulo: 'E-mail', valor: 'marina@email.com' },
+        { rotulo: 'Campanha', valor: 'autonomos' }
+      ],
+      acoesDedupe: [
+        { icone: '✓', texto: 'O cadastro é reaproveitado: nada de segunda Marina na lista de clientes.' },
+        { icone: '✓', texto: 'As respostas novas abrem um estudo v3, em aberto, ligado ao mesmo cliente.' },
+        { icone: '✓', texto: 'O Mapa da Proteção v2 continua travado e visível no histórico.' },
+        { icone: '→', texto: 'O cliente volta para o estágio Estudo no funil, com a data de hoje.' }
+      ],
+
+      mensagens: [
+        { titulo: 'Lead novo · campanha família', hora: '09:14',
+          corpo: 'Marina Albuquerque acabou de preencher o formulário.\n(96) 99123-4567 · Arquiteta, 43 anos, 2 filhos.',
+          temAcao: true, acao: 'Abrir o estudo no painel →' },
+        { titulo: 'Reunião marcada', hora: '09:15',
+          corpo: 'Terça, 1 de setembro, 15:00. Já está na sua agenda com nome e contato.',
+          temAcao: false, acao: '' }
+      ],
+      gatilhos: [
+        { evento: 'Lead terminou o formulário', canal: 'WhatsApp e dashboard', quando: 'na hora', cor: '#2f8a12', bg: '#EAFBE3' },
+        { evento: 'Lead escolheu horário', canal: 'WhatsApp e Google Agenda', quando: 'na hora', cor: '#2f8a12', bg: '#EAFBE3' },
+        { evento: 'Lead preencheu e não agendou', canal: 'só dashboard', quando: 'na hora', cor: '#8a6a00', bg: '#FCF3D9' },
+        { evento: 'Mapa parado há 120 dias', canal: 'só dashboard', quando: 'diário, às 8h', cor: '#8a6a00', bg: '#FCF3D9' }
+      ],
+      fluxo: [
+        { nome: 'Formulário', cor: '#0F3D63', bg: '#E7F0FA', borda: '#C9E0F5', seta: '→' },
+        { nome: 'Webhook', cor: '#0F3D63', bg: '#fff', borda: '#DEE7EF', seta: '→' },
+        { nome: 'n8n', cor: '#fff', bg: '#0F3D63', borda: '#0F3D63', seta: '→' },
+        { nome: 'Evolution · Agenda · e-mail', cor: '#0F3D63', bg: '#fff', borda: '#DEE7EF', seta: '→' },
+        { nome: 'Dashboard', cor: '#2f8a12', bg: '#EAFBE3', borda: '#C8EFB7', seta: '' }
+      ],
+
+      irForm: () => { window.location.href = 'Link do Cliente - Protótipo.dc.html'; },
+      irPainel: () => { window.location.href = 'Painel do Corretor.dc.html'; }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

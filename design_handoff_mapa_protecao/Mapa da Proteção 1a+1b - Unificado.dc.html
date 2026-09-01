@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="omelette-owns-print">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#F3F6FA; }
+  a { color:#1B72BE; } a:hover { color:#0F3D63; }
+  input, select, button, textarea { font-family:Inter, sans-serif; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:#1B72BE; box-shadow:0 0 0 3px #E7F0FA; }
+  @media print {
+    body { background:#fff; margin:0; }
+    .noprint { display:none !important; }
+    .pchain { display:contents !important; }
+    .paper { box-shadow:none !important; border:none !important; margin:0 !important; }
+    .a4 { break-after:page; page-break-after:always; }
+    .slide16 { break-after:page; page-break-after:always; margin:0 auto !important; }
+  }
+</style>
+</helmet>
+
+<div class="pchain" style="min-height:100vh;font-family:Inter,sans-serif">
+
+<div class="noprint" style="background:#0F3D63;position:sticky;top:0;z-index:5">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 24px">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:34px;height:34px;border-radius:8px;border:1px dashed rgba(255,255,255,.45);display:grid;place-items:center;font:600 8px Inter,sans-serif;color:rgba(255,255,255,.6)">LOGO</div>
+      <div>
+        <div style="font:600 16px Fraunces,serif;color:#fff">{{ tituloEstudo }}</div>
+        <div style="font:400 11px Inter,sans-serif;color:rgba(255,255,255,.62);margin-top:2px">{{ linhaCliente }}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font:600 11px Inter,sans-serif;color:#EAFBE3;background:rgba(57,204,0,.22);border:1px solid rgba(57,204,0,.5);padding:6px 11px;border-radius:99px;white-space:nowrap">{{ salvoCurto }}</span>
+      <div style="display:flex;gap:3px;background:rgba(255,255,255,.12);border-radius:999px;padding:3px">
+        <sc-for list="{{ modos }}" as="m" hint-placeholder-count="2">
+          <div onClick="{{ m.escolher }}" style="cursor:pointer;font:700 11.5px Inter,sans-serif;padding:7px 14px;border-radius:999px;white-space:nowrap;color:{{ m.cor }};background:{{ m.bg }}">{{ m.rotulo }}</div>
+        </sc-for>
+      </div>
+      <button onClick="{{ limpar }}" style="font:600 12px Inter,sans-serif;color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.32);background:transparent;padding:8px 14px;border-radius:999px;cursor:pointer;white-space:nowrap">Começar do zero</button>
+      <button onClick="{{ exemplo }}" style="font:600 12px Inter,sans-serif;color:#0F3D63;border:none;background:#fff;padding:9px 14px;border-radius:999px;cursor:pointer;white-space:nowrap">Preencher exemplo</button>
+    </div>
+  </div>
+  <sc-if value="{{ modoAbas }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:2px;padding:0 24px">
+      <sc-for list="{{ abas }}" as="ab" hint-placeholder-count="5">
+        <div onClick="{{ ab.ir }}" style="cursor:pointer;font:600 12.5px Inter,sans-serif;padding:11px 18px;border-radius:9px 9px 0 0;white-space:nowrap;color:{{ ab.cor }};background:{{ ab.bg }}">{{ ab.rotulo }} <span style="color:{{ ab.badgeCor }}">{{ ab.badge }}</span></div>
+      </sc-for>
+    </div>
+  </sc-if>
+</div>
+
+<div class="pchain" style="display:flex;gap:0;background:#F3F6FA;align-items:stretch">
+
+  <sc-if value="{{ modoEtapas }}" hint-placeholder-val="{{ true }}">
+  <div class="noprint" style="width:262px;flex:none;box-sizing:border-box;border-right:1px solid #DEE7EF;padding:20px 18px;background:#fff;min-height:calc(100vh - 64px)">
+    <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:12px">Andamento</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <div style="flex:1;height:6px;border-radius:99px;background:#E7F0FA;overflow:hidden"><div style="height:100%;background:#39CC00;width:{{ pctLargura }}"></div></div>
+      <span style="font:700 11px Inter,sans-serif;color:#0F3D63">{{ pctTexto }}</span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <sc-for list="{{ etapas }}" as="et" hint-placeholder-count="5">
+        <div onClick="{{ et.ir }}" style="display:flex;gap:11px;padding:11px 12px;border-radius:9px;cursor:pointer;background:{{ et.bg }};border:1px solid {{ et.borda }};opacity:{{ et.opacidade }}">
+          <div style="width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 11px Inter,sans-serif;background:{{ et.dotBg }};color:{{ et.dotCor }};border:1.5px solid {{ et.dotBorda }}">{{ et.marca }}</div>
+          <div>
+            <div style="font:600 13px Inter,sans-serif;color:#1A1A1A">{{ et.nome }}</div>
+            <div style="font:400 11px/1.5 Inter,sans-serif;margin-top:3px;color:{{ et.faltaCor }}">{{ et.falta }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top:20px;padding:14px;border-radius:9px;background:#F3F6FA;border:1px solid #DEE7EF">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#8FA0AF;margin-bottom:8px">Renda considerada</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <sc-for list="{{ resumoRenda }}" as="rr" hint-placeholder-count="4">
+          <div style="display:flex;justify-content:space-between;gap:8px;font:500 11px Inter,sans-serif;color:#5B6B7A"><span>{{ rr.rotulo }}</span><span style="font-weight:700;color:{{ rr.cor }}">{{ rr.valor }}</span></div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;padding:14px;border-radius:9px;background:#FCF3D9;border:1px solid #EEDCA6">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#8a6a00;margin-bottom:6px">Módulos ativos</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <sc-for list="{{ selos }}" as="s" hint-placeholder-count="5">
+          <span style="font:600 10.5px Inter,sans-serif;padding:4px 8px;border-radius:99px;background:#fff;color:{{ s.cor }};border:1.5px {{ s.tracejado }} {{ s.borda }}">{{ s.texto }}</span>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <div class="pchain" style="flex:1;min-width:0;padding:26px 30px;max-width:920px">
+
+    <div class="noprint" style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF">{{ etapaContador }}</div>
+    <div class="noprint" style="font:600 24px Fraunces,serif;color:#0F3D63;margin:6px 0 4px">{{ etapaTitulo }}</div>
+    <div class="noprint" style="font:400 13px Inter,sans-serif;color:#5B6B7A;margin-bottom:22px">{{ etapaSub }}</div>
+
+    <!-- ETAPA 1 — PERFIL -->
+    <sc-if value="{{ eh0 }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+        <div style="display:grid;grid-template-columns:1fr 150px 96px;gap:14px;align-items:end;margin-bottom:16px">
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">Nome</div>
+            <input type="text" placeholder="Nome completo" value="{{ f.nome.value }}" onChange="{{ f.nome.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 14px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">Nascimento</div>
+            <input type="text" placeholder="dd/mm/aaaa" value="{{ f.nasc.value }}" onChange="{{ f.nasc.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 14px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+          </div>
+          <div style="font:600 13px Inter,sans-serif;padding:11px 10px;border-radius:9px;text-align:center;background:#EAFBE3;color:#2f8a12">{{ idadeCliente }}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 130px;gap:14px;align-items:end">
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">Sexo <span style="font:400 10.5px Inter,sans-serif;color:#8FA0AF">· só para a flexão dos textos</span></div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ sexos }}" as="sx" hint-placeholder-count="2">
+                <div onClick="{{ sx.escolher }}" style="flex:1;text-align:center;cursor:pointer;font:600 12.5px Inter,sans-serif;padding:10px;border-radius:9px;color:{{ sx.cor }};background:{{ sx.bg }};border:1.5px solid {{ sx.borda }}">{{ sx.rotulo }}</div>
+              </sc-for>
+            </div>
+          </div>
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">Estado civil</div>
+            <select value="{{ f.estadoCivil.value }}" onChange="{{ f.estadoCivil.onChange }}" style="padding:10px 11px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 13px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+              <option value="Solteiro(a)">Solteiro(a)</option>
+              <option value="Casado(a)">Casado(a)</option>
+              <option value="União estável">União estável</option>
+              <option value="Divorciado(a)">Divorciado(a)</option>
+              <option value="Viúvo(a)">Viúvo(a)</option>
+            </select>
+          </div>
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">Profissão</div>
+            <input type="text" placeholder="Profissão" value="{{ f.profissao.value }}" onChange="{{ f.profissao.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 13.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">Aposenta aos</div>
+            <input type="text" placeholder="65" value="{{ f.idadeApos.value }}" onChange="{{ f.idadeApos.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:600 13.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+        <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63">Vínculo profissional e renda bruta <span style="font:400 11px Inter,sans-serif;color:#8FA0AF">· pode marcar mais de um</span></div>
+        <div style="font:400 11.5px/1.5 Inter,sans-serif;color:#8FA0AF;margin:5px 0 14px">O fator de risco incide sobre a renda daquele vínculo. Autônomo, liberal e empresário majoram em {{ fatorAutTexto }}; CLT e servidor entram sem majoração.</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ vinculos }}" as="v" hint-placeholder-count="3">
+            <div style="display:grid;grid-template-columns:1fr 190px 150px;gap:12px;align-items:center;padding:12px 14px;border:1.5px solid {{ v.borda }};border-radius:10px;background:{{ v.bg }}">
+              <div onClick="{{ v.alternar }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;font:600 13px Inter,sans-serif;color:{{ v.cor }}">
+                <span style="width:17px;height:17px;flex:none;border-radius:4px;display:grid;place-items:center;font-size:10px;background:{{ v.boxBg }};color:#fff;border:1.5px solid {{ v.boxBorda }}">{{ v.check }}</span>
+                {{ v.rotulo }}
+              </div>
+              <input type="text" placeholder="R$ bruto por mês" value="{{ v.renda.value }}" onChange="{{ v.renda.onChange }}" disabled="{{ v.desabilitado }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:600 13.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+              <div style="font:500 11.5px/1.4 Inter,sans-serif;color:#8FA0AF">{{ v.nota }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <sc-if value="{{ mostraConjuge }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+        <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63;margin-bottom:12px">Renda familiar — cônjuge</div>
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:center">
+          <input type="text" placeholder="R$ por mês" value="{{ f.rendaConjuge.value }}" onChange="{{ f.rendaConjuge.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:600 14px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+          <div onClick="{{ f.incluirConjuge.alternar }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;padding:11px 13px;border:1.5px solid {{ f.incluirConjuge.borda }};border-radius:9px;background:{{ f.incluirConjuge.bg }}">
+            <span style="width:17px;height:17px;flex:none;border-radius:4px;display:grid;place-items:center;font-size:10px;color:#fff;background:{{ f.incluirConjuge.boxBg }};border:1.5px solid {{ f.incluirConjuge.boxBorda }}">{{ f.incluirConjuge.check }}</span>
+            <span style="font:600 12.5px Inter,sans-serif;color:#0F3D63">Incluir no cálculo de padrão de vida</span>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+        <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63">Rendas permanentes de terceiros</div>
+        <div style="font:400 11.5px/1.5 Inter,sans-serif;color:#8FA0AF;margin:5px 0 14px">Aluguéis, dividendos, sociedades. Continuam entrando na conta da família depois do falecimento — reduzem a necessidade pela participação do segurado na renda, não como abatimento de capital.</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ terceiros }}" as="t" hint-placeholder-count="1">
+            <div style="display:grid;grid-template-columns:1fr 160px 150px 34px;gap:10px;align-items:center">
+              <input type="text" placeholder="Descrição" value="{{ t.desc.value }}" onChange="{{ t.desc.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 13.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+              <input type="text" placeholder="R$ por mês" value="{{ t.valor.value }}" onChange="{{ t.valor.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:600 13.5px Inter,sans-serif;color:#0F3D63;background:#fbfdff;width:100%;box-sizing:border-box">
+              <div onClick="{{ t.alternar }}" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 11px;border:1.5px solid {{ t.borda }};border-radius:9px;background:{{ t.bg }}">
+                <span style="width:16px;height:16px;flex:none;border-radius:4px;display:grid;place-items:center;font-size:9px;color:#fff;background:{{ t.boxBg }};border:1.5px solid {{ t.boxBorda }}">{{ t.check }}</span>
+                <span style="font:600 11.5px Inter,sans-serif;color:{{ t.cor }}">{{ t.texto }}</span>
+              </div>
+              <button onClick="{{ t.remover }}" style="width:34px;height:34px;border:1.5px solid #DEE7EF;border-radius:8px;color:#C4570B;background:#fff;cursor:pointer;font-size:13px">✕</button>
+            </div>
+          </sc-for>
+        </div>
+        <button onClick="{{ addTerceiro }}" style="font:700 12.5px Inter,sans-serif;color:#1B72BE;background:none;border:none;padding:14px 0 0;cursor:pointer">+ adicionar renda permanente</button>
+      </div>
+
+      <div style="background:#E7F0FA;border:1px solid #C9E0F5;border-radius:12px;padding:18px 22px">
+        <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#1B72BE;margin-bottom:12px">Renda familiar total e participação do segurado</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+          <sc-for list="{{ cardsRenda }}" as="cr" hint-placeholder-count="4">
+            <div>
+              <div style="font:400 11px Inter,sans-serif;color:#5B6B7A">{{ cr.rotulo }}</div>
+              <div style="font:600 19px Fraunces,serif;color:{{ cr.cor }};margin-top:3px">{{ cr.valor }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#0F3D63;margin-top:12px;padding-top:12px;border-top:1px solid #C9E0F5">A participação multiplica a manutenção do padrão de vida e a pensão de educação: o seguro do segurado cobre a fatia proporcional à contribuição dele na renda da casa.</div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ETAPA 2 — DEPENDENTES E OBJETIVOS -->
+    <sc-if value="{{ eh1 }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+        <div onClick="{{ f.temDep.alternar }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;padding:12px 14px;border:1.5px solid {{ f.temDep.borda }};border-radius:9px;background:{{ f.temDep.bg }};margin-bottom:16px">
+          <span style="width:17px;height:17px;flex:none;border-radius:4px;display:grid;place-items:center;font-size:10px;color:#fff;background:{{ f.temDep.boxBg }};border:1.5px solid {{ f.temDep.boxBorda }}">{{ f.temDep.check }}</span>
+          <span style="font:600 12.5px Inter,sans-serif;color:#0F3D63">Possui dependentes financeiros</span>
+        </div>
+        <sc-if value="{{ temDep }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ deps }}" as="d" hint-placeholder-count="2">
+              <div style="display:grid;grid-template-columns:1fr 130px 110px 150px 34px;gap:10px;align-items:center">
+                <input type="text" placeholder="Nome" value="{{ d.nome.value }}" onChange="{{ d.nome.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 13.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+                <input type="text" placeholder="dd/mm/aaaa" value="{{ d.nasc.value }}" onChange="{{ d.nasc.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 13.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+                <div style="font:600 12.5px Inter,sans-serif;padding:9px 8px;border-radius:9px;text-align:center;background:{{ d.idadeBg }};color:{{ d.idadeCor }}">{{ d.idade }}</div>
+                <select value="{{ d.rel.value }}" onChange="{{ d.rel.onChange }}" style="padding:9px 11px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 12.5px Inter,sans-serif;color:#5B6B7A;background:#fbfdff;width:100%;box-sizing:border-box">
+                  <option value="Filho(a)">Filho(a)</option>
+                  <option value="Cônjuge">Cônjuge</option>
+                  <option value="Pai/Mãe">Pai/Mãe</option>
+                  <option value="Outro">Outro</option>
+                </select>
+                <button onClick="{{ d.remover }}" style="width:34px;height:34px;border:1.5px solid #DEE7EF;border-radius:8px;color:#C4570B;background:#fff;cursor:pointer;font-size:13px">✕</button>
+              </div>
+            </sc-for>
+          </div>
+          <button onClick="{{ addDep }}" style="font:700 12.5px Inter,sans-serif;color:#1B72BE;background:none;border:none;padding:14px 0 0;cursor:pointer">+ adicionar dependente</button>
+        </div>
+        </sc-if>
+      </div>
+
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+        <div onClick="{{ f.planoEdu.alternar }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;padding:12px 14px;border:1.5px solid {{ f.planoEdu.borda }};border-radius:9px;background:{{ f.planoEdu.bg }}">
+          <span style="width:17px;height:17px;flex:none;border-radius:4px;display:grid;place-items:center;font-size:10px;color:#fff;background:{{ f.planoEdu.boxBg }};border:1.5px solid {{ f.planoEdu.boxBorda }}">{{ f.planoEdu.check }}</span>
+          <span style="font:600 12.5px Inter,sans-serif;color:#0F3D63">Planejamento educacional</span>
+        </div>
+        <sc-if value="{{ planoEdu }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="background:#EAFBE3;border:1px solid #C8EFB7;border-radius:9px;padding:11px 13px;margin:14px 0">
+            <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#2f8a12;margin-bottom:5px">Valor por filho, não o total</div>
+            <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#1A1A1A">Informe quanto custa um filho em cada fase. Se dois estão na mesma fase, o sistema aplica o valor a cada um. A conta soma tudo até os 25 anos e devolve a média mensal até a formatura.</div>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ fases }}" as="fa" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:1fr 200px 170px;gap:14px;align-items:center;padding:10px 0;border-bottom:1px dashed #DEE7EF">
+                <div>
+                  <div style="font:600 13px Inter,sans-serif;color:#1A1A1A">{{ fa.nome }}</div>
+                  <div style="font:400 11px Inter,sans-serif;color:#8FA0AF">{{ fa.faixa }}</div>
+                </div>
+                <div style="font:500 11.5px Inter,sans-serif;color:{{ fa.quemCor }}">{{ fa.quem }}</div>
+                <input type="text" placeholder="R$ por mês, por filho" value="{{ fa.valor.value }}" onChange="{{ fa.valor.onChange }}" style="padding:9px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:600 13px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:12px;border-top:1px solid #DEE7EF">
+            <span style="font:600 12px Inter,sans-serif;color:#5B6B7A">Despesa de educação hoje, somando os filhos nas fases atuais</span>
+            <span style="font:700 16px Inter,sans-serif;color:#0F3D63">{{ eduHojeTexto }}</span>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+        <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63">Outras despesas de estudo <span style="font:600 10px Inter,sans-serif;color:#8FA0AF;background:#F3F6FA;padding:3px 7px;border-radius:5px;margin-left:6px">OPCIONAL</span></div>
+        <div style="font:400 11.5px/1.5 Inter,sans-serif;color:#8FA0AF;margin:5px 0 14px">Inglês, esporte, música, intercâmbio. Some ao custo educacional pelo prazo escolhido — de 1 a 10 anos, ou tempo indeterminado (vai até o filho mais novo completar 25).</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ extras }}" as="x" hint-placeholder-count="1">
+            <div style="display:grid;grid-template-columns:1fr 150px 180px 130px 34px;gap:10px;align-items:center">
+              <input type="text" placeholder="Descrição" value="{{ x.nome.value }}" onChange="{{ x.nome.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 13.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+              <input type="text" placeholder="R$ por mês" value="{{ x.valor.value }}" onChange="{{ x.valor.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:600 13.5px Inter,sans-serif;color:#0F3D63;background:#fbfdff;width:100%;box-sizing:border-box">
+              <select value="{{ x.prazo.value }}" onChange="{{ x.prazo.onChange }}" style="padding:10px 11px;border:1.5px solid #C9E0F5;border-radius:9px;font:600 12.5px Inter,sans-serif;color:#0F3D63;background:#E7F0FA;width:100%;box-sizing:border-box">
+                <option value="1">1 ano</option>
+                <option value="2">2 anos</option>
+                <option value="3">3 anos</option>
+                <option value="4">4 anos</option>
+                <option value="5">5 anos</option>
+                <option value="6">6 anos</option>
+                <option value="7">7 anos</option>
+                <option value="8">8 anos</option>
+                <option value="9">9 anos</option>
+                <option value="10">10 anos</option>
+                <option value="0">tempo indeterminado</option>
+              </select>
+              <div style="font:600 11.5px Inter,sans-serif;color:#5B6B7A;text-align:right">{{ x.total }}</div>
+              <button onClick="{{ x.remover }}" style="width:34px;height:34px;border:1.5px solid #DEE7EF;border-radius:8px;color:#C4570B;background:#fff;cursor:pointer;font-size:13px">✕</button>
+            </div>
+          </sc-for>
+        </div>
+        <button onClick="{{ addExtra }}" style="font:700 12.5px Inter,sans-serif;color:#1B72BE;background:none;border:none;padding:14px 0 0;cursor:pointer">+ adicionar despesa de estudo</button>
+      </div>
+
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+        <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63;margin-bottom:14px">Prazos e teto</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start">
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">Manutenção do padrão de vida</div>
+            <div style="display:flex;align-items:center;gap:9px">
+              <input type="text" value="{{ f.prazoManutencao.value }}" onChange="{{ f.prazoManutencao.onChange }}" style="width:80px;padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:700 14px Inter,sans-serif;color:#0F3D63;background:#fbfdff;text-align:center">
+              <span style="font:500 12.5px Inter,sans-serif;color:#5B6B7A">anos</span>
+            </div>
+          </div>
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">Teto de razoabilidade</div>
+            <div style="display:flex;align-items:center;gap:9px">
+              <input type="text" value="{{ f.teto.value }}" onChange="{{ f.teto.onChange }}" style="width:80px;padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:700 14px Inter,sans-serif;color:#0F3D63;background:#fbfdff;text-align:center">
+              <span style="font:500 12.5px Inter,sans-serif;color:#5B6B7A">× a renda anual · {{ tetoValor }}</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:18px">
+          <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:8px">Prazo da pensão por morte {{ sugestaoPensao }}</div>
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{ prazosPensao }}" as="pp" hint-placeholder-count="5">
+              <div onClick="{{ pp.escolher }}" style="flex:1;text-align:center;cursor:pointer;font:600 12.5px Inter,sans-serif;padding:10px;border-radius:9px;color:{{ pp.cor }};background:{{ pp.bg }};border:1.5px solid {{ pp.borda }}">{{ pp.rotulo }}</div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+        <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63">Projetos e objetivos</div>
+        <div style="font:400 11.5px/1.5 Inter,sans-serif;color:#8FA0AF;margin:5px 0 14px">Também serve para dívidas informais sem seguro prestamista próprio. Financiamento de imóvel e veículo e consórcio normalmente já têm seguro embutido e não entram aqui.</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ objetivos }}" as="o" hint-placeholder-count="1">
+            <div style="display:grid;grid-template-columns:1fr 160px 150px 34px;gap:10px;align-items:center">
+              <input type="text" placeholder="Descrição" value="{{ o.desc.value }}" onChange="{{ o.desc.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 13.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+              <input type="text" placeholder="R$" value="{{ o.valor.value }}" onChange="{{ o.valor.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:600 13.5px Inter,sans-serif;color:#0F3D63;background:#fbfdff;width:100%;box-sizing:border-box">
+              <div onClick="{{ o.alternar }}" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 11px;border:1.5px solid {{ o.borda }};border-radius:9px;background:{{ o.bg }}">
+                <span style="width:16px;height:16px;flex:none;border-radius:4px;display:grid;place-items:center;font-size:9px;color:#fff;background:{{ o.boxBg }};border:1.5px solid {{ o.boxBorda }}">{{ o.check }}</span>
+                <span style="font:600 11.5px Inter,sans-serif;color:{{ o.cor }}">{{ o.texto }}</span>
+              </div>
+              <button onClick="{{ o.remover }}" style="width:34px;height:34px;border:1.5px solid #DEE7EF;border-radius:8px;color:#C4570B;background:#fff;cursor:pointer;font-size:13px">✕</button>
+            </div>
+          </sc-for>
+        </div>
+        <button onClick="{{ addObjetivo }}" style="font:700 12.5px Inter,sans-serif;color:#1B72BE;background:none;border:none;padding:14px 0 0;cursor:pointer">+ adicionar objetivo</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ETAPA 3 — CUSTOS E PATRIMÔNIO -->
+    <sc-if value="{{ eh2 }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+        <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63">Patrimônio, bem por bem</div>
+        <div style="font:400 11.5px/1.5 Inter,sans-serif;color:#8FA0AF;margin:5px 0 14px">Todo o patrimônio entra no custo de transmissão sucessória. O que está marcado como liquidável também abate a necessidade de capital, porque vira dinheiro rápido.</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ bens }}" as="b" hint-placeholder-count="2">
+            <div style="display:grid;grid-template-columns:1fr 160px 150px 200px 34px;gap:10px;align-items:center">
+              <input type="text" placeholder="Nome do bem" value="{{ b.desc.value }}" onChange="{{ b.desc.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 13.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+              <select value="{{ b.tipo.value }}" onChange="{{ b.tipo.onChange }}" style="padding:10px 11px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 12.5px Inter,sans-serif;color:#5B6B7A;background:#fbfdff;width:100%;box-sizing:border-box">
+                <option value="Imóvel">Imóvel</option>
+                <option value="Veículo">Veículo</option>
+                <option value="Investimento">Investimento</option>
+                <option value="Empresa">Quota de empresa</option>
+                <option value="Outro">Outro</option>
+              </select>
+              <input type="text" placeholder="R$" value="{{ b.valor.value }}" onChange="{{ b.valor.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:600 13.5px Inter,sans-serif;color:#0F3D63;background:#fbfdff;width:100%;box-sizing:border-box">
+              <div onClick="{{ b.alternarLiq }}" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:9px 11px;border:1.5px solid {{ b.liqBorda }};border-radius:9px;background:{{ b.liqBg }}">
+                <span style="width:16px;height:16px;flex:none;border-radius:4px;display:grid;place-items:center;font-size:9px;color:#fff;background:{{ b.liqBoxBg }};border:1.5px solid {{ b.liqBoxBorda }}">{{ b.liqCheck }}</span>
+                <span style="font:600 11.5px Inter,sans-serif;color:{{ b.liqCor }}">{{ b.liqTexto }}</span>
+              </div>
+              <button onClick="{{ b.remover }}" style="width:34px;height:34px;border:1.5px solid #DEE7EF;border-radius:8px;color:#C4570B;background:#fff;cursor:pointer;font-size:13px">✕</button>
+            </div>
+          </sc-for>
+        </div>
+        <button onClick="{{ addBem }}" style="font:700 12.5px Inter,sans-serif;color:#1B72BE;background:none;border:none;padding:14px 0 0;cursor:pointer">+ adicionar bem</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid #DEE7EF">
+          <div><div style="font:400 11px Inter,sans-serif;color:#8FA0AF">Patrimônio total</div><div style="font:700 15px Inter,sans-serif;color:#0F3D63">{{ totalPatrimonio }}</div></div>
+          <div><div style="font:400 11px Inter,sans-serif;color:#8FA0AF">Liquidável</div><div style="font:700 15px Inter,sans-serif;color:#2f8a12">{{ totalLiquido }}</div></div>
+          <div><div style="font:400 11px Inter,sans-serif;color:#8FA0AF">Não liquidável</div><div style="font:700 15px Inter,sans-serif;color:#C4570B">{{ totalIliquido }}</div></div>
+          <div>
+            <div style="font:400 11px Inter,sans-serif;color:#8FA0AF">Custo de transmissão</div>
+            <div style="display:flex;align-items:center;gap:7px;margin-top:2px">
+              <input type="text" value="{{ f.pctSucessao.value }}" onChange="{{ f.pctSucessao.onChange }}" style="width:56px;padding:7px 9px;border:1.5px solid #DEE7EF;border-radius:8px;font:700 13px Inter,sans-serif;color:#0F3D63;background:#fbfdff;text-align:center">
+              <span style="font:500 12px Inter,sans-serif;color:#5B6B7A">% · {{ custoSucessao }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+        <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63;margin-bottom:14px">Receitas e reservas já existentes</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <sc-for list="{{ reservas }}" as="rs" hint-placeholder-count="4">
+            <div>
+              <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">{{ rs.rotulo }}</div>
+              <input type="text" placeholder="R$" value="{{ rs.campo.value }}" onChange="{{ rs.campo.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:600 14px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+              <div style="font:400 11px/1.5 Inter,sans-serif;color:#8FA0AF;margin-top:5px">{{ rs.nota }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:18px;padding-top:14px;border-top:1px solid #DEE7EF">
+          <span style="font:600 12px Inter,sans-serif;color:#5B6B7A">Receitas liquidáveis — abatem a necessidade de capital</span>
+          <span style="font:700 16px Inter,sans-serif;color:#2f8a12">{{ receitasLiquidaveis }}</span>
+        </div>
+        <div onClick="{{ f.revisado.alternar }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;margin-top:16px;padding:12px 14px;border:1.5px solid {{ f.revisado.borda }};border-radius:9px;background:{{ f.revisado.bg }}">
+          <span style="width:17px;height:17px;flex:none;border-radius:4px;display:grid;place-items:center;font-size:10px;color:#fff;background:{{ f.revisado.boxBg }};border:1.5px solid {{ f.revisado.boxBorda }}">{{ f.revisado.check }}</span>
+          <span style="font:600 12.5px Inter,sans-serif;color:#0F3D63">Confirmo que revisei este bloco com o cliente</span>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ETAPA 4 -->
+    <sc-if value="{{ eh3 }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">WhatsApp</div>
+            <input type="text" placeholder="(00) 00000-0000" value="{{ f.whats.value }}" onChange="{{ f.whats.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:600 14px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+          </div>
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">E-mail</div>
+            <input type="text" placeholder="nome@email.com" value="{{ f.email.value }}" onChange="{{ f.email.onChange }}" style="padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:9px;font:600 14px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;width:100%;box-sizing:border-box">
+          </div>
+        </div>
+        <div onClick="{{ f.lgpd.alternar }}" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;margin-top:18px;padding:14px 16px;border:1.5px solid {{ f.lgpd.borda }};border-radius:9px;background:{{ f.lgpd.bg }}">
+          <span style="width:17px;height:17px;flex:none;margin-top:1px;border-radius:4px;display:grid;place-items:center;font-size:10px;color:#fff;background:{{ f.lgpd.boxBg }};border:1.5px solid {{ f.lgpd.boxBorda }}">{{ f.lgpd.check }}</span>
+          <span style="font:400 12px/1.6 Inter,sans-serif;color:#1A1A1A">Autorizo o uso dos meus dados para a elaboração deste estudo e o contato do corretor. Posso pedir a exclusão a qualquer momento.</span>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ETAPA 5 -->
+    <sc-if value="{{ eh4 }}" hint-placeholder-val="{{ true }}">
+    <div class="pchain">
+      <sc-if value="{{ bloqueado }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#FDF1E7;border:1px solid #F0CBA8;border-radius:12px;padding:24px">
+          <div style="font:600 16px Fraunces,serif;color:#C4570B;margin-bottom:8px">Ainda falta informação para fechar o mapa</div>
+          <div style="font:400 12.5px/1.7 Inter,sans-serif;color:#5B6B7A">{{ faltaResumo }}</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ verResumo }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <div style="background:#0F3D63;border-radius:12px;padding:24px 26px;color:#fff;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px">
+            <div>
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:#39CC00">Capital sugerido em seguro de vida</div>
+              <div style="font:600 40px Fraunces,serif;margin-top:6px">{{ r.totalVida }}</div>
+            </div>
+            <div style="text-align:right;font:400 12px/1.8 Inter,sans-serif;color:rgba(255,255,255,.78)">Vitalícia {{ r.vitalicia }}<br>Temporária {{ r.temporaria }}<br>Pensão de educação {{ r.pensaoMensal }}/mês</div>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:16px">Resumo da sua proteção</div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ r.categorias }}" as="ct" hint-placeholder-count="4">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">
+                  <span style="font:600 12.5px Inter,sans-serif;color:#0F3D63">{{ ct.rotulo }}</span>
+                  <span style="font:700 14px Inter,sans-serif;color:{{ ct.cor }}">{{ ct.valor }}</span>
+                </div>
+                <div style="height:20px;border-radius:6px;background:#F3F6FA;overflow:hidden"><div style="height:100%;background:{{ ct.cor }};width:{{ ct.largura }}"></div></div>
+                <div style="font:400 11px Inter,sans-serif;color:#8FA0AF;margin-top:4px">{{ ct.nota }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+          <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+            <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.11em;color:#2f8a12">Já protegido</div>
+            <div style="font:600 26px Fraunces,serif;color:#0F3D63;margin:6px 0 12px">{{ r.protegido }}</div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <sc-for list="{{ r.protegidoLinhas }}" as="p" hint-placeholder-count="5">
+                <div style="display:flex;justify-content:space-between;gap:12px;font:500 12px Inter,sans-serif;color:#5B6B7A;padding-bottom:6px;border-bottom:1px dotted #DEE7EF"><span>{{ p.rotulo }}</span><span style="font-weight:700;color:#1A1A1A">{{ p.valor }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+            <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.11em;color:#1B72BE">{{ r.rotuloFalta }}</div>
+            <div style="font:600 26px Fraunces,serif;color:#0F3D63;margin:6px 0 12px">{{ r.aProteger }}</div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <sc-for list="{{ r.necessidadeLinhas }}" as="p" hint-placeholder-count="3">
+                <div style="display:flex;justify-content:space-between;gap:12px;font:500 12px Inter,sans-serif;color:#5B6B7A;padding-bottom:6px;border-bottom:1px dotted #DEE7EF"><span>{{ p.rotulo }}</span><span style="font-weight:700;color:#1A1A1A">{{ p.valor }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <sc-if value="{{ r.tetoAtingido }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:16px 18px;margin-bottom:16px;font:400 12px/1.7 Inter,sans-serif;color:#8a6a00">{{ r.tetoAviso }}</div>
+        </sc-if>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:14px">Coberturas calculadas</div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ r.coberturas }}" as="cb" hint-placeholder-count="7">
+              <div style="display:grid;grid-template-columns:1fr 170px;gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid #EDF2F7">
+                <div>
+                  <div style="font:600 12.5px Inter,sans-serif;color:#1A1A1A">{{ cb.titulo }}</div>
+                  <div style="font:400 11px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:2px">{{ cb.nota }}</div>
+                </div>
+                <div style="text-align:right;font:700 15px Inter,sans-serif;color:#0F3D63">{{ cb.valor }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:12px">
+            <div>
+              <div style="font:600 15px Fraunces,serif;color:#0F3D63">Resumo para você</div>
+              <div style="font:400 11.5px Inter,sans-serif;color:#8FA0AF;margin-top:2px">Texto do cliente, escrito a partir dos números já calculados. Em produção sai do webhook de IA.</div>
+            </div>
+            <button onClick="{{ gerarIa }}" style="font:700 12.5px Inter,sans-serif;color:#fff;background:#1B72BE;border:none;padding:10px 18px;border-radius:999px;cursor:pointer;white-space:nowrap">{{ rotuloIa }}</button>
+          </div>
+          <sc-if value="{{ temIa }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="border-left:3px solid #39CC00;padding-left:16px;display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ r.iaCliente }}" as="p" hint-placeholder-count="4">
+                <div style="font:400 12.5px/1.85 Inter,sans-serif;color:#1A1A1A">{{ p }}</div>
+              </sc-for>
+            </div>
+            <div style="margin-top:16px;background:#FCF3D9;border:1px solid #EEDCA6;border-radius:10px;padding:16px 18px">
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#8a6a00;margin-bottom:8px">Análise interna · nunca entra no PDF nem no e-mail</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ r.iaInterna }}" as="p" hint-placeholder-count="4">
+                  <div style="font:400 12px/1.7 Inter,sans-serif;color:#1A1A1A">{{ p }}</div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63">Gerar o mapa</div>
+          <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin:3px 0 14px">Os três formatos usam os mesmos números do estudo.</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <div onClick="{{ irApres }}" style="border:1.5px solid #DEE7EF;border-radius:12px;padding:15px 16px;cursor:pointer">
+              <div style="width:38px;height:24px;border-radius:4px;background:#0F3D63;margin-bottom:9px"></div>
+              <div style="font:700 13px Inter,sans-serif;color:#0F3D63">Gerar apresentação</div>
+              <div style="font:400 11.5px/1.55 Inter,sans-serif;color:#5B6B7A;margin-top:3px">16:9 para a TV. Seis telas, letras grandes, cartão de contato no fim.</div>
+            </div>
+            <div onClick="{{ irProp }}" style="border:1.5px solid #DEE7EF;border-radius:12px;padding:15px 16px;cursor:pointer">
+              <div style="width:24px;height:32px;border-radius:3px;border:1.5px solid #1A1A1A;margin-bottom:9px"></div>
+              <div style="font:700 13px Inter,sans-serif;color:#0F3D63">Gerar proposta</div>
+              <div style="font:400 11.5px/1.55 Inter,sans-serif;color:#5B6B7A;margin-top:3px">A4 em 3 páginas: resumo para você, gráficos e detalhamento.</div>
+            </div>
+            <div onClick="{{ irEmail }}" style="border:1.5px solid #DEE7EF;border-radius:12px;padding:15px 16px;cursor:pointer">
+              <div style="width:34px;height:24px;border-radius:3px;border:1.5px solid #39CC00;margin-bottom:9px"></div>
+              <div style="font:700 13px Inter,sans-serif;color:#0F3D63">Enviar e-mail</div>
+              <div style="font:400 11.5px/1.55 Inter,sans-serif;color:#5B6B7A;margin-top:3px">Resumo no corpo da mensagem e o A4 anexado.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- APRESENTAÇÃO -->
+      <sc-if value="{{ verApres }}" hint-placeholder-val="{{ false }}">
+      <div class="pchain">
+        <div class="noprint" style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+          <button onClick="{{ voltarResumo }}" style="font:600 12.5px Inter,sans-serif;color:#5B6B7A;border:1.5px solid #DEE7EF;background:#fff;padding:10px 18px;border-radius:999px;cursor:pointer">← Voltar ao resumo</button>
+          <button onClick="{{ imprimirSlides }}" style="font:700 12.5px Inter,sans-serif;color:#fff;background:#1B72BE;border:none;padding:11px 20px;border-radius:999px;cursor:pointer">Baixar PDF · A4 deitado</button>
+          <span style="font:400 11.5px Inter,sans-serif;color:#8FA0AF">Seis telas em 960×540 — equivalem a 1920×1080</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="slide16 paper" style="width:960px;height:540px;background:#0F3D63;position:relative;overflow:hidden;border-radius:4px">
+            <div style="position:absolute;right:-140px;top:-160px;width:480px;height:480px;border-radius:50%;background:rgba(57,204,0,.14)"></div>
+            <div style="position:absolute;left:-120px;bottom:-220px;width:420px;height:420px;border-radius:50%;background:rgba(27,114,190,.4)"></div>
+            <div style="position:relative;height:100%;box-sizing:border-box;padding:56px 64px;display:flex;flex-direction:column;color:#fff">
+              <div style="width:150px;height:40px;border:1px dashed rgba(255,255,255,.45);border-radius:6px;display:grid;place-items:center;font:600 9px Inter,sans-serif;color:rgba(255,255,255,.6)">LOGO SETOR NORTE</div>
+              <div style="flex:1"></div>
+              <div style="font:700 12px Inter,sans-serif;text-transform:uppercase;letter-spacing:.2em;color:#39CC00;margin-bottom:18px">Mapa da proteção</div>
+              <div style="font:600 62px/1.05 Fraunces,serif;margin-bottom:22px">{{ r.nome }}</div>
+              <div style="width:64px;height:4px;background:#39CC00"></div>
+              <div style="flex:1"></div>
+              <div style="font:400 17px Inter,sans-serif;color:rgba(255,255,255,.72)">{{ r.corretor }} · {{ r.dataLonga }}</div>
+            </div>
+          </div>
+
+          <div class="slide16 paper" style="width:960px;height:540px;background:#fff;overflow:hidden;border-radius:4px;border:1px solid #DEE7EF">
+            <div style="height:100%;box-sizing:border-box;padding:52px 64px;display:flex;flex-direction:column">
+              <div style="font:700 12px Inter,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#1B72BE;margin-bottom:14px">O ponto de partida</div>
+              <div style="font:600 42px/1.15 Fraunces,serif;color:#0F3D63;margin-bottom:34px">{{ r.slide2Titulo }}</div>
+              <div style="display:flex;gap:20px;align-items:stretch">
+                <div style="flex:1;border:2px solid #0F3D63;border-radius:16px;padding:24px 26px">
+                  <div style="font:700 11.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#5B6B7A;margin-bottom:10px">Renda do segurado</div>
+                  <div style="font:600 40px Fraunces,serif;color:#0F3D63">{{ r.rendaMensal }}</div>
+                  <div style="font:400 15px Inter,sans-serif;color:#5B6B7A;margin-top:4px">{{ r.rendaNota }}</div>
+                </div>
+                <div style="flex:1;background:#F3F6FA;border-radius:16px;padding:24px 26px">
+                  <div style="font:700 11.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#5B6B7A;margin-bottom:14px">Quem depende</div>
+                  <div style="display:flex;flex-direction:column;gap:11px">
+                    <sc-for list="{{ r.dependentes }}" as="dp" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:12px"><span style="width:34px;height:34px;border-radius:50%;background:{{ dp.cor }}"></span><span style="font:600 17px Inter,sans-serif;color:#1A1A1A">{{ dp.texto }}</span></div>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+              <div style="flex:1"></div>
+              <div style="font:400 16px/1.6 Inter,sans-serif;color:#5B6B7A;border-left:4px solid #39CC00;padding-left:18px">{{ r.slide2Nota }}</div>
+            </div>
+          </div>
+
+          <div class="slide16 paper" style="width:960px;height:540px;background:#fff;overflow:hidden;border-radius:4px;border:1px solid #DEE7EF">
+            <div style="height:100%;box-sizing:border-box;padding:52px 64px;display:flex;flex-direction:column">
+              <div style="font:700 12px Inter,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#1B72BE;margin-bottom:14px">A conta</div>
+              <div style="font:600 40px/1.15 Fraunces,serif;color:#0F3D63;margin-bottom:36px">O que já está protegido,<br>e o que falta proteger.</div>
+              <div style="display:flex;flex-direction:column;gap:26px">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px"><span style="font:600 17px Inter,sans-serif;color:#0F3D63">Necessidade da família</span><span style="font:700 22px Inter,sans-serif;color:#0F3D63">{{ r.necessidade }}</span></div>
+                  <div style="height:38px;border-radius:9px;background:#F3F6FA;overflow:hidden"><div style="width:100%;height:100%;background:#0F3D63"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px"><span style="font:600 17px Inter,sans-serif;color:#0F3D63">Já protegido hoje</span><span style="font:700 22px Inter,sans-serif;color:#39CC00">{{ r.protegido }}</span></div>
+                  <div style="height:38px;border-radius:9px;background:#F3F6FA;overflow:hidden"><div style="height:100%;background:#39CC00;width:{{ r.larguraProtegido }}"></div></div>
+                </div>
+              </div>
+              <div style="flex:1"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;border-top:3px solid #1A1A1A;padding-top:18px">
+                <span style="font:700 20px Inter,sans-serif;color:#1A1A1A">{{ r.rotuloFalta }}</span>
+                <span style="font:600 40px Fraunces,serif;color:#1A1A1A">{{ r.aProteger }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide16 paper" style="width:960px;height:540px;background:#F3F6FA;overflow:hidden;border-radius:4px;border:1px solid #DEE7EF">
+            <div style="height:100%;box-sizing:border-box;padding:48px 60px;display:flex;flex-direction:column">
+              <div style="font:700 12px Inter,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#1B72BE;margin-bottom:12px">O que cada parte resolve</div>
+              <div style="font:600 36px/1.15 Fraunces,serif;color:#0F3D63;margin-bottom:26px">Problemas diferentes,<br>coberturas diferentes.</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;min-height:0">
+                <sc-for list="{{ r.categorias }}" as="ct" hint-placeholder-count="4">
+                  <div style="background:#fff;border-radius:14px;padding:22px 24px;border-top:5px solid {{ ct.cor }}">
+                    <div style="font:700 15px Inter,sans-serif;color:#0F3D63;margin-bottom:8px">{{ ct.rotulo }}</div>
+                    <div style="font:600 26px Fraunces,serif;color:#1A1A1A;margin-bottom:8px">{{ ct.valor }}</div>
+                    <div style="font:400 14px/1.5 Inter,sans-serif;color:#5B6B7A">{{ ct.nota }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide16 paper" style="width:960px;height:540px;background:linear-gradient(135deg,#0F3D63,#1B72BE);overflow:hidden;border-radius:4px">
+            <div style="height:100%;box-sizing:border-box;padding:56px 64px;display:flex;flex-direction:column;color:#fff">
+              <div style="font:700 12px Inter,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#EAFBE3;margin-bottom:auto">A recomendação</div>
+              <div style="font:400 20px Inter,sans-serif;color:rgba(255,255,255,.75);margin-bottom:10px">Capital sugerido em seguro de vida</div>
+              <div style="font:600 82px/1 Fraunces,serif;margin-bottom:20px">{{ r.totalVida }}</div>
+              <div style="display:flex;gap:10px;margin-bottom:auto">
+                <span style="font:700 14px Inter,sans-serif;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.34);border-radius:99px;padding:10px 18px">Vitalícia {{ r.vitalicia }}</span>
+                <span style="font:700 14px Inter,sans-serif;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.34);border-radius:99px;padding:10px 18px">Temporária {{ r.temporaria }}</span>
+                <span style="font:700 14px Inter,sans-serif;background:rgba(57,204,0,.28);border:1px solid rgba(57,204,0,.6);border-radius:99px;padding:10px 18px">+ pensão de educação {{ r.pensaoMensal }}/mês</span>
+              </div>
+              <div style="font:400 16px/1.6 Inter,sans-serif;color:rgba(255,255,255,.7);border-top:1px solid rgba(255,255,255,.2);padding-top:18px">Valor de referência. O prêmio final depende da seguradora, da idade na contratação e da avaliação médica.</div>
+            </div>
+          </div>
+
+          <div class="slide16 paper" style="width:960px;height:540px;background:#fff;overflow:hidden;border-radius:4px;border:1px solid #DEE7EF">
+            <div style="height:100%;box-sizing:border-box;padding:52px 64px;display:flex;flex-direction:column">
+              <div style="font:700 12px Inter,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#1B72BE;margin-bottom:12px">Próximo passo</div>
+              <div style="font:600 40px/1.15 Fraunces,serif;color:#0F3D63;margin-bottom:12px">Qualquer dúvida,<br>fale comigo direto.</div>
+              <div style="font:400 16px/1.6 Inter,sans-serif;color:#5B6B7A;max-width:620px">Posso ajustar prazos, valores e coberturas com você e trazer as cotações das seguradoras.</div>
+              <div style="flex:1"></div>
+              <div style="display:flex;gap:32px;align-items:center;padding-top:26px;border-top:2px solid #DEE7EF">
+                <div style="width:110px;height:110px;border-radius:50%;border:1px dashed #8FA0AF;display:grid;place-items:center;font:600 9px Inter,sans-serif;color:#8FA0AF;flex:none">FOTO</div>
+                <div style="flex:1">
+                  <div style="font:600 27px Fraunces,serif;color:#0F3D63">{{ r.corretorNome }}</div>
+                  <div style="font:400 14px Inter,sans-serif;color:#8FA0AF;margin:4px 0 12px">{{ r.corretorCargo }}</div>
+                  <div style="font:600 16px Inter,sans-serif;color:#1A1A1A">{{ r.corretorContato }}</div>
+                </div>
+                <div style="width:104px;height:104px;border:1px dashed #8FA0AF;border-radius:8px;display:grid;place-items:center;font:600 8.5px Inter,sans-serif;color:#8FA0AF;text-align:center;line-height:1.4;flex:none">QR CODE<br>WhatsApp</div>
+              </div>
+              <div style="font:400 12px Inter,sans-serif;color:#8FA0AF;margin-top:16px">{{ r.rodapeLegal }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- PROPOSTA A4 -->
+      <sc-if value="{{ verProp }}" hint-placeholder-val="{{ false }}">
+      <div class="pchain">
+        <div class="noprint" style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+          <button onClick="{{ voltarResumo }}" style="font:600 12.5px Inter,sans-serif;color:#5B6B7A;border:1.5px solid #DEE7EF;background:#fff;padding:10px 18px;border-radius:999px;cursor:pointer">← Voltar ao resumo</button>
+          <button onClick="{{ imprimirA4 }}" style="font:700 12.5px Inter,sans-serif;color:#fff;background:#1B72BE;border:none;padding:11px 20px;border-radius:999px;cursor:pointer">Baixar PDF · A4</button>
+          <span style="font:400 11.5px Inter,sans-serif;color:#8FA0AF">{{ r.anexoNome }}</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="a4 paper" style="width:794px;height:1123px;background:#fff;box-sizing:border-box;padding:60px 64px 48px;display:flex;flex-direction:column;color:#1A1A1A;border:1px solid #DEE7EF">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:1px solid #1A1A1A">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:84px;height:24px;border:1px dashed #8FA0AF;border-radius:3px;display:grid;place-items:center;font:600 7px Inter,sans-serif;color:#8FA0AF">LOGO</div>
+                <span style="font:600 12px Inter,sans-serif">{{ r.corretora }}</span>
+              </div>
+              <div style="font:400 9.5px/1.5 Inter,sans-serif;color:#5B6B7A;text-align:right">{{ r.susep }}<br>{{ r.dataCurta }} · pág. 1 de 3</div>
+            </div>
+
+            <div style="margin-top:36px">
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.18em;color:#39CC00;margin-bottom:10px">Mapa da proteção</div>
+              <div style="font:600 30px/1.2 Fraunces,serif;margin-bottom:8px">{{ r.nome }}</div>
+              <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A">{{ r.subtitulo }}</div>
+            </div>
+
+            <div style="margin-top:34px;border-top:1px solid #DEE7EF;border-bottom:1px solid #DEE7EF;padding:22px 0;display:flex;justify-content:space-between;align-items:flex-end">
+              <div>
+                <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:#5B6B7A;margin-bottom:7px">Capital sugerido em seguro de vida</div>
+                <div style="font:600 34px Fraunces,serif">{{ r.totalVida }}</div>
+              </div>
+              <div style="font:400 10px/1.6 Inter,sans-serif;color:#5B6B7A;text-align:right">Vitalícia {{ r.vitalicia }}<br>Temporária {{ r.temporaria }}<br>Pensão de educação {{ r.pensaoMensal }}/mês</div>
+            </div>
+
+            <div style="margin-top:26px">
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:#5B6B7A;margin-bottom:10px">Notas de contexto</div>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ r.notasContexto }}" as="nc" hint-placeholder-count="4">
+                  <div style="display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px dotted #B9C6D2;font:500 10.5px Inter,sans-serif"><span>{{ nc.rotulo }}</span><span style="font-weight:700;white-space:nowrap">{{ nc.valor }}</span></div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="margin-top:26px">
+              <div style="font:600 15px Fraunces,serif;margin-bottom:4px">Resumo para você</div>
+              <div style="font:400 9.5px Inter,sans-serif;color:#8FA0AF;margin-bottom:12px">Texto preparado a partir das suas respostas.</div>
+              <div style="border-left:2px solid #39CC00;padding-left:16px;display:flex;flex-direction:column;gap:12px">
+                <sc-for list="{{ r.iaCliente }}" as="p" hint-placeholder-count="4">
+                  <div style="font:400 11px/1.8 Inter,sans-serif;color:#1A1A1A">{{ p }}</div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="flex:1"></div>
+            <div style="font:400 8.5px/1.5 Inter,sans-serif;color:#5B6B7A;padding-top:12px;border-top:1px solid #DEE7EF">{{ r.rodapeLegal }} · Simulação de referência, não constitui proposta formal de seguro.</div>
+          </div>
+
+          <div class="a4 paper" style="width:794px;height:1123px;background:#fff;box-sizing:border-box;padding:60px 64px 48px;display:flex;flex-direction:column;color:#1A1A1A;border:1px solid #DEE7EF">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #1A1A1A">
+              <span style="font:600 11px Inter,sans-serif">Mapa da proteção · {{ r.nome }}</span>
+              <span style="font:400 9.5px Inter,sans-serif;color:#5B6B7A">pág. 2 de 3</span>
+            </div>
+
+            <div style="margin-top:30px">
+              <div style="font:600 21px Fraunces,serif;margin-bottom:16px">Resumo da sua proteção</div>
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <sc-for list="{{ r.categorias }}" as="ct" hint-placeholder-count="4">
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font:500 11px Inter,sans-serif;margin-bottom:5px"><span>{{ ct.rotulo }}</span><span style="font-weight:700">{{ ct.valor }}</span></div>
+                    <div style="height:14px;border:1px solid #1A1A1A;overflow:hidden"><div style="height:100%;background:#1A1A1A;width:{{ ct.largura }}"></div></div>
+                    <div style="font:400 9.5px Inter,sans-serif;color:#5B6B7A;margin-top:4px">{{ ct.nota }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="margin-top:36px">
+              <div style="font:600 21px Fraunces,serif;margin-bottom:16px">Necessidade × capital protegido</div>
+              <div style="margin-bottom:16px">
+                <div style="display:flex;justify-content:space-between;font:500 11px Inter,sans-serif;margin-bottom:5px"><span>Necessidade em caso de falecimento</span><span style="font-weight:700">{{ r.necessidade }}</span></div>
+                <div style="height:12px;border:1px solid #1A1A1A;overflow:hidden"><div style="width:100%;height:100%;background:#1A1A1A"></div></div>
+              </div>
+              <div style="margin-bottom:16px">
+                <div style="display:flex;justify-content:space-between;font:500 11px Inter,sans-serif;margin-bottom:5px"><span>Já protegido — patrimônio liquidável, FGTS, INSS, previdência e seguro atual</span><span style="font-weight:700">{{ r.protegido }}</span></div>
+                <div style="height:12px;border:1px solid #1A1A1A;overflow:hidden"><div style="height:100%;background:#39CC00;width:{{ r.larguraProtegido }}"></div></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding-top:12px;border-top:1.5px solid #1A1A1A;font:800 12px Inter,sans-serif"><span>{{ r.rotuloFalta }}</span><span>{{ r.aProteger }}</span></div>
+            </div>
+
+            <div style="margin-top:32px">
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:#5B6B7A;margin-bottom:12px">Composição da necessidade</div>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ r.necessidadeLinhas }}" as="cp" hint-placeholder-count="3">
+                  <div style="display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px dotted #B9C6D2;font:500 11px Inter,sans-serif"><span>{{ cp.rotulo }}</span><span style="font-weight:700;white-space:nowrap">{{ cp.valor }}</span></div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="margin-top:28px">
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:#5B6B7A;margin-bottom:12px">Já protegido, item por item</div>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ r.protegidoLinhas }}" as="p" hint-placeholder-count="5">
+                  <div style="display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px dotted #B9C6D2;font:500 10.5px Inter,sans-serif"><span>{{ p.rotulo }}</span><span style="font-weight:700;white-space:nowrap">{{ p.valor }}</span></div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="flex:1"></div>
+            <div style="font:400 8.5px/1.5 Inter,sans-serif;color:#5B6B7A;padding-top:12px;border-top:1px solid #DEE7EF">{{ r.rodapeLegal }}</div>
+          </div>
+
+          <div class="a4 paper" style="width:794px;height:1123px;background:#fff;box-sizing:border-box;padding:60px 64px 48px;display:flex;flex-direction:column;color:#1A1A1A;border:1px solid #DEE7EF">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #1A1A1A">
+              <span style="font:600 11px Inter,sans-serif">Mapa da proteção · {{ r.nome }}</span>
+              <span style="font:400 9.5px Inter,sans-serif;color:#5B6B7A">pág. 3 de 3</span>
+            </div>
+
+            <div style="margin-top:30px">
+              <div style="font:600 21px Fraunces,serif;margin-bottom:14px">Coberturas recomendadas</div>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ r.coberturas }}" as="cb" hint-placeholder-count="7">
+                  <div style="padding:12px 0;border-bottom:1px solid #DEE7EF">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><span style="font:700 11.5px Inter,sans-serif">{{ cb.titulo }}</span><span style="font:800 12px Inter,sans-serif;white-space:nowrap">{{ cb.valor }}</span></div>
+                    <div style="font:400 10px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:4px">{{ cb.nota }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="margin-top:18px">
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:#5B6B7A;margin-bottom:10px">Referências do cálculo</div>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ r.premissas }}" as="pr" hint-placeholder-count="8">
+                  <div style="display:flex;justify-content:space-between;gap:14px;padding:7px 0;border-bottom:1px dotted #B9C6D2;font:500 10px Inter,sans-serif"><span>{{ pr.rotulo }}</span><span style="font-weight:700;white-space:nowrap">{{ pr.valor }}</span></div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;border:1px solid #1A1A1A;padding:12px 14px;font:400 9.5px/1.65 Inter,sans-serif">Números de referência para consultoria. O prêmio final depende da seguradora escolhida, da idade na contratação e da avaliação médica. Este documento não constitui proposta formal de seguro.</div>
+
+            <div style="flex:1"></div>
+            <div style="font:400 9px/1.6 Inter,sans-serif;color:#5B6B7A;padding-top:12px;border-top:1px solid #DEE7EF">{{ r.corretorNome }} · {{ r.corretorContato }}</div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- E-MAIL -->
+      <sc-if value="{{ verEmail }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+          <button onClick="{{ voltarResumo }}" style="font:600 12.5px Inter,sans-serif;color:#5B6B7A;border:1.5px solid #DEE7EF;background:#fff;padding:10px 18px;border-radius:999px;cursor:pointer">← Voltar ao resumo</button>
+        </div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
+          <div style="width:600px;background:#EEF2F7;border-radius:12px;overflow:hidden;border:1px solid #DEE7EF">
+            <div style="background:#0F3D63;padding:26px 32px;display:flex;justify-content:space-between;align-items:center">
+              <div style="width:104px;height:30px;border:1px dashed rgba(255,255,255,.45);border-radius:4px;display:grid;place-items:center;font:600 7.5px Inter,sans-serif;color:rgba(255,255,255,.6)">LOGO</div>
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.14em;color:#39CC00">Mapa da proteção</div>
+            </div>
+            <div style="background:#fff;padding:32px">
+              <div style="font:600 24px/1.3 Fraunces,serif;color:#0F3D63;margin-bottom:14px">{{ r.emailTitulo }}</div>
+              <div style="font:400 14px/1.75 Inter,sans-serif;color:#1A1A1A;margin-bottom:22px">Preparei o estudo com as informações que conversamos. Abaixo estão os pontos principais; o documento completo está anexado em PDF.</div>
+
+              <div style="border:1px solid #DEE7EF;border-radius:10px;padding:20px 22px;margin-bottom:16px">
+                <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.11em;color:#8FA0AF;margin-bottom:8px">Capital sugerido em seguro de vida</div>
+                <div style="font:600 30px Fraunces,serif;color:#0F3D63;margin-bottom:14px">{{ r.totalVida }}</div>
+                <div style="height:1px;background:#DEE7EF;margin-bottom:14px"></div>
+                <div style="display:flex;justify-content:space-between;padding:7px 0;font:500 12.5px Inter,sans-serif;color:#1A1A1A"><span style="color:#5B6B7A">Necessidade da família</span><span style="font-weight:700">{{ r.necessidade }}</span></div>
+                <div style="display:flex;justify-content:space-between;padding:7px 0;font:500 12.5px Inter,sans-serif;color:#1A1A1A"><span style="color:#5B6B7A">Já protegido hoje</span><span style="font-weight:700;color:#39CC00">{{ r.protegido }}</span></div>
+              </div>
+
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.11em;color:#8FA0AF;margin:22px 0 12px">O que cada parte resolve</div>
+              <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+                <sc-for list="{{ r.categorias }}" as="ct" hint-placeholder-count="4">
+                  <div style="display:flex;gap:12px"><div style="width:3px;border-radius:2px;flex:none;background:{{ ct.cor }}"></div><div><div style="font:700 13px Inter,sans-serif;color:#0F3D63">{{ ct.rotulo }} · {{ ct.valor }}</div><div style="font:400 12.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:2px">{{ ct.nota }}</div></div></div>
+                </sc-for>
+              </div>
+
+              <div style="background:#1B72BE;border-radius:8px;padding:15px;text-align:center;font:700 14px Inter,sans-serif;color:#fff;margin-bottom:12px">Ver o mapa completo</div>
+              <div style="border:1px solid #DEE7EF;border-radius:8px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:22px">
+                <div style="width:20px;height:26px;border:1.5px solid #0F3D63;border-radius:2px;flex:none"></div>
+                <div><div style="font:600 12.5px Inter,sans-serif;color:#0F3D63">{{ r.anexoNome }}</div><div style="font:400 11px Inter,sans-serif;color:#8FA0AF">3 páginas · A4</div></div>
+              </div>
+
+              <div style="display:flex;gap:14px;align-items:center;padding-top:20px;border-top:1px solid #DEE7EF">
+                <div style="width:52px;height:52px;border-radius:50%;border:1px dashed #8FA0AF;display:grid;place-items:center;font:600 7px Inter,sans-serif;color:#8FA0AF;flex:none">FOTO</div>
+                <div><div style="font:600 13.5px Inter,sans-serif;color:#0F3D63">{{ r.corretorNome }}</div><div style="font:400 11.5px/1.7 Inter,sans-serif;color:#5B6B7A">{{ r.corretora }} · {{ r.susep }}<br>{{ r.corretorContato }}</div></div>
+              </div>
+            </div>
+            <div style="padding:20px 32px;font:400 10.5px/1.65 Inter,sans-serif;color:#8FA0AF;text-align:center">{{ r.rodapeLegal }}<br><span style="text-decoration:underline">Não quero mais receber e-mails</span></div>
+          </div>
+
+          <div style="width:400px;background:#fff;border:1px solid #DEE7EF;border-radius:12px;overflow:hidden">
+            <div style="padding:20px 24px;border-bottom:1px solid #DEE7EF">
+              <div style="font:600 17px Fraunces,serif;color:#0F3D63">{{ r.enviarTitulo }}</div>
+              <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-top:3px">Você revisa antes de sair.</div>
+            </div>
+            <div style="padding:20px 24px 24px;display:flex;flex-direction:column;gap:14px">
+              <div>
+                <div style="font:600 11.5px Inter,sans-serif;color:#0F3D63;margin-bottom:5px">Para</div>
+                <input type="text" placeholder="nome@email.com" value="{{ f.email.value }}" onChange="{{ f.email.onChange }}" style="border:1.5px solid #DEE7EF;border-radius:9px;padding:10px 12px;font:500 13px Inter,sans-serif;background:#fbfdff;width:100%;box-sizing:border-box">
+              </div>
+              <div>
+                <div style="font:600 11.5px Inter,sans-serif;color:#0F3D63;margin-bottom:5px">Assunto</div>
+                <input type="text" value="{{ f.assunto.value }}" onChange="{{ f.assunto.onChange }}" style="border:1.5px solid #DEE7EF;border-radius:9px;padding:10px 12px;font:500 13px Inter,sans-serif;background:#fbfdff;width:100%;box-sizing:border-box">
+              </div>
+              <div>
+                <div style="font:600 11.5px Inter,sans-serif;color:#0F3D63;margin-bottom:7px">O que vai no e-mail</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <sc-for list="{{ anexos }}" as="an" hint-placeholder-count="4">
+                    <div onClick="{{ an.alternar }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;font:500 12.5px Inter,sans-serif;color:{{ an.cor }}">
+                      <span style="width:17px;height:17px;flex:none;border-radius:4px;display:grid;place-items:center;font:700 10px Inter,sans-serif;color:#fff;background:{{ an.boxBg }};border:1.5px solid {{ an.boxBorda }}">{{ an.check }}</span>
+                      {{ an.rotulo }}
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:9px;padding:11px 13px;font:400 11.5px/1.6 Inter,sans-serif;color:#8a6a00">A análise interna com argumentos de venda nunca entra no e-mail nem no anexo.</div>
+              <div style="display:flex;gap:9px">
+                <button onClick="{{ enviar }}" style="flex:1;font:700 13px Inter,sans-serif;color:#fff;background:#1B72BE;border:none;padding:13px;border-radius:999px;cursor:pointer">Enviar agora</button>
+                <button onClick="{{ imprimirA4 }}" style="font:600 13px Inter,sans-serif;color:#0F3D63;background:#fff;border:1.5px solid #DEE7EF;padding:12px 16px;border-radius:999px;cursor:pointer">Baixar A4</button>
+              </div>
+              <sc-if value="{{ enviado }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#EAFBE3;border:1px solid #C8EFB7;border-radius:9px;padding:11px 13px;font:500 12px/1.6 Inter,sans-serif;color:#2f8a12">{{ msgEnviado }}</div>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ modoEtapas }}" hint-placeholder-val="{{ true }}">
+    <div class="noprint" style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:22px;padding:14px 18px;background:#fff;border:1px solid #DEE7EF;border-radius:12px;position:sticky;bottom:0">
+      <button onClick="{{ voltar }}" style="font:600 12px Inter,sans-serif;color:#5B6B7A;border:1.5px solid #DEE7EF;background:#fff;padding:10px 18px;border-radius:999px;cursor:pointer;visibility:{{ visVoltar }}">Voltar</button>
+      <div style="font:400 11.5px Inter,sans-serif;color:{{ rodapeCor }}">{{ rodapeTexto }}</div>
+      <button onClick="{{ avancar }}" style="font:700 13px Inter,sans-serif;color:#fff;background:#1B72BE;border:none;padding:11px 22px;border-radius:999px;cursor:pointer;visibility:{{ visAvancar }}">{{ rotuloAvancar }}</button>
+    </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ modoAbas }}" hint-placeholder-val="{{ false }}">
+  <div class="noprint" style="width:300px;flex:none;box-sizing:border-box;border-left:1px solid #DEE7EF;background:#fff;padding:24px 22px;min-height:calc(100vh - 104px)">
+    <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:14px">Para fechar o estudo</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+      <div style="flex:1;height:6px;border-radius:99px;background:#E7F0FA;overflow:hidden"><div style="height:100%;background:#39CC00;width:{{ pctLargura }}"></div></div>
+      <span style="font:700 11px Inter,sans-serif;color:#0F3D63;white-space:nowrap">{{ contadorPend }}</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <sc-for list="{{ pendLista }}" as="pl" hint-placeholder-count="4">
+        <div onClick="{{ pl.ir }}" style="display:flex;gap:9px;align-items:flex-start;padding:11px 12px;border-radius:9px;cursor:pointer;border:1px solid {{ pl.borda }};background:{{ pl.bg }}">
+          <span style="font:700 10px Inter,sans-serif;color:{{ pl.tagCor }};background:{{ pl.tagBg }};border-radius:4px;padding:2px 5px;flex:none;margin-top:1px;white-space:nowrap">{{ pl.tag }}</span>
+          <div style="font:500 12px/1.5 Inter,sans-serif;color:{{ pl.cor }}">{{ pl.texto }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="height:1px;background:#DEE7EF;margin:20px 0"></div>
+    <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:10px">Resultado</div>
+    <div style="font:400 12px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:12px">{{ notaResultado }}</div>
+    <div onClick="{{ abrirResultado }}" style="font:700 13px Inter,sans-serif;color:#fff;background:{{ corBotaoResultado }};padding:12px;border-radius:999px;text-align:center;cursor:pointer">Abrir resultado</div>
+    <div onClick="{{ irPropDireto }}" style="font:600 12.5px Inter,sans-serif;color:#0F3D63;border:1.5px solid #DEE7EF;padding:11px;border-radius:999px;text-align:center;margin-top:8px;cursor:pointer">Gerar proposta em PDF</div>
+    <div style="height:1px;background:#DEE7EF;margin:20px 0"></div>
+    <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:10px">Renda considerada</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <sc-for list="{{ resumoRenda }}" as="rr" hint-placeholder-count="4">
+        <div style="display:flex;justify-content:space-between;gap:8px;font:500 11px Inter,sans-serif;color:#5B6B7A"><span>{{ rr.rotulo }}</span><span style="font-weight:700;color:{{ rr.cor }}">{{ rr.valor }}</span></div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;fatorAutonomo&quot;: { &quot;editor&quot;: &quot;float&quot;, &quot;default&quot;: 1.25, &quot;min&quot;: 1, &quot;max&quot;: 1.6, &quot;step&quot;: 0.05, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Fatores fixos&quot; },
+  &quot;fatorPensaoServidor&quot;: { &quot;editor&quot;: &quot;float&quot;, &quot;default&quot;: 0.6, &quot;min&quot;: 0.3, &quot;max&quot;: 1, &quot;step&quot;: 0.05, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Fatores fixos&quot; },
+  &quot;anosInvalidez&quot;: { &quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 5, &quot;min&quot;: 1, &quot;max&quot;: 10, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Fatores fixos&quot; },
+  &quot;fatorDoencasGraves&quot;: { &quot;editor&quot;: &quot;float&quot;, &quot;default&quot;: 1.5, &quot;min&quot;: 0.5, &quot;max&quot;: 4, &quot;step&quot;: 0.5, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Fatores fixos&quot; },
+  &quot;fatorDIT&quot;: { &quot;editor&quot;: &quot;float&quot;, &quot;default&quot;: 0.7, &quot;min&quot;: 0.3, &quot;max&quot;: 1, &quot;step&quot;: 0.05, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Fatores fixos&quot; },
+  &quot;nomeCorretor&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Edgar Torres · Setor Norte Seguros&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Identidade&quot; },
+  &quot;cargoCorretor&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Consultor de proteção familiar · Setor Norte Seguros&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Identidade&quot; },
+  &quot;contatoCorretor&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;(96) 98133-9955 · contato@setornorteseguros.com.br&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Identidade&quot; },
+  &quot;nomeCorretora&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Setor Norte Seguros&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Identidade&quot; },
+  &quot;susep&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;SUSEP 202087923&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Identidade&quot; },
+  &quot;rodapeLegal&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Torres Norte Corretora de Seguros Ltda · CNPJ 11.903.619/0001-22 · SUSEP 202087923&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Identidade&quot; }
+}">
+const VINC = [
+  { k: 'clt',      rotulo: 'CLT',                            fator: 1.0,  fpensao: 1.0, invalidez: true,  nota: 'Sem majoração de risco' },
+  { k: 'servidor', rotulo: 'Servidor público',               fator: 1.0,  fpensao: 0.6, invalidez: false, nota: 'RPPS paga pensão aos dependentes' },
+  { k: 'autonomo', rotulo: 'Autônomo, liberal ou empresário', fator: 1.25, fpensao: 1.0, invalidez: true,  nota: 'Sem rede formal de proteção' }
+];
+const FASES = [
+  { k: 'pre',   nome: 'Pré-escola',    faixa: '1 a 5 anos',   a0: 1,  a1: 5 },
+  { k: 'fund',  nome: 'Fundamental',   faixa: '6 a 14 anos',  a0: 6,  a1: 14 },
+  { k: 'medio', nome: 'Médio',         faixa: '15 a 17 anos', a0: 15, a1: 17 },
+  { k: 'sup',   nome: 'Superior',      faixa: '18 a 22 anos', a0: 18, a1: 22 },
+  { k: 'pos',   nome: 'Pós-graduação', faixa: '23 a 24 anos', a0: 23, a1: 24 }
+];
+const ETAPAS = [
+  { nome: 'Perfil',                  titulo: 'Perfil',                  sub: 'Quem é, como trabalha e de onde vem a renda da casa.' },
+  { nome: 'Dependentes e objetivos', titulo: 'Dependentes e objetivos',  sub: 'Quem depende dessa renda, o plano de estudos, prazos e projetos.' },
+  { nome: 'Custos e patrimônio',     titulo: 'Custos e patrimônio',      sub: 'Bem por bem, custo de transmissão e o que já existe de reserva.' },
+  { nome: 'Contato e consentimento', titulo: 'Contato e consentimento',  sub: 'Onde falar com o cliente e a autorização de uso dos dados.' },
+  { nome: 'Resultado',               titulo: 'Resultado',                sub: 'O mapa fechado: apresentação, proposta em A4 ou e-mail.' }
+];
+const PRAZOS_PENSAO = [1, 5, 10, 15, 20];
+
+const VAZIO = {
+  nome: '', nasc: '', sexo: 'F', estadoCivil: 'Solteiro(a)', profissao: '', idadeApos: 65,
+  vinculos: { clt: { on: false, renda: 0 }, servidor: { on: false, renda: 0 }, autonomo: { on: false, renda: 0 } },
+  rendaConjuge: 0, incluirConjuge: true, terceiros: [],
+  temDep: true, deps: [{ nome: '', nasc: '', rel: 'Filho(a)' }],
+  planoEdu: true, edu: { pre: 0, fund: 0, medio: 0, sup: 0, pos: 0 }, extras: [],
+  prazoManutencao: 5, prazoPensao: 15, teto: 8, objetivos: [],
+  bens: [{ desc: '', tipo: 'Imóvel', valor: 0, liquidavel: false }], pctSucessao: 15,
+  fgts: 0, inss: 0, prevPrivada: 0, seguroAtual: 0, revisado: false,
+  whats: '', email: '', lgpd: false, assunto: '',
+  anexos: { resumo: true, a4: true, slides: false, ia: false }
+};
+
+const EXEMPLO = {
+  nome: 'Marina Albuquerque', nasc: '12/07/1983', sexo: 'F', estadoCivil: 'Casado(a)', profissao: 'Arquiteta', idadeApos: 65,
+  vinculos: { clt: { on: true, renda: 6000 }, servidor: { on: false, renda: 0 }, autonomo: { on: true, renda: 9000 } },
+  rendaConjuge: 4000, incluirConjuge: true,
+  terceiros: [{ desc: 'Aluguel de sala comercial', valor: 2000, incluir: true }],
+  temDep: true,
+  deps: [{ nome: 'Theo', nasc: '30/10/2011', rel: 'Filho(a)' }, { nome: 'João', nasc: '14/03/2015', rel: 'Filho(a)' }],
+  planoEdu: true, edu: { pre: 0, fund: 2000, medio: 2500, sup: 3200, pos: 0 },
+  extras: [{ nome: 'Curso de inglês', valor: 600, prazo: 3 }, { nome: 'Natação', valor: 320, prazo: 0 }],
+  prazoManutencao: 5, prazoPensao: 15, teto: 8,
+  objetivos: [{ desc: 'Quitar empréstimo pessoal', valor: 40000, incluir: true }],
+  bens: [
+    { desc: 'Casa onde a família mora', tipo: 'Imóvel', valor: 750000, liquidavel: false },
+    { desc: 'Apartamento alugado', tipo: 'Imóvel', valor: 350000, liquidavel: false },
+    { desc: 'Fundo de renda fixa', tipo: 'Investimento', valor: 90000, liquidavel: true }
+  ],
+  pctSucessao: 15, fgts: 25000, inss: 80000, prevPrivada: 45000, seguroAtual: 150000, revisado: true,
+  whats: '(92) 99123-4567', email: 'marina@email.com', lgpd: true, assunto: '',
+  anexos: { resumo: true, a4: true, slides: false, ia: false }
+};
+
+const brl = n => 'R$ ' + Math.round(n || 0).toLocaleString('pt-BR');
+const brlCurto = n => {
+  n = Math.round(n || 0);
+  if (n >= 1000000) return 'R$ ' + (n / 1000000).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + ' mi';
+  return brl(n);
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+const primeiro = s => (s || '').trim().split(' ')[0];
+const num = v => { const n = parseFloat(String(v).replace(',', '.').replace(/[^\d.]/g, '')); return isNaN(n) ? 0 : n; };
+
+function idadeDe(str) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec((str || '').trim());
+  if (!m) return null;
+  const d = new Date(+m[3], +m[2] - 1, +m[1]);
+  if (isNaN(d)) return null;
+  const anos = (Date.now() - d.getTime()) / (365.2425 * 24 * 3600 * 1000);
+  if (anos < 0 || anos > 110) return null;
+  return anos;
+}
+
+class Component extends DCLogic {
+  state = { step: 0, modo: 'etapas', saida: null, ia: false, enviado: false, salvo: '', d: clone(VAZIO) };
+
+  componentDidMount() {
+    try {
+      const s = JSON.parse(localStorage.getItem('mp-unificado') || 'null');
+      if (s && s.d) this.setState({ d: Object.assign(clone(VAZIO), s.d), step: s.step || 0, modo: s.modo || 'etapas' });
+    } catch (e) {}
+    this.pageCss = document.createElement('style');
+    this.pageCss.textContent = '@page{size:A4 portrait;margin:0}';
+    document.head.appendChild(this.pageCss);
+  }
+  setState(a, cb) { super.setState(a, () => { this.salvar(); if (cb) cb(); }); }
+  salvar() {
+    try { localStorage.setItem('mp-unificado', JSON.stringify({ d: this.state.d, step: this.state.step, modo: this.state.modo })); } catch (e) {}
+    const t = new Date();
+    const rot = 'Salvo automaticamente · ' + String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
+    if (this.state.salvo !== rot) super.setState({ salvo: rot });
+  }
+  imprimir(modo) {
+    if (this.pageCss) this.pageCss.textContent = modo === 'slides' ? '@page{size:A4 landscape;margin:0}' : '@page{size:A4 portrait;margin:0}';
+    setTimeout(() => window.print(), 60);
+  }
+
+  get(path) { let o = this.state.d; for (const k of path.split('.')) o = o == null ? o : o[k]; return o; }
+  set(path, val) {
+    this.setState(s => {
+      const d = clone(s.d); const ks = path.split('.'); let o = d;
+      while (ks.length > 1) o = o[ks.shift()];
+      o[ks[0]] = val; return { d };
+    });
+  }
+  txt(path) { return { value: this.get(path) || '', onChange: e => this.set(path, e.target.value) }; }
+  plain(path) { return { value: this.get(path) === 0 ? '' : String(this.get(path)), onChange: e => this.set(path, num(e.target.value)) }; }
+  money(path) {
+    const v = this.get(path) || 0;
+    return { value: v ? brl(v) : '', onChange: e => { const dig = (e.target.value || '').replace(/\D/g, ''); this.set(path, dig ? parseInt(dig, 10) : 0); } };
+  }
+  bool(path) {
+    const on = !!this.get(path);
+    return { alternar: () => this.set(path, !on), check: on ? '✓' : '',
+      bg: on ? '#E7F0FA' : '#fbfdff', borda: on ? '#1B72BE' : '#DEE7EF',
+      boxBg: on ? '#1B72BE' : 'transparent', boxBorda: on ? '#1B72BE' : '#C6D2DE' };
+  }
+
+  calc() {
+    const d = this.state.d;
+    const fatorAut = this.props.fatorAutonomo ?? 1.25;
+    const fpServidor = this.props.fatorPensaoServidor ?? 0.6;
+    const anosInval = this.props.anosInvalidez ?? 5;
+    const fatorDG = this.props.fatorDoencasGraves ?? 1.5;
+    const fatorDIT = this.props.fatorDIT ?? 0.7;
+
+    const ativos = VINC.filter(v => d.vinculos[v.k].on && d.vinculos[v.k].renda > 0).map(v => {
+      const fator = v.k === 'autonomo' ? fatorAut : v.fator;
+      const fp = v.k === 'servidor' ? fpServidor : 1;
+      return { k: v.k, rotulo: v.rotulo, renda: d.vinculos[v.k].renda, fator, fp, invalidez: v.invalidez, equiv: d.vinculos[v.k].renda * fator };
+    });
+    const rendaMensal = ativos.reduce((a, v) => a + v.renda, 0);
+    const rendaAnual = rendaMensal * 12;
+    const rendaEquiv = ativos.reduce((a, v) => a + v.equiv, 0);
+    const fatorPensao = rendaMensal > 0 ? ativos.reduce((a, v) => a + v.renda * v.fp, 0) / rendaMensal : 1;
+    const invalidezAplicavel = ativos.length ? ativos.some(v => v.invalidez) : true;
+
+    const casado = d.estadoCivil === 'Casado(a)' || d.estadoCivil === 'União estável';
+    const rendaConjugeIncl = casado && d.incluirConjuge ? d.rendaConjuge : 0;
+    const terceirosIncl = d.terceiros.filter(t => t.incluir).reduce((a, t) => a + t.valor, 0);
+    const rendaFamiliar = rendaMensal + rendaConjugeIncl + terceirosIncl;
+    const participacao = rendaFamiliar > 0 ? rendaMensal / rendaFamiliar : 1;
+
+    const dependentes = d.temDep ? d.deps.filter(x => (x.nome || '').trim() && idadeDe(x.nasc) !== null)
+      .map(x => { const a = idadeDe(x.nasc); return { nome: x.nome, rel: x.rel, idade: a, anos: Math.floor(a) }; }) : [];
+    const temDep = dependentes.length > 0;
+    const filhos = dependentes.filter(x => x.rel === 'Filho(a)');
+    const maisNovo = filhos.length ? Math.min.apply(null, filhos.map(x => x.idade)) : null;
+    const anosAte25 = maisNovo === null ? 0 : Math.max(1, Math.ceil(25 - maisNovo));
+
+    // custo educacional total: por dependente, por fase, anos restantes
+    let custoEducacaoTotal = 0; const eduDet = [];
+    if (d.planoEdu) filhos.forEach(fi => {
+      let sub = 0;
+      FASES.forEach(fa => {
+        if (fi.anos <= fa.a1) {
+          const anos = fa.a1 - Math.max(fi.anos, fa.a0) + 1;
+          if (anos > 0) sub += (d.edu[fa.k] || 0) * 12 * anos;
+        }
+      });
+      custoEducacaoTotal += sub;
+      if (sub > 0) eduDet.push(primeiro(fi.nome) + ' ' + brl(sub));
+    });
+    const extrasDet = d.extras.filter(x => x.valor > 0).map(x => {
+      const anos = +x.prazo > 0 ? +x.prazo : (anosAte25 || 1);
+      return { nome: x.nome || 'despesa de estudo', valor: x.valor, anos, total: x.valor * 12 * anos, indet: !(+x.prazo > 0) };
+    });
+    const extrasTotal = extrasDet.reduce((a, x) => a + x.total, 0);
+    custoEducacaoTotal += extrasTotal;
+
+    // despesa de educação hoje: valor da fase atual × filhos naquela fase + extras mensais
+    let eduHoje = 0;
+    if (d.planoEdu) filhos.forEach(fi => {
+      const fa = FASES.find(x => fi.anos >= x.a0 && fi.anos <= x.a1);
+      if (fa) eduHoje += d.edu[fa.k] || 0;
+    });
+    const extrasMes = extrasDet.reduce((a, x) => a + x.valor, 0);
+    eduHoje += extrasMes;
+    const mediaAteFormar = anosAte25 ? custoEducacaoTotal / (anosAte25 * 12) : 0;
+
+    // vitalícia
+    const patrimonioTotal = d.bens.reduce((a, b) => a + b.valor, 0);
+    const patrimonioLiquidavel = d.bens.filter(b => b.liquidavel).reduce((a, b) => a + b.valor, 0);
+    const modSucessao = patrimonioTotal * (num(d.pctSucessao) / 100);
+    const modUmAnoRenda = rendaMensal * 12;
+    const vitalicia = modSucessao + modUmAnoRenda;
+
+    const receitasLiquidaveis = patrimonioLiquidavel + d.fgts + d.inss + d.prevPrivada + d.seguroAtual;
+
+    // temporária
+    const prazoManut = num(d.prazoManutencao) || 0;
+    const necessidadeBruta = temDep ? rendaEquiv * participacao * prazoManut * 12 : 0;
+    const necessidadeLiquida = Math.max(0, necessidadeBruta - receitasLiquidaveis);
+    const teto = rendaAnual * num(d.teto);
+    const modManutencao = teto > 0 ? Math.min(necessidadeLiquida, teto) : necessidadeLiquida;
+    const tetoAtingido = teto > 0 && necessidadeLiquida > teto;
+    const modObjetivos = d.objetivos.filter(o => o.incluir).reduce((a, o) => a + o.valor, 0);
+    const temporaria = temDep ? modManutencao + modObjetivos : modObjetivos;
+    const totalVida = vitalicia + temporaria;
+
+    // pensão de educação
+    const prazoPensao = num(d.prazoPensao) || 15;
+    const pensaoMensal = (temDep && d.planoEdu && prazoPensao > 0)
+      ? (custoEducacaoTotal * fatorPensao * participacao) / (prazoPensao * 12) : 0;
+
+    // invalidez e complementares
+    const capitalInvalidezAcidente = rendaMensal * 12 * anosInval;
+    const capitalInvalidezDoenca = capitalInvalidezAcidente * 0.5;
+    const rendaInvalidezVitalicia = invalidezAplicavel ? rendaMensal * 0.5 : 0;
+    const dit = rendaMensal * fatorDIT;
+    const dg = rendaAnual * fatorDG;
+
+    const totalNecessidadeMorte = vitalicia + temporaria + custoEducacaoTotal;
+    const capacidadeRenda = Math.max(capitalInvalidezAcidente, dg);
+    const aProteger = totalNecessidadeMorte - receitasLiquidaveis;
+
+    return { ativos, rendaMensal, rendaAnual, rendaEquiv, fatorPensao, invalidezAplicavel, casado,
+      rendaConjugeIncl, terceirosIncl, rendaFamiliar, participacao,
+      dependentes, temDep, filhos, maisNovo, anosAte25, custoEducacaoTotal, eduDet, extrasDet, extrasTotal,
+      eduHoje, extrasMes, mediaAteFormar, patrimonioTotal, patrimonioLiquidavel, modSucessao, modUmAnoRenda,
+      vitalicia, receitasLiquidaveis, necessidadeBruta, necessidadeLiquida, teto, modManutencao, tetoAtingido,
+      modObjetivos, temporaria, totalVida, prazoPensao, prazoManut, pensaoMensal,
+      capitalInvalidezAcidente, capitalInvalidezDoenca, rendaInvalidezVitalicia, dit, dg,
+      totalNecessidadeMorte, capacidadeRenda, aProteger, anosInval };
+  }
+
+  pendencias() {
+    const d = this.state.d, p = [[], [], [], []];
+    if (!(d.nome || '').trim()) p[0].push('nome');
+    if (idadeDe(d.nasc) === null) p[0].push('data de nascimento');
+    if (!VINC.some(v => d.vinculos[v.k].on && d.vinculos[v.k].renda > 0)) p[0].push('vínculo com renda');
+    if (!(d.profissao || '').trim()) p[0].push('profissão');
+
+    if (d.temDep) {
+      const ok = d.deps.filter(x => (x.nome || '').trim() && idadeDe(x.nasc) !== null).length;
+      const inc = d.deps.filter(x => ((x.nome || '').trim() ? 1 : 0) + (idadeDe(x.nasc) !== null ? 1 : 0) === 1).length;
+      if (!ok) p[1].push('pelo menos um dependente');
+      if (inc) p[1].push(inc + ' dependente(s) incompleto(s)');
+      if (d.planoEdu && !FASES.some(fa => d.edu[fa.k] > 0)) p[1].push('custo de alguma fase escolar');
+    }
+
+    if (!d.bens.some(b => b.valor > 0)) p[2].push('pelo menos um bem');
+    if (!d.revisado) p[2].push('confirmação de revisão');
+
+    if (!(d.whats || '').trim() && !(d.email || '').trim()) p[3].push('WhatsApp ou e-mail');
+    if (!d.lgpd) p[3].push('autorização LGPD');
+    return p;
+  }
+
+  textos(c) {
+    const d = this.state.d, nome = primeiro(d.nome) || 'Você';
+    const ela = d.sexo === 'F';
+    const oA = ela ? 'a' : 'o';
+    const vinc = c.ativos.map(v => v.rotulo.toLowerCase()).join(' e ');
+    const partTxt = Math.round(c.participacao * 100) + '%';
+    const cliente = [
+      nome + ', a sua renda de ' + brl(c.rendaMensal) + ' por mês vem de ' + (vinc || 'trabalho') + ' e representa ' + partTxt + ' da renda da casa, que hoje soma ' + brl(c.rendaFamiliar) + '. Essa participação é o que define o tamanho da proteção: o seguro cobre a fatia que depende de você, não o total da família.',
+      'A parte vitalícia, de ' + brl(c.vitalicia) + ', existe porque patrimônio não vira dinheiro no dia seguinte. São ' + brl(c.modSucessao) + ' de custo de transmissão sobre ' + brl(c.patrimonioTotal) + ' em bens, mais um ano da sua renda para a família atravessar o inventário sem vender nada às pressas.',
+      (c.temDep ? 'A parte temporária, de ' + brl(c.temporaria) + ', mantém o padrão de vida por ' + c.prazoManut + ' anos' + (c.modObjetivos > 0 ? ' e inclui ' + brl(c.modObjetivos) + ' dos projetos que você listou' : '') + '. Dela já foram descontad' + (ela ? 'os' : 'os') + ' ' + brl(c.receitasLiquidaveis) + ' de patrimônio liquidável, FGTS, INSS, previdência e seguro atual.' : 'Sem dependentes financeiros informados, a manutenção de padrão de vida não entra neste estudo.'),
+      (c.custoEducacaoTotal > 0 ? 'Os estudos somam ' + brl(c.custoEducacaoTotal) + ' até o fim da formação, o equivalente a ' + brl(c.mediaAteFormar) + ' por mês de média até ' + (c.filhos.length > 1 ? 'os filhos se formarem' : 'a formatura') + '. Contratada como pensão por ' + c.prazoPensao + ' anos e ajustada pela sua participação na renda, a mensalidade fica em ' + brl(c.pensaoMensal) + ' — chega quando a mensalidade vence, sem depender de alguém administrar um valor grande num momento difícil.' : 'Nenhum custo educacional foi informado, então a pensão de educação não entra neste estudo.'),
+      'Além da morte, o estudo dimensiona invalidez em ' + brl(c.capitalInvalidezAcidente) + ' por acidente (' + brl(c.capitalInvalidezDoenca) + ' por doença), doenças graves em ' + brl(c.dg) + ' e ' + brl(c.dit) + ' por mês de diária por incapacidade temporária. São eventos que interrompem a renda sem interromper as despesas.'
+    ];
+    const interna = [
+      'Gancho: ' + (c.ativos.some(v => v.k === 'autonomo') ? 'renda de autônomo sem afastamento pago — a lacuna aparece no primeiro mês.' : c.ativos.some(v => v.k === 'servidor') ? 'servidor com RPPS; a lacuna real está na sucessão e nos estudos, não na pensão.' : 'renda CLT com INSS limitado ao teto.'),
+      'Participação de ' + partTxt + ' na renda familiar ' + (c.participacao < 0.7 ? 'reduz bastante a necessidade — use isso para justificar um prêmio menor que o esperado.' : 'é alta: praticamente toda a casa depende dessa renda.'),
+      'Objeção provável "já tenho seguro": ' + brl(d.seguroAtual) + ' contra ' + brl(Math.max(0, c.aProteger)) + ' de lacuna.',
+      c.tetoAtingido ? 'Atenção: a necessidade estourou o teto de ' + d.teto + '× a renda anual. O valor apresentado está limitado — explique o corte antes que o cliente pergunte.' : 'Necessidade dentro do teto de ' + d.teto + '× a renda anual.',
+      'Fracionamento: fechar a vitalícia agora e escalonar a temporária em duas etapas, se o prêmio total travar a decisão.'
+    ];
+    return { cliente, interna };
+  }
+
+  renderVals() {
+    const d = this.state.d, step = this.state.step, pend = this.pendencias(), c = this.calc();
+    const obrig = [0, 1, 3];
+    const bloqueado = obrig.some(i => pend[i].length > 0);
+    const feitas = pend.filter(x => x.length === 0).length;
+    const pct = Math.round((feitas / 4) * 100);
+    const saida = this.state.saida;
+
+    const etapas = ETAPAS.map((e, i) => {
+      const ativo = i === step, completo = i < 4 && pend[i].length === 0, trava = i === 4 && bloqueado;
+      return { nome: e.nome, ir: () => this.setState({ step: i, saida: null }),
+        marca: completo ? '✓' : String(i + 1),
+        bg: ativo ? '#E7F0FA' : completo ? '#EAFBE3' : 'transparent',
+        borda: ativo ? '#C9E0F5' : 'transparent', opacidade: trava ? '.55' : '1',
+        dotBg: completo ? '#39CC00' : ativo ? '#1B72BE' : 'transparent',
+        dotCor: completo || ativo ? '#fff' : (i === 4 ? '#8FA0AF' : '#C4570B'),
+        dotBorda: completo ? '#39CC00' : ativo ? '#1B72BE' : (i === 4 ? '#8FA0AF' : '#C4570B'),
+        falta: i === 4 ? (bloqueado ? 'Liberado após as pendências' : 'Pronto para gerar') : (completo ? 'Completo' : 'Falta: ' + pend[i].join(', ')),
+        faltaCor: i === 4 ? (bloqueado ? '#8FA0AF' : '#2f8a12') : (completo ? '#5B6B7A' : '#C4570B') };
+    });
+
+    const selo = (texto, ok) => ({ texto, cor: ok ? '#0F3D63' : '#8FA0AF', borda: ok ? '#EEDCA6' : '#DEE7EF', tracejado: ok ? 'solid' : 'dashed' });
+    const selos = [
+      selo('Vitalícia', c.vitalicia > 0),
+      selo(c.temDep ? 'Temporária' : 'Temporária — sem dependentes', c.temDep && c.temporaria > 0),
+      selo(c.pensaoMensal > 0 ? 'Pensão de educação' : 'Educação — falta plano', c.pensaoMensal > 0),
+      selo(c.invalidezAplicavel ? 'Invalidez + renda' : 'Invalidez (sem renda vitalícia)', c.capitalInvalidezAcidente > 0),
+      selo('DIT e doenças graves', c.dit > 0)
+    ];
+
+    const resumoRenda = [
+      { rotulo: 'Segurado', valor: brl(c.rendaMensal), cor: '#0F3D63' },
+      { rotulo: 'Cônjuge', valor: brl(c.rendaConjugeIncl), cor: '#5B6B7A' },
+      { rotulo: 'Terceiros', valor: brl(c.terceirosIncl), cor: '#5B6B7A' },
+      { rotulo: 'Participação', valor: Math.round(c.participacao * 100) + '%', cor: '#1B72BE' }
+    ];
+    const cardsRenda = [
+      { rotulo: 'Renda do segurado', valor: brl(c.rendaMensal), cor: '#0F3D63' },
+      { rotulo: 'Cônjuge incluído', valor: brl(c.rendaConjugeIncl), cor: '#0F3D63' },
+      { rotulo: 'Rendas de terceiros', valor: brl(c.terceirosIncl), cor: '#0F3D63' },
+      { rotulo: 'Renda familiar total', valor: brl(c.rendaFamiliar) + ' · ' + Math.round(c.participacao * 100) + '%', cor: '#1B72BE' }
+    ];
+
+    const f = {
+      nome: this.txt('nome'), nasc: this.txt('nasc'), profissao: this.txt('profissao'),
+      estadoCivil: this.txt('estadoCivil'), idadeApos: this.plain('idadeApos'),
+      rendaConjuge: this.money('rendaConjuge'), incluirConjuge: this.bool('incluirConjuge'),
+      temDep: this.bool('temDep'), planoEdu: this.bool('planoEdu'),
+      prazoManutencao: this.plain('prazoManutencao'), teto: this.plain('teto'), pctSucessao: this.plain('pctSucessao'),
+      whats: this.txt('whats'), email: this.txt('email'),
+      assunto: { value: d.assunto || (primeiro(d.nome) ? primeiro(d.nome) + ', seu mapa de proteção está pronto' : 'Seu mapa de proteção está pronto'), onChange: e => this.set('assunto', e.target.value) },
+      lgpd: this.bool('lgpd'), revisado: this.bool('revisado')
+    };
+
+    const sexos = [{ k: 'M', rotulo: 'Masculino' }, { k: 'F', rotulo: 'Feminino' }].map(s => {
+      const on = d.sexo === s.k;
+      return { rotulo: s.rotulo, escolher: () => this.set('sexo', s.k),
+        cor: on ? '#fff' : '#5B6B7A', bg: on ? '#1B72BE' : '#fbfdff', borda: on ? '#1B72BE' : '#DEE7EF' };
+    });
+
+    const fatorAut = this.props.fatorAutonomo ?? 1.25;
+    const vinculos = VINC.map(v => {
+      const on = d.vinculos[v.k].on, fator = v.k === 'autonomo' ? fatorAut : v.fator;
+      return { rotulo: v.rotulo, nota: v.nota + ' · fator ' + fator.toFixed(2).replace('.', ','),
+        alternar: () => this.set('vinculos.' + v.k + '.on', !on), check: on ? '✓' : '', desabilitado: !on,
+        cor: on ? '#0F3D63' : '#5B6B7A', bg: on ? '#F7FBFF' : '#fff', borda: on ? '#1B72BE' : '#DEE7EF',
+        boxBg: on ? '#1B72BE' : 'transparent', boxBorda: on ? '#1B72BE' : '#C6D2DE',
+        renda: this.money('vinculos.' + v.k + '.renda') };
+    });
+
+    const toggleLinha = (path, on, textoOn, textoOff) => ({
+      alternar: () => this.set(path, !on), check: on ? '✓' : '', texto: on ? textoOn : textoOff,
+      cor: on ? '#2f8a12' : '#8FA0AF', bg: on ? '#EAFBE3' : '#fbfdff', borda: on ? '#C8EFB7' : '#DEE7EF',
+      boxBg: on ? '#39CC00' : 'transparent', boxBorda: on ? '#39CC00' : '#C6D2DE'
+    });
+
+    const terceiros = d.terceiros.map((t, i) => Object.assign({
+      desc: this.txt('terceiros.' + i + '.desc'), valor: this.money('terceiros.' + i + '.valor'),
+      remover: () => this.setState(s => { const dd = clone(s.d); dd.terceiros.splice(i, 1); return { d: dd }; })
+    }, toggleLinha('terceiros.' + i + '.incluir', !!t.incluir, 'entra na renda familiar', 'fora do cálculo')));
+
+    const objetivos = d.objetivos.map((o, i) => Object.assign({
+      desc: this.txt('objetivos.' + i + '.desc'), valor: this.money('objetivos.' + i + '.valor'),
+      remover: () => this.setState(s => { const dd = clone(s.d); dd.objetivos.splice(i, 1); return { d: dd }; })
+    }, toggleLinha('objetivos.' + i + '.incluir', !!o.incluir, 'incluído', 'fora do cálculo')));
+
+    const deps = d.deps.map((x, i) => {
+      const idade = idadeDe(x.nasc);
+      return { nome: this.txt('deps.' + i + '.nome'), nasc: this.txt('deps.' + i + '.nasc'), rel: this.txt('deps.' + i + '.rel'),
+        idade: idade === null ? (x.nasc ? 'data?' : 'falta') : Math.floor(idade) + ' anos',
+        idadeBg: idade === null ? '#FDF1E7' : '#EAFBE3', idadeCor: idade === null ? '#C4570B' : '#2f8a12',
+        remover: () => this.setState(s => { const dd = clone(s.d); dd.deps.splice(i, 1); if (!dd.deps.length) dd.deps.push({ nome: '', nasc: '', rel: 'Filho(a)' }); return { d: dd }; }) };
+    });
+
+    const extras = d.extras.map((x, i) => {
+      const det = c.extrasDet.find(e => e.nome === (x.nome || 'despesa de estudo'));
+      return { nome: this.txt('extras.' + i + '.nome'), valor: this.money('extras.' + i + '.valor'),
+        prazo: { value: String(x.prazo), onChange: e => this.set('extras.' + i + '.prazo', parseInt(e.target.value, 10)) },
+        total: det ? brl(det.total) : brl(0),
+        remover: () => this.setState(s => { const dd = clone(s.d); dd.extras.splice(i, 1); return { d: dd }; }) };
+    });
+
+    const bens = d.bens.map((b, i) => ({
+      desc: this.txt('bens.' + i + '.desc'), tipo: this.txt('bens.' + i + '.tipo'), valor: this.money('bens.' + i + '.valor'),
+      alternarLiq: () => this.set('bens.' + i + '.liquidavel', !b.liquidavel),
+      liqCheck: b.liquidavel ? '✓' : '', liqTexto: b.liquidavel ? 'liquidável' : 'não liquidável',
+      liqCor: b.liquidavel ? '#2f8a12' : '#C4570B',
+      liqBg: b.liquidavel ? '#EAFBE3' : '#FDF1E7', liqBorda: b.liquidavel ? '#C8EFB7' : '#F0CBA8',
+      liqBoxBg: b.liquidavel ? '#39CC00' : 'transparent', liqBoxBorda: b.liquidavel ? '#39CC00' : '#F0CBA8',
+      remover: () => this.setState(s => { const dd = clone(s.d); dd.bens.splice(i, 1); if (!dd.bens.length) dd.bens.push({ desc: '', tipo: 'Imóvel', valor: 0, liquidavel: false }); return { d: dd }; })
+    }));
+
+    const fases = FASES.map(fa => {
+      const quem = c.filhos.filter(x => x.anos >= fa.a0 && x.anos <= fa.a1).map(x => primeiro(x.nome));
+      return { nome: fa.nome, faixa: fa.faixa, valor: this.money('edu.' + fa.k),
+        quem: quem.length ? 'hoje: ' + quem.join(' e ') : '',
+        quemCor: quem.length ? '#2f8a12' : '#8FA0AF' };
+    });
+
+    const sugerido = c.maisNovo === null ? null : PRAZOS_PENSAO.reduce((best, p) => Math.abs(p - (25 - c.maisNovo)) < Math.abs(best - (25 - c.maisNovo)) ? p : best, PRAZOS_PENSAO[0]);
+    const prazosPensao = PRAZOS_PENSAO.map(p => {
+      const on = num(d.prazoPensao) === p;
+      return { rotulo: p + (p === 1 ? ' ano' : ' anos'), escolher: () => this.set('prazoPensao', p),
+        cor: on ? '#fff' : '#5B6B7A', bg: on ? '#1B72BE' : '#fbfdff', borda: on ? '#1B72BE' : '#DEE7EF' };
+    });
+
+    const reservas = [
+      { rotulo: 'Saldo FGTS', campo: this.money('fgts'), nota: 'Liberado aos dependentes no falecimento.' },
+      { rotulo: 'Acumulado estimado INSS/outros', campo: this.money('inss'), nota: 'Capital equivalente da pensão por morte, quando existir.' },
+      { rotulo: 'Previdência privada', campo: this.money('prevPrivada'), nota: 'PGBL, VGBL, fundo de pensão.' },
+      { rotulo: 'Seguro de vida já existente', campo: this.money('seguroAtual'), nota: 'Capital contratado, inclusive o da empresa.' }
+    ];
+
+    const anexosDef = [
+      { k: 'resumo', rotulo: 'Resumo no corpo da mensagem' },
+      { k: 'a4', rotulo: 'PDF A4 anexado' },
+      { k: 'slides', rotulo: 'Apresentação 16:9 anexada' },
+      { k: 'ia', rotulo: 'Resumo para você escrito pela IA' }
+    ];
+    const anexos = anexosDef.map(a => {
+      const on = !!d.anexos[a.k];
+      return { rotulo: a.rotulo, alternar: () => this.set('anexos.' + a.k, !on), check: on ? '✓' : '',
+        cor: on ? '#1A1A1A' : '#5B6B7A', boxBg: on ? '#1B72BE' : 'transparent', boxBorda: on ? '#1B72BE' : '#DEE7EF' };
+    });
+
+    const ia = this.textos(c);
+    const idadeC = idadeDe(d.nasc);
+    const cores = ['#0F3D63', '#1B72BE', '#39CC00', '#D9A400'];
+    const maxCat = Math.max(c.vitalicia, c.temporaria, c.custoEducacaoTotal, c.capacidadeRenda, 1);
+    const largProt = c.totalNecessidadeMorte > 0 ? Math.min(100, Math.round(c.receitasLiquidaveis / c.totalNecessidadeMorte * 100)) : 0;
+    const excedente = c.aProteger < 0;
+
+    const r = {
+      nome: d.nome || 'Cliente sem nome',
+      subtitulo: [d.profissao || null, idadeC !== null ? Math.floor(idadeC) + ' anos' : null, d.estadoCivil,
+        c.ativos.map(v => v.rotulo.toLowerCase()).join(' + ') || null,
+        c.filhos.length ? c.filhos.map(x => primeiro(x.nome) + ' (' + Math.floor(x.idade) + ')').join(' e ') : null].filter(Boolean).join(' · '),
+      dataCurta: new Date().toLocaleDateString('pt-BR'),
+      dataLonga: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }),
+      rendaMensal: brl(c.rendaMensal),
+      rendaNota: 'por mês · ' + Math.round(c.participacao * 100) + '% da renda da casa',
+      totalVida: brlCurto(c.totalVida), vitalicia: brlCurto(c.vitalicia), temporaria: brlCurto(c.temporaria),
+      pensaoMensal: brl(c.pensaoMensal),
+      necessidade: brlCurto(c.totalNecessidadeMorte), protegido: brlCurto(c.receitasLiquidaveis),
+      aProteger: brlCurto(Math.abs(c.aProteger)),
+      rotuloFalta: excedente ? 'Capital excedente' : 'Capital a proteger',
+      larguraProtegido: largProt + '%',
+      tetoAtingido: c.tetoAtingido,
+      tetoAviso: 'A necessidade líquida de ' + brl(c.necessidadeLiquida) + ' ultrapassou o teto de razoabilidade de ' + d.teto + '× a renda anual (' + brl(c.teto) + '). O valor apresentado está limitado ao teto.',
+      categorias: [
+        { rotulo: 'Proteção vitalícia', valor: brl(c.vitalicia), cor: cores[0], largura: Math.round(c.vitalicia / maxCat * 100) + '%', nota: brl(c.modSucessao) + ' de transmissão + 1 ano de renda' },
+        { rotulo: 'Proteção temporária', valor: brl(c.temporaria), cor: cores[1], largura: Math.round(c.temporaria / maxCat * 100) + '%', nota: c.prazoManut + ' anos de padrão de vida' + (c.modObjetivos ? ' + ' + brl(c.modObjetivos) + ' de objetivos' : '') },
+        { rotulo: 'Educação dos filhos', valor: brl(c.custoEducacaoTotal), cor: cores[2], largura: Math.round(c.custoEducacaoTotal / maxCat * 100) + '%', nota: 'referência; pago como pensão de ' + brl(c.pensaoMensal) + '/mês' },
+        { rotulo: 'Capacidade de renda', valor: brl(c.capacidadeRenda), cor: cores[3], largura: Math.round(c.capacidadeRenda / maxCat * 100) + '%', nota: 'maior entre invalidez por acidente e doenças graves' }
+      ],
+      necessidadeLinhas: [
+        { rotulo: 'Vitalícia — transmissão sucessória e um ano de renda', valor: brl(c.vitalicia) },
+        { rotulo: 'Temporária — padrão de vida e objetivos', valor: brl(c.temporaria) },
+        { rotulo: 'Educação — custo total até a formação', valor: brl(c.custoEducacaoTotal) }
+      ],
+      protegidoLinhas: [
+        { rotulo: 'Patrimônio liquidável', valor: brl(c.patrimonioLiquidavel) },
+        { rotulo: 'Saldo FGTS', valor: brl(d.fgts) },
+        { rotulo: 'Acumulado INSS/outros', valor: brl(d.inss) },
+        { rotulo: 'Previdência privada', valor: brl(d.prevPrivada) },
+        { rotulo: 'Seguro de vida existente', valor: brl(d.seguroAtual) }
+      ],
+      notasContexto: [
+        { rotulo: 'Renda do segurado', valor: brl(c.rendaMensal) + '/mês' },
+        { rotulo: 'Renda familiar total', valor: brl(c.rendaFamiliar) + '/mês' },
+        { rotulo: 'Participação do segurado', valor: Math.round(c.participacao * 100) + '%' },
+        { rotulo: 'Patrimônio declarado', valor: brl(c.patrimonioTotal) },
+        { rotulo: 'Despesa de educação hoje', valor: brl(c.eduHoje) + '/mês' }
+      ],
+      coberturas: [
+        { titulo: 'Vida — vitalícia (sucessão e um ano de renda)', valor: brl(c.vitalicia), nota: brl(c.patrimonioTotal) + ' de patrimônio × ' + num(d.pctSucessao) + '% de custo de transmissão = ' + brl(c.modSucessao) + ', mais ' + brl(c.modUmAnoRenda) + ' de um ano de renda.' },
+        { titulo: 'Vida — temporária (padrão de vida por ' + c.prazoManut + ' anos)', valor: brl(c.temporaria), nota: c.temDep ? brl(c.rendaEquiv) + ' de renda ajustada × ' + Math.round(c.participacao * 100) + '% de participação × ' + (c.prazoManut * 12) + ' meses, menos ' + brl(c.receitasLiquidaveis) + ' de receitas liquidáveis' + (c.modObjetivos ? ', mais ' + brl(c.modObjetivos) + ' de projetos e objetivos' : '') + '.' : 'Sem dependentes financeiros; entra apenas o valor de projetos e objetivos.' },
+        { titulo: 'Pensão por morte — educação', valor: brl(c.pensaoMensal) + '/mês', nota: c.pensaoMensal > 0 ? brl(c.custoEducacaoTotal) + ' de custo educacional × ' + Math.round(c.fatorPensao * 100) + '% de fator de pensão × ' + Math.round(c.participacao * 100) + '% de participação, diluídos em ' + c.prazoPensao + ' anos. Média sem diluição: ' + brl(c.mediaAteFormar) + '/mês até a formação.' : 'Sem planejamento educacional informado.' },
+        { titulo: 'Invalidez total por acidente', valor: brl(c.capitalInvalidezAcidente), nota: c.anosInval + ' anos de renda (' + brl(c.rendaMensal) + ' × 12 × ' + c.anosInval + ').' },
+        { titulo: 'Invalidez por doença', valor: brl(c.capitalInvalidezDoenca), nota: '50% do capital de invalidez por acidente.' },
+        { titulo: 'Renda vitalícia por invalidez', valor: c.rendaInvalidezVitalicia > 0 ? brl(c.rendaInvalidezVitalicia) + '/mês' : 'não se aplica', nota: c.rendaInvalidezVitalicia > 0 ? '50% da renda mensal, contínua.' : 'Servidor público já recebe aposentadoria por invalidez pelo RPPS.' },
+        { titulo: 'Diária por incapacidade temporária (DIT)', valor: brl(c.dit) + '/mês', nota: '70% da renda mensal enquanto durar o afastamento.' },
+        { titulo: 'Doenças graves', valor: brl(c.dg), nota: '1,5 × a renda anual, pago no diagnóstico, para tratar sem consumir reservas.' }
+      ],
+      premissas: [
+        { rotulo: 'Renda bruta mensal do segurado', valor: brl(c.rendaMensal) },
+        { rotulo: 'Renda ajustada pelo fator de vínculo', valor: brl(c.rendaEquiv) },
+        { rotulo: 'Renda familiar total considerada', valor: brl(c.rendaFamiliar) },
+        { rotulo: 'Participação do segurado na renda', valor: Math.round(c.participacao * 100) + '%' },
+        { rotulo: 'Fator de pensão aplicado', valor: Math.round(c.fatorPensao * 100) + '%' },
+        { rotulo: 'Prazo de manutenção de padrão de vida', valor: c.prazoManut + ' anos' },
+        { rotulo: 'Prazo da pensão por morte', valor: c.prazoPensao + ' anos' },
+        { rotulo: 'Teto de razoabilidade', valor: d.teto + '× a renda anual (' + brl(c.teto) + ')' },
+        { rotulo: 'Custo de transmissão sucessória', valor: num(d.pctSucessao) + '% de ' + brl(c.patrimonioTotal) },
+        { rotulo: 'Custo educacional total', valor: brl(c.custoEducacaoTotal) },
+        { rotulo: 'Receitas liquidáveis abatidas', valor: brl(c.receitasLiquidaveis) }
+      ],
+      dependentes: c.dependentes.slice(0, 4).map((x, i) => ({ texto: primeiro(x.nome) + ', ' + Math.floor(x.idade) + ' anos · ' + x.rel, cor: cores[i % 4] })),
+      slide2Titulo: (c.dependentes.length || 1) + (c.dependentes.length === 1 ? ' pessoa vive dessa renda.' : ' pessoas vivem dessa renda.'),
+      slide2Nota: c.ativos.some(v => v.k === 'autonomo')
+        ? 'Parte da renda vem de trabalho autônomo: sem afastamento pago, sem pensão automática. É a família que absorve a queda.'
+        : 'A rotina da casa está apoiada nessa renda, que responde por ' + Math.round(c.participacao * 100) + '% do total familiar.',
+      iaCliente: this.state.ia ? ia.cliente : [],
+      iaInterna: this.state.ia ? ia.interna : [],
+      corretor: this.props.nomeCorretor ?? 'Edgar Torres · Setor Norte Seguros',
+      corretorNome: (this.props.nomeCorretor ?? 'Edgar Torres · Setor Norte Seguros').split('·')[0].trim(),
+      corretorCargo: this.props.cargoCorretor ?? 'Consultor de proteção familiar · Setor Norte Seguros',
+      corretorContato: this.props.contatoCorretor ?? '(96) 98133-9955 · contato@setornorteseguros.com.br',
+      corretora: this.props.nomeCorretora ?? 'Setor Norte Seguros',
+      susep: this.props.susep ?? 'SUSEP 202087923',
+      rodapeLegal: this.props.rodapeLegal ?? 'Torres Norte Corretora de Seguros Ltda · CNPJ 11.903.619/0001-22 · SUSEP 202087923',
+      emailTitulo: (primeiro(d.nome) || 'Olá') + ', seu mapa de proteção está pronto',
+      enviarTitulo: 'Enviar para ' + (primeiro(d.nome) || 'o cliente'),
+      anexoNome: 'Mapa_de_Protecao_' + ((d.nome || 'Cliente').trim().replace(/\s+/g, '_')) + '.pdf'
+    };
+
+    const TAGS = ['Perfil', 'Família', 'Patrim.', 'Contato'];
+    const pendLista = [];
+    pend.forEach((lista, i) => lista.forEach(item => {
+      const opcional = obrig.indexOf(i) === -1;
+      pendLista.push({ texto: item.charAt(0).toUpperCase() + item.slice(1) + (opcional ? ' · opcional' : ''),
+        tag: TAGS[i], ir: () => this.setState({ step: i, saida: null }),
+        borda: opcional ? '#DEE7EF' : '#F0CBA8', bg: opcional ? '#fff' : '#FDF1E7',
+        cor: opcional ? '#1A1A1A' : '#C4570B',
+        tagCor: opcional ? '#5B6B7A' : '#C4570B', tagBg: opcional ? '#F3F6FA' : '#fff' });
+    }));
+
+    const modos = [{ k: 'etapas', rotulo: 'Etapas' }, { k: 'abas', rotulo: 'Abas' }].map(m => {
+      const on = this.state.modo === m.k;
+      return { rotulo: m.rotulo, escolher: () => this.setState({ modo: m.k }),
+        cor: on ? '#0F3D63' : 'rgba(255,255,255,.75)', bg: on ? '#fff' : 'transparent' };
+    });
+
+    const ABAS = ['Perfil', 'Família', 'Patrimônio', 'Contato', 'Resultado'];
+    const abas = ABAS.map((rotulo, i) => {
+      const ativo = i === step, travado = i === 4 && bloqueado;
+      const n = i < 4 ? pend[i].length : 0;
+      return { rotulo, ir: () => this.setState({ step: i, saida: null }),
+        cor: ativo ? '#0F3D63' : travado ? 'rgba(255,255,255,.45)' : 'rgba(255,255,255,.72)',
+        bg: ativo ? '#F3F6FA' : 'transparent',
+        badge: i === 4 ? (travado ? '🔒' : '') : (n ? '· ' + n : '✓'),
+        badgeCor: i === 4 ? 'rgba(255,255,255,.45)' : (n ? '#FCF3D9' : ativo ? '#39CC00' : '#EAFBE3') };
+    });
+
+    const totalPend = pend.reduce((a, x) => a + x.length, 0);
+
+    return {
+      tituloEstudo: (d.nome || '').trim() || 'Novo estudo',
+      salvoEm: this.state.salvo || 'Nada preenchido ainda',
+      salvoCurto: this.state.salvo ? 'Salvo' : 'Não salvo',
+      linhaCliente: [d.profissao || null, idadeC !== null ? Math.floor(idadeC) + ' anos' : null,
+        c.filhos.length ? c.filhos.length + (c.filhos.length > 1 ? ' filhos' : ' filho') : null,
+        d.estadoCivil].filter(Boolean).join(' · ') || 'Preencha o perfil para começar',
+      modoEtapas: this.state.modo === 'etapas', modoAbas: this.state.modo === 'abas',
+      modos, abas, pendLista,
+      contadorPend: totalPend ? totalPend + (totalPend > 1 ? ' pendências' : ' pendência') : 'tudo preenchido',
+      notaResultado: bloqueado
+        ? 'O resultado abre depois das pendências em laranja — para apresentar de uma vez, não em pedaços.'
+        : 'Os números estão fechados. Abra com o cliente na frente.',
+      corBotaoResultado: bloqueado ? '#8FA0AF' : '#0F3D63',
+      abrirResultado: () => this.setState({ step: 4, saida: null }),
+      irPropDireto: () => this.setState({ step: 4, saida: bloqueado ? null : 'prop' }),
+      pctLargura: pct + '%', pctTexto: pct + '%',
+      etapas, selos, f, sexos, vinculos, terceiros, objetivos, deps, extras, fases, bens, reservas, anexos,
+      resumoRenda, cardsRenda, prazosPensao,
+      idadeCliente: idadeC === null ? '—' : Math.floor(idadeC) + ' anos',
+      mostraConjuge: c.casado, temDep: !!d.temDep, planoEdu: !!d.planoEdu,
+      fatorAutTexto: fatorAut.toFixed(2).replace('.', ','),
+      eduHojeTexto: brl(c.eduHoje),
+      sugestaoPensao: sugerido ? '· sugerido ' + sugerido + ' anos, até o mais novo completar 25' : '',
+      tetoValor: brl(c.teto),
+      totalPatrimonio: brl(c.patrimonioTotal), totalLiquido: brl(c.patrimonioLiquidavel),
+      totalIliquido: brl(c.patrimonioTotal - c.patrimonioLiquidavel),
+      custoSucessao: brl(c.modSucessao), receitasLiquidaveis: brl(c.receitasLiquidaveis),
+      etapaContador: this.state.modo === 'abas' ? (pend[step] && pend[step].length ? pend[step].length + ' pendência(s) nesta aba' : 'Aba completa') : 'Etapa ' + (step + 1) + ' de 5',
+      etapaTitulo: ETAPAS[step].titulo, etapaSub: ETAPAS[step].sub,
+      eh0: step === 0, eh1: step === 1, eh2: step === 2, eh3: step === 3, eh4: step === 4,
+      bloqueado: step === 4 && bloqueado,
+      verResumo: step === 4 && !bloqueado && !saida,
+      verApres: step === 4 && !bloqueado && saida === 'apres',
+      verProp: step === 4 && !bloqueado && saida === 'prop',
+      verEmail: step === 4 && !bloqueado && saida === 'email',
+      faltaResumo: obrig.filter(i => pend[i].length).map(i => ETAPAS[i].nome + ' — ' + pend[i].join(', ')).join(' · '),
+      temIa: this.state.ia, rotuloIa: this.state.ia ? 'Gerar de novo' : 'Gerar textos',
+      gerarIa: () => this.setState({ ia: true }),
+      r,
+      irApres: () => this.setState({ saida: 'apres' }),
+      irProp: () => this.setState({ saida: 'prop' }),
+      irEmail: () => this.setState({ saida: 'email', enviado: false }),
+      voltarResumo: () => this.setState({ saida: null }),
+      imprimirA4: () => this.imprimir('a4'),
+      imprimirSlides: () => this.imprimir('slides'),
+      enviado: this.state.enviado,
+      msgEnviado: 'Envio simulado para ' + (d.email || 'o cliente') + '. Em produção este botão chama o webhook do n8n, que dispara o e-mail e avisa você no WhatsApp.',
+      enviar: () => this.setState({ enviado: true }),
+      addTerceiro: () => this.setState(s => { const dd = clone(s.d); dd.terceiros.push({ desc: '', valor: 0, incluir: true }); return { d: dd }; }),
+      addObjetivo: () => this.setState(s => { const dd = clone(s.d); dd.objetivos.push({ desc: '', valor: 0, incluir: true }); return { d: dd }; }),
+      addDep: () => this.setState(s => { const dd = clone(s.d); dd.deps.push({ nome: '', nasc: '', rel: 'Filho(a)' }); return { d: dd }; }),
+      addExtra: () => this.setState(s => { const dd = clone(s.d); dd.extras.push({ nome: '', valor: 0, prazo: 1 }); return { d: dd }; }),
+      addBem: () => this.setState(s => { const dd = clone(s.d); dd.bens.push({ desc: '', tipo: 'Imóvel', valor: 0, liquidavel: false }); return { d: dd }; }),
+      voltar: () => this.setState(s => ({ step: Math.max(0, s.step - 1), saida: null })),
+      avancar: () => this.setState(s => ({ step: Math.min(4, s.step + 1) })),
+      visVoltar: step === 0 ? 'hidden' : 'visible',
+      visAvancar: step === 4 ? 'hidden' : 'visible',
+      rotuloAvancar: step === 3 ? 'Ver o resultado' : 'Continuar',
+      rodapeTexto: step === 4
+        ? (bloqueado ? 'Volte às etapas marcadas em laranja para liberar o mapa' : 'Mapa fechado — escolha apresentação, proposta ou e-mail')
+        : (pend[step] && pend[step].length ? pend[step].length + ' pendência(s) nesta etapa — você pode seguir e voltar depois' : 'Etapa completa'),
+      rodapeCor: (step < 4 && pend[step] && pend[step].length) ? '#C4570B' : '#8FA0AF',
+      limpar: () => this.setState({ d: clone(VAZIO), step: 0, saida: null, ia: false }),
+      exemplo: () => this.setState({ d: clone(EXEMPLO), step: 0, saida: null })
+    };
+  }
+}
+
+</script>
+</body>
+</html>

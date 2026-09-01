@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#F3F6FA; }
+  a { color:#1B72BE; } a:hover { color:#0F3D63; }
+  input, button, textarea { font-family:Inter, sans-serif; }
+  input:focus, textarea:focus { outline:none; border-color:#1B72BE; box-shadow:0 0 0 3px #E7F0FA; }
+</style>
+</helmet>
+
+<div style="font-family:Inter,sans-serif;min-height:100vh;display:flex;align-items:stretch">
+
+  <div style="width:250px;flex:none;box-sizing:border-box;background:#fff;border-right:1px solid #DEE7EF;padding:22px 18px">
+    <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#8FA0AF">Bloco 6</div>
+    <div style="font:600 18px Fraunces,serif;color:#0F3D63;margin:5px 0 6px">Celular do corretor</div>
+    <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:18px">Você sentado ao lado do cliente, com o telefone na mão. Uma pergunta por tela, polegar alcançando tudo.</div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <sc-for list="{{ telas }}" as="t" hint-placeholder-count="4">
+        <div onClick="{{ t.ir }}" style="cursor:pointer;display:flex;gap:11px;padding:11px 12px;border-radius:9px;background:{{ t.bg }};border:1px solid {{ t.borda }}">
+          <div style="width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 10.5px Inter,sans-serif;color:#fff;background:{{ t.dot }}">{{ t.n }}</div>
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:{{ t.cor }}">{{ t.nome }}</div>
+            <div style="font:400 11px/1.5 Inter,sans-serif;color:#8FA0AF;margin-top:2px">{{ t.sub }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin-top:20px;padding:14px;border-radius:9px;background:#EAFBE3;border:1px solid #C8EFB7;font:400 11.5px/1.65 Inter,sans-serif;color:#2f8a12">É o mesmo estudo do desktop, no mesmo banco. Começar no celular e terminar no computador não perde nada.</div>
+    <div onClick="{{ irPainel }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE;margin-top:18px">← Painel do corretor</div>
+  </div>
+
+  <div style="flex:1;min-width:0;padding:26px 32px 60px">
+    <div style="margin-bottom:20px">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF">{{ contador }}</div>
+      <div style="font:600 26px Fraunces,serif;color:#0F3D63;margin:5px 0 4px">{{ titulo }}</div>
+      <div style="font:400 13px/1.6 Inter,sans-serif;color:#5B6B7A;max-width:660px">{{ subtitulo }}</div>
+    </div>
+
+    <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+
+      <!-- APARELHO -->
+      <div style="width:390px;flex:none;background:#1A1A1A;border-radius:36px;padding:9px">
+        <div style="background:#F3F6FA;border-radius:29px;overflow:hidden;position:relative;height:760px;display:flex;flex-direction:column">
+
+          <div style="background:{{ statusBg }};padding:10px 22px 6px;display:flex;justify-content:space-between;align-items:center;flex:none">
+            <span style="font:600 11px Inter,sans-serif;color:{{ statusCor }}">09:41</span>
+            <div style="display:flex;gap:4px;align-items:center">
+              <span style="width:16px;height:8px;border:1px solid {{ statusCor }};border-radius:2px;opacity:.7"></span>
+            </div>
+          </div>
+
+          <!-- 1. DASHBOARD -->
+          <sc-if value="{{ eh1 }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1;min-height:0;display:flex;flex-direction:column">
+            <div style="background:#0F3D63;padding:14px 20px 20px;color:#fff;flex:none">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+                <div>
+                  <div style="font:400 11px Inter,sans-serif;color:rgba(255,255,255,.6)">Segunda, 31 de agosto</div>
+                  <div style="font:600 21px Fraunces,serif;margin-top:2px">Bom dia, Edgar</div>
+                </div>
+                <div style="width:36px;height:36px;border-radius:50%;border:1px dashed rgba(255,255,255,.4);display:grid;place-items:center;font:600 6.5px Inter,sans-serif;color:rgba(255,255,255,.55);flex:none">FOTO</div>
+              </div>
+              <div style="display:flex;gap:9px;margin-top:16px">
+                <sc-for list="{{ kpisCel }}" as="k" hint-placeholder-count="3">
+                  <div style="flex:1;background:rgba(255,255,255,.1);border-radius:9px;padding:10px 11px">
+                    <div style="font:700 15px Inter,sans-serif;color:{{ k.cor }}">{{ k.valor }}</div>
+                    <div style="font:400 9.5px/1.35 Inter,sans-serif;color:rgba(255,255,255,.6);margin-top:2px">{{ k.rotulo }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="flex:1;min-height:0;overflow:hidden;padding:16px 18px">
+              <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:10px;padding:12px 14px;margin-bottom:14px">
+                <div style="font:600 12px Inter,sans-serif;color:#8a6a00">1 mapa parado há 128 dias</div>
+                <div style="font:400 10.5px/1.5 Inter,sans-serif;color:#8a6a00;margin-top:3px">Silvana Kruger. Resolver no computador.</div>
+              </div>
+
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:10px">Precisa de você hoje</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ filaCel }}" as="i" hint-placeholder-count="4">
+                  <div style="background:#fff;border:1px solid #DEE7EF;border-left:3px solid {{ i.cor }};border-radius:9px;padding:12px 13px">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+                      <span style="font:600 12.5px Inter,sans-serif;color:#1A1A1A">{{ i.nome }}</span>
+                      <span style="font:600 10px Inter,sans-serif;color:{{ i.diasCor }};white-space:nowrap;flex:none">{{ i.dias }}</span>
+                    </div>
+                    <div style="font:400 11px/1.5 Inter,sans-serif;color:#5B6B7A;margin-top:3px">{{ i.acao }}</div>
+                    <div style="display:flex;gap:7px;margin-top:9px">
+                      <div style="font:700 11px Inter,sans-serif;color:#fff;background:#39CC00;padding:8px 13px;border-radius:999px">WhatsApp</div>
+                      <div style="font:600 11px Inter,sans-serif;color:#0F3D63;border:1.5px solid #DEE7EF;padding:7px 12px;border-radius:999px">Abrir</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="flex:none;border-top:1px solid #DEE7EF;background:#fff;padding:9px 12px 16px;display:flex;justify-content:space-around">
+              <sc-for list="{{ tabbar }}" as="tb" hint-placeholder-count="4">
+                <div style="text-align:center;padding:5px 12px">
+                  <div style="width:20px;height:20px;border-radius:5px;background:{{ tb.icone }};margin:0 auto 5px"></div>
+                  <div style="font:600 9.5px Inter,sans-serif;color:{{ tb.cor }}">{{ tb.nome }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- 2. MODO CONVERSA -->
+          <sc-if value="{{ eh2 }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#fff">
+            <div style="flex:none;padding:8px 20px 14px;border-bottom:1px solid #EDF2F7">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px">
+                <div onClick="{{ voltarPergunta }}" style="cursor:pointer;font:700 20px Inter,sans-serif;color:{{ corVoltar }};width:28px">←</div>
+                <div style="font:600 11.5px Inter,sans-serif;color:#0F3D63">{{ p.cliente }}</div>
+                <div style="font:400 10.5px Inter,sans-serif;color:#8FA0AF;white-space:nowrap">{{ p.contador }}</div>
+              </div>
+              <div style="height:4px;border-radius:99px;background:#E7F0FA;overflow:hidden"><div style="height:100%;background:#39CC00;width:{{ p.progresso }}"></div></div>
+            </div>
+
+            <div style="flex:1;min-height:0;overflow:hidden;padding:24px 22px;display:flex;flex-direction:column">
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#1B72BE;margin-bottom:10px">{{ p.secao }}</div>
+              <div style="font:600 25px/1.3 Fraunces,serif;color:#0F3D63;margin-bottom:10px">{{ p.pergunta }}</div>
+              <div style="font:400 12.5px/1.7 Inter,sans-serif;color:#5B6B7A;margin-bottom:22px">{{ p.ajuda }}</div>
+
+              <sc-if value="{{ p.ehTexto }}" hint-placeholder-val="{{ true }}">
+                <input type="text" placeholder="{{ p.placeholder }}" style="width:100%;padding:16px 16px;border:1.5px solid #DEE7EF;border-radius:11px;font:600 17px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;box-sizing:border-box">
+              </sc-if>
+
+              <sc-if value="{{ p.ehOpcoes }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:9px">
+                <sc-for list="{{ p.opcoes }}" as="op" hint-placeholder-count="3">
+                  <div onClick="{{ op.escolher }}" style="cursor:pointer;border:1.5px solid {{ op.borda }};background:{{ op.bg }};border-radius:11px;padding:15px 16px;display:flex;align-items:center;gap:12px;min-height:52px;box-sizing:border-box">
+                    <span style="width:20px;height:20px;flex:none;border-radius:5px;border:2px solid {{ op.caixaBorda }};background:{{ op.caixaBg }};display:grid;place-items:center;font:700 10px Inter,sans-serif;color:#fff">{{ op.marca }}</span>
+                    <div>
+                      <div style="font:600 14px Inter,sans-serif;color:{{ op.cor }}">{{ op.rotulo }}</div>
+                      <div style="font:400 11px Inter,sans-serif;color:#8FA0AF;margin-top:1px">{{ op.nota }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              </sc-if>
+
+              <sc-if value="{{ p.ehDinheiro }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="border:1.5px solid #C9E0F5;background:#F7FBFF;border-radius:11px;padding:18px 16px;text-align:center;margin-bottom:14px">
+                  <div style="font:600 30px Fraunces,serif;color:#0F3D63">{{ p.valor }}</div>
+                  <div style="font:400 10.5px Inter,sans-serif;color:#8FA0AF;margin-top:3px">por mês</div>
+                </div>
+                <div style="display:flex;gap:7px;flex-wrap:wrap">
+                  <sc-for list="{{ p.atalhos }}" as="at" hint-placeholder-count="4">
+                    <div onClick="{{ at.aplicar }}" style="cursor:pointer;font:600 12px Inter,sans-serif;color:#0F3D63;background:#F3F6FA;border:1px solid #DEE7EF;padding:11px 14px;border-radius:999px">{{ at.rotulo }}</div>
+                  </sc-for>
+                </div>
+              </div>
+              </sc-if>
+
+              <div style="flex:1"></div>
+              <sc-if value="{{ p.temNota }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:10px;padding:12px 14px;font:400 11.5px/1.65 Inter,sans-serif;color:#8a6a00;margin-bottom:14px">{{ p.nota }}</div>
+              </sc-if>
+            </div>
+
+            <div style="flex:none;padding:14px 20px 22px;border-top:1px solid #EDF2F7;background:#fff">
+              <div onClick="{{ avancarPergunta }}" style="cursor:pointer;font:700 15px Inter,sans-serif;color:#fff;background:#1B72BE;padding:17px;border-radius:999px;text-align:center;min-height:54px;box-sizing:border-box">{{ p.botao }}</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+                <span onClick="{{ irResultado }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#8FA0AF">Pular para o resultado</span>
+                <span style="font:400 11px Inter,sans-serif;color:#39CC00">Salvo</span>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- 3. RESULTADO -->
+          <sc-if value="{{ eh3 }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#fff">
+            <div style="flex:none;background:#0F3D63;padding:10px 20px 22px;color:#fff">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px">
+                <div onClick="{{ irConversa }}" style="cursor:pointer;font:700 20px Inter,sans-serif;color:rgba(255,255,255,.7);width:28px">←</div>
+                <div style="font:600 11.5px Inter,sans-serif;color:rgba(255,255,255,.85)">Marina Albuquerque</div>
+                <div style="width:28px"></div>
+              </div>
+              <div style="font:700 9px Inter,sans-serif;text-transform:uppercase;letter-spacing:.11em;color:#39CC00">Capital sugerido</div>
+              <div style="font:600 34px Fraunces,serif;margin:5px 0 3px">R$ 748 mil</div>
+              <div style="font:400 11.5px Inter,sans-serif;color:rgba(255,255,255,.65)">em seguro de vida</div>
+            </div>
+
+            <div style="flex:1;min-height:0;overflow:hidden;padding:16px 18px">
+              <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+                <sc-for list="{{ coberturasCel }}" as="cb" hint-placeholder-count="4">
+                  <div style="border:1px solid #DEE7EF;border-left:3px solid {{ cb.cor }};border-radius:9px;padding:12px 14px">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+                      <span style="font:600 12.5px Inter,sans-serif;color:#0F3D63">{{ cb.nome }}</span>
+                      <span style="font:700 13.5px Inter,sans-serif;color:{{ cb.cor }};white-space:nowrap;flex:none">{{ cb.valor }}</span>
+                    </div>
+                    <div style="font:400 10.5px/1.5 Inter,sans-serif;color:#5B6B7A;margin-top:3px">{{ cb.nota }}</div>
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="background:#F3F6FA;border-radius:10px;padding:14px 15px">
+                <div style="font:700 9px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:9px">Já protegido</div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+                  <span style="font:600 16px Fraunces,serif;color:#2f8a12">R$ 390 mil</span>
+                  <span style="font:400 10.5px Inter,sans-serif;color:#8FA0AF">de R$ 1,51 mi</span>
+                </div>
+                <div style="height:10px;border-radius:99px;background:#fff;overflow:hidden"><div style="height:100%;width:26%;background:#39CC00"></div></div>
+              </div>
+            </div>
+
+            <div style="flex:none;padding:14px 18px 22px;border-top:1px solid #EDF2F7;background:#fff">
+              <div style="display:flex;gap:8px;margin-bottom:9px">
+                <div style="flex:1;font:700 13px Inter,sans-serif;color:#fff;background:#0F3D63;padding:15px;border-radius:999px;text-align:center;min-height:50px;box-sizing:border-box">Apresentar</div>
+                <div style="flex:none;font:700 13px Inter,sans-serif;color:#0F3D63;border:1.5px solid #DEE7EF;padding:14px 18px;border-radius:999px;min-height:50px;box-sizing:border-box">Enviar</div>
+              </div>
+              <div style="font:400 10.5px/1.55 Inter,sans-serif;color:#8FA0AF;text-align:center">Gerar o Mapa da Proteção e imprimir a proposta: no computador.</div>
+            </div>
+          </div>
+          </sc-if>
+
+          <!-- 4. CLIENTE -->
+          <sc-if value="{{ eh4 }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#fff">
+            <div style="flex:none;padding:8px 20px 18px;border-bottom:1px solid #EDF2F7">
+              <div onClick="{{ irDash }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE;margin-bottom:14px">← Clientes</div>
+              <div style="display:flex;gap:13px;align-items:center">
+                <div style="width:46px;height:46px;border-radius:50%;background:#E7F0FA;display:grid;place-items:center;font:600 17px Fraunces,serif;color:#0F3D63;flex:none">M</div>
+                <div style="min-width:0">
+                  <div style="font:600 17px Fraunces,serif;color:#0F3D63">Marina Albuquerque</div>
+                  <div style="font:400 10.5px Inter,sans-serif;color:#5B6B7A;margin-top:2px">Arquiteta · 43 anos · 2 filhos</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:7px;margin-top:14px">
+                <div style="flex:1;font:700 12px Inter,sans-serif;color:#fff;background:#39CC00;padding:13px;border-radius:999px;text-align:center;min-height:46px;box-sizing:border-box">WhatsApp</div>
+                <div style="flex:1;font:700 12px Inter,sans-serif;color:#fff;background:#1B72BE;padding:13px;border-radius:999px;text-align:center;min-height:46px;box-sizing:border-box">Ligar</div>
+                <div style="flex:none;font:600 12px Inter,sans-serif;color:#0F3D63;border:1.5px solid #DEE7EF;padding:12px 15px;border-radius:999px;min-height:46px;box-sizing:border-box">Nota</div>
+              </div>
+            </div>
+
+            <div style="flex:1;min-height:0;overflow:hidden;padding:16px 18px">
+              <div style="background:#F8FEF5;border:1.5px solid #C8EFB7;border-radius:10px;padding:13px 15px;margin-bottom:14px">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+                  <div>
+                    <div style="display:flex;align-items:center;gap:7px">
+                      <span style="font:600 12.5px Inter,sans-serif;color:#0F3D63">Mapa v2</span>
+                      <span style="font:700 8.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:#fff;background:#39CC00;padding:3px 7px;border-radius:99px">atual</span>
+                    </div>
+                    <div style="font:400 10.5px Inter,sans-serif;color:#5B6B7A;margin-top:3px">25/08 · apresentado em 26/08</div>
+                  </div>
+                  <div style="font:600 15px Fraunces,serif;color:#0F3D63;flex:none">R$ 748 mil</div>
+                </div>
+                <div onClick="{{ irResultado }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE;margin-top:10px;padding-top:9px;border-top:1px solid #DEE7EF">Abrir o mapa</div>
+              </div>
+
+              <div style="border:1px solid #DEE7EF;border-radius:10px;padding:13px 15px;margin-bottom:16px">
+                <div style="display:flex;justify-content:space-between;align-items:baseline">
+                  <span style="font:600 12.5px Inter,sans-serif;color:#5B6B7A">Mapa v1</span>
+                  <span style="font:600 13px Inter,sans-serif;color:#5B6B7A">R$ 651 mil</span>
+                </div>
+                <div style="font:400 10.5px Inter,sans-serif;color:#8FA0AF;margin-top:3px">12/08 · antes do apartamento alugado</div>
+              </div>
+
+              <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:10px">Histórico</div>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ historicoCel }}" as="h" hint-placeholder-count="3">
+                  <div style="display:grid;grid-template-columns:38px 1fr;gap:11px;padding:9px 0;border-bottom:1px solid #EDF2F7">
+                    <div style="font:700 10px Inter,sans-serif;color:#8FA0AF;padding-top:1px">{{ h.data }}</div>
+                    <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#1A1A1A">{{ h.texto }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- NOTAS -->
+      <div style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:4px">{{ notas.titulo }}</div>
+          <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">{{ notas.sub }}</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ notas.itens }}" as="nt" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;padding-bottom:11px;border-bottom:1px solid #EDF2F7;align-items:baseline">
+                <div>
+                  <div style="font:600 12.5px Inter,sans-serif;color:#1A1A1A">{{ nt.titulo }}</div>
+                  <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:2px">{{ nt.texto }}</div>
+                </div>
+                <span style="font:600 10.5px Inter,sans-serif;color:{{ nt.cor }};background:{{ nt.bg }};padding:5px 10px;border-radius:99px;white-space:nowrap">{{ nt.tag }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:14px">Regras do celular</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ regras }}" as="rg" hint-placeholder-count="5">
+              <div style="display:flex;gap:11px;align-items:flex-start">
+                <span style="font:700 12px Inter,sans-serif;color:{{ rg.cor }};flex:none">{{ rg.icone }}</span>
+                <div style="font:400 12px/1.7 Inter,sans-serif;color:#1A1A1A">{{ rg.texto }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:18px 20px;font:400 11.5px/1.7 Inter,sans-serif;color:#8a6a00">O que o celular não faz: gerar o Mapa da Proteção, imprimir a proposta, editar fatores de cálculo e autorizar exclusões. São ações definitivas — pedem tela grande e cabeça fria.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1440, &quot;height&quot;: 940 }
+}">
+const TELAS = [
+  { k: 1, nome: 'Dashboard', sub: 'o dia em uma tela', titulo: 'Dashboard no celular',
+    sub2: 'O que você olha no semáforo: leads novos, quem está esperando resposta e o botão de WhatsApp em cada linha.' },
+  { k: 2, nome: 'Modo conversa', sub: 'uma pergunta por tela', titulo: 'Modo conversa',
+    sub2: 'Preenchimento ao lado do cliente. Uma pergunta grande por tela, botão de voltar sempre visível, alvo de toque nunca menor que 46px.' },
+  { k: 3, nome: 'Resultado', sub: 'mostrar na mesa', titulo: 'Resultado no celular',
+    sub2: 'Os números para virar o telefone e mostrar ao cliente na hora. Gerar o mapa e imprimir continuam sendo tarefa de computador.' },
+  { k: 4, nome: 'Cliente', sub: 'antes de bater na porta', titulo: 'Cliente no celular',
+    sub2: 'O essencial antes da reunião: mapas gerados, histórico e os botões de contato no alcance do polegar.' }
+];
+
+const PERGUNTAS = [
+  { secao: 'Perfil', pergunta: 'Como ela trabalha hoje?', ajuda: 'Pode marcar mais de uma. O fator de risco incide sobre a renda de cada vínculo, não sobre o total.',
+    tipo: 'opcoes', botao: 'Continuar',
+    opcoes: [
+      { rotulo: 'CLT', nota: 'fator 1,00', on: true },
+      { rotulo: 'Servidor público', nota: 'fator 1,00 · pensão 0,60', on: false },
+      { rotulo: 'Autônoma ou empresária', nota: 'fator 1,25', on: true }
+    ] },
+  { secao: 'Perfil', pergunta: 'Quanto ela recebe como autônoma?', ajuda: 'Renda bruta média dos últimos meses. Se variar muito, use a média do ano.',
+    tipo: 'dinheiro', valor: 'R$ 9.000', botao: 'Continuar',
+    atalhos: ['R$ 5.000', 'R$ 8.000', 'R$ 10.000', 'Digitar'],
+    nota: 'A renda de CLT você já informou: R$ 6.000. As duas entram separadas na conta.' },
+  { secao: 'Dependentes', pergunta: 'Quanto custa a escola de um filho?', ajuda: 'O valor de um só. Se os dois estudam no mesmo lugar, o sistema soma.',
+    tipo: 'dinheiro', valor: 'R$ 2.000', botao: 'Continuar',
+    atalhos: ['R$ 1.200', 'R$ 2.000', 'R$ 3.500', 'Digitar'],
+    nota: 'Theo (14) e João (11) estão no fundamental. A despesa de hoje fica em R$ 4.000 por mês.' },
+  { secao: 'Patrimônio', pergunta: 'A casa onde moram vira dinheiro rápido?', ajuda: 'Bem não liquidável não socorre a família no mês seguinte — vira necessidade de capital.',
+    tipo: 'opcoes', botao: 'Continuar',
+    opcoes: [
+      { rotulo: 'Não liquidável', nota: 'é onde a família mora', on: true },
+      { rotulo: 'Liquidável', nota: 'venderiam se precisasse', on: false }
+    ] },
+  { secao: 'Contato', pergunta: 'Qual o WhatsApp dela?', ajuda: 'Para você mandar a proposta depois da reunião.',
+    tipo: 'texto', placeholder: '(96) 99123-4567', botao: 'Ver o resultado' }
+];
+
+class Component extends DCLogic {
+  state = { tela: 1, pergunta: 0 };
+
+  renderVals() {
+    const s = this.state;
+    const atual = TELAS.find(t => t.k === s.tela) || TELAS[0];
+    const q = PERGUNTAS[s.pergunta];
+
+    const telas = TELAS.map(t => {
+      const on = s.tela === t.k;
+      return { n: String(t.k), nome: t.nome, sub: t.sub,
+        ir: () => this.setState({ tela: t.k }),
+        bg: on ? '#E7F0FA' : 'transparent', borda: on ? '#C9E0F5' : 'transparent',
+        dot: on ? '#1B72BE' : '#CBD6E1', cor: on ? '#0F3D63' : '#1A1A1A' };
+    });
+
+    const escuro = s.tela === 1 || s.tela === 3;
+
+    const p = {
+      cliente: 'Marina Albuquerque',
+      contador: (s.pergunta + 1) + ' de 16',
+      progresso: Math.round((s.pergunta + 1) / 16 * 100) + '%',
+      secao: q.secao, pergunta: q.pergunta, ajuda: q.ajuda, botao: q.botao,
+      ehTexto: q.tipo === 'texto', ehOpcoes: q.tipo === 'opcoes', ehDinheiro: q.tipo === 'dinheiro',
+      placeholder: q.placeholder || '', valor: q.valor || '',
+      atalhos: (q.atalhos || []).map(a => ({ rotulo: a, aplicar: () => {} })),
+      opcoes: (q.opcoes || []).map(o => ({
+        rotulo: o.rotulo, nota: o.nota, escolher: () => {},
+        marca: o.on ? '✓' : '', cor: o.on ? '#0F3D63' : '#1A1A1A',
+        bg: o.on ? '#F7FBFF' : '#fff', borda: o.on ? '#1B72BE' : '#DEE7EF',
+        caixaBg: o.on ? '#1B72BE' : 'transparent', caixaBorda: o.on ? '#1B72BE' : '#CBD6E1'
+      })),
+      temNota: !!q.nota, nota: q.nota || ''
+    };
+
+    const NOTAS = {
+      1: { titulo: 'O que cabe no dashboard do celular', sub: 'Menos que no desktop, de propósito: só o que você resolve de pé.',
+        itens: [
+          { titulo: 'Três indicadores, não quatro', texto: 'Leads novos, estudos em aberto e agendados de hoje. Capital no funil fica no computador.', tag: 'cortado', cor: '#8a6a00', bg: '#FCF3D9' },
+          { titulo: 'WhatsApp em cada linha', texto: 'A ação mais comum vira botão verde de 46px, não um menu escondido.', tag: 'promovido', cor: '#2f8a12', bg: '#EAFBE3' },
+          { titulo: 'Aviso dos 120 dias como leitura', texto: 'Informa e manda resolver no computador. Autorizar exclusão pelo celular é perigoso.', tag: 'só leitura', cor: '#0F3D63', bg: '#E7F0FA' },
+          { titulo: 'Barra inferior com quatro abas', texto: 'Hoje, Clientes, Estudos, Mais. O funil em colunas não cabe — vira lista dentro de Clientes.', tag: 'adaptado', cor: '#0F3D63', bg: '#E7F0FA' }
+        ] },
+      2: { titulo: 'Como o modo conversa se comporta', sub: 'É o mesmo estudo do desktop, quebrado em 16 telas.',
+        itens: [
+          { titulo: 'Uma pergunta por tela', texto: 'Título em Fraunces 25px, ajuda em 12,5px. O cliente consegue ler junto se você virar o telefone.', tag: 'regra', cor: '#0F3D63', bg: '#E7F0FA' },
+          { titulo: 'Atalhos de valor', texto: 'Três faixas prováveis mais "Digitar". Poupa o teclado numérico na maioria das respostas.', tag: 'atalho', cor: '#2f8a12', bg: '#EAFBE3' },
+          { titulo: 'Nota de contexto embaixo', texto: 'Mostra o que já foi respondido e o efeito daquele número, para você conferir em voz alta.', tag: 'confere', cor: '#8a6a00', bg: '#FCF3D9' },
+          { titulo: 'Voltar em toda tela', texto: 'Seta no canto e "Pular para o resultado" no rodapé. Ninguém fica preso na sequência.', tag: 'regra', cor: '#0F3D63', bg: '#E7F0FA' },
+          { titulo: 'Salvo a cada resposta', texto: 'Rótulo discreto no rodapé. Ligação caindo no meio não perde nada.', tag: 'autosave', cor: '#2f8a12', bg: '#EAFBE3' }
+        ] },
+      3: { titulo: 'O resultado que caiba na mesa', sub: 'Pensado para você virar o telefone na direção do cliente.',
+        itens: [
+          { titulo: 'O número grande primeiro', texto: 'Capital sugerido em Fraunces 34px sobre marinho. É o que abre a conversa.', tag: 'destaque', cor: '#0F3D63', bg: '#E7F0FA' },
+          { titulo: 'Quatro coberturas em cartão', texto: 'Vitalícia, temporária, educação e invalidez, cada uma com uma linha de explicação.', tag: 'resumo', cor: '#0F3D63', bg: '#E7F0FA' },
+          { titulo: 'Já protegido como barra', texto: 'Mostra a proporção sem tabela. R$ 390 mil de R$ 1,51 mi lê-se em um segundo.', tag: 'visual', cor: '#2f8a12', bg: '#EAFBE3' },
+          { titulo: 'Sem "Gerar Mapa" aqui', texto: 'Ação definitiva não fica a um toque de distância num aparelho no bolso.', tag: 'bloqueado', cor: '#C4570B', bg: '#FDF1E7' }
+        ] },
+      4: { titulo: 'O cliente no bolso', sub: 'O que você precisa saber tocando a campainha.',
+        itens: [
+          { titulo: 'Contato antes de tudo', texto: 'WhatsApp, Ligar e Nota logo abaixo do nome, em botões de 46px.', tag: 'promovido', cor: '#2f8a12', bg: '#EAFBE3' },
+          { titulo: 'Mapa atual em destaque', texto: 'Moldura verde e valor grande. As versões anteriores ficam em cinza, legíveis mas discretas.', tag: 'hierarquia', cor: '#0F3D63', bg: '#E7F0FA' },
+          { titulo: 'Histórico como lista curta', texto: 'Data e texto, sem colunas. As três últimas entradas bastam antes da reunião.', tag: 'adaptado', cor: '#0F3D63', bg: '#E7F0FA' },
+          { titulo: 'Comparar versões: no desktop', texto: 'Tabela de antes e depois não cabe em 390px sem virar rolagem horizontal.', tag: 'cortado', cor: '#8a6a00', bg: '#FCF3D9' }
+        ] }
+    };
+
+    return {
+      telas, contador: 'Tela ' + s.tela + ' de 4',
+      titulo: atual.titulo, subtitulo: atual.sub2,
+      eh1: s.tela === 1, eh2: s.tela === 2, eh3: s.tela === 3, eh4: s.tela === 4,
+      statusBg: escuro ? '#0F3D63' : '#fff',
+      statusCor: escuro ? 'rgba(255,255,255,.75)' : '#5B6B7A',
+
+      kpisCel: [
+        { valor: '2', rotulo: 'leads novos', cor: '#39CC00' },
+        { valor: '3', rotulo: 'estudos abertos', cor: '#fff' },
+        { valor: '1', rotulo: 'reunião hoje', cor: '#fff' }
+      ],
+      filaCel: [
+        { nome: 'Carla Buriti', acao: 'Preencheu há 40 min e não escolheu horário.', dias: 'hoje', diasCor: '#2f8a12', cor: '#8FA0AF' },
+        { nome: 'Juliana Serra', acao: 'Reunião hoje às 15h. Falta o patrimônio no estudo.', dias: 'ontem', diasCor: '#5B6B7A', cor: '#1B72BE' },
+        { nome: 'Wesley Damasceno', acao: 'Propôs sábado de manhã. Confirmar por WhatsApp.', dias: '2 dias', diasCor: '#5B6B7A', cor: '#8FA0AF' },
+        { nome: 'Marina Albuquerque', acao: 'Quer o prêmio parcelado. Sem retorno desde a apresentação.', dias: '6 dias', diasCor: '#5B6B7A', cor: '#0F3D63' }
+      ],
+      tabbar: [
+        { nome: 'Hoje', icone: '#1B72BE', cor: '#0F3D63' },
+        { nome: 'Clientes', icone: '#CBD6E1', cor: '#8FA0AF' },
+        { nome: 'Estudos', icone: '#CBD6E1', cor: '#8FA0AF' },
+        { nome: 'Mais', icone: '#CBD6E1', cor: '#8FA0AF' }
+      ],
+
+      p,
+      corVoltar: s.pergunta === 0 ? '#CBD6E1' : '#0F3D63',
+      avancarPergunta: () => {
+        if (s.pergunta < PERGUNTAS.length - 1) this.setState({ pergunta: s.pergunta + 1 });
+        else this.setState({ tela: 3 });
+      },
+      voltarPergunta: () => this.setState({ pergunta: Math.max(0, s.pergunta - 1) }),
+
+      coberturasCel: [
+        { nome: 'Vitalícia', valor: 'R$ 359 mil', nota: 'inventário e o primeiro ano', cor: '#0F3D63' },
+        { nome: 'Temporária', valor: 'R$ 389 mil', nota: '5 anos de padrão de vida', cor: '#1B72BE' },
+        { nome: 'Pensão de educação', valor: 'R$ 3.013', nota: 'por mês, por 15 anos', cor: '#39CC00' },
+        { nome: 'Invalidez por acidente', valor: 'R$ 900 mil', nota: '5 anos de renda', cor: '#D9A400' }
+      ],
+      historicoCel: [
+        { data: '26/08', texto: 'Apresentação por vídeo. Pediu o prêmio parcelado.' },
+        { data: '25/08', texto: 'Mapa v2 gerado.' },
+        { data: '22/08', texto: 'Corrigiu a renda de conta própria.' }
+      ],
+
+      notas: NOTAS[s.tela] || NOTAS[1],
+      regras: [
+        { icone: '◇', cor: '#0F3D63', texto: 'Alvo de toque nunca menor que 46px de altura. Botão principal em 54px.' },
+        { icone: '◇', cor: '#0F3D63', texto: 'Uma coluna sempre. Nada de grid de duas colunas em 390px.' },
+        { icone: '◇', cor: '#0F3D63', texto: 'Ação principal no rodapé fixo, no alcance do polegar. Voltar no topo.' },
+        { icone: '✕', cor: '#C4570B', texto: 'Sem tabela com rolagem horizontal. O que não cabe vira cartão ou fica no desktop.' },
+        { icone: '✓', cor: '#2f8a12', texto: 'Mesmo banco, mesmo estudo. Começar no celular e terminar no computador é o caso comum, não a exceção.' }
+      ],
+
+      irConversa: () => this.setState({ tela: 2 }),
+      irResultado: () => this.setState({ tela: 3 }),
+      irDash: () => this.setState({ tela: 1 }),
+      irPainel: () => { window.location.href = 'Painel do Corretor.dc.html'; }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

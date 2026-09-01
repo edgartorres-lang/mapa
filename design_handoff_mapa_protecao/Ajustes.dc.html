@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#F3F6FA; }
+  a { color:#1B72BE; } a:hover { color:#0F3D63; }
+  input, button, select { font-family:Inter, sans-serif; }
+  input:focus, select:focus { outline:none; border-color:#1B72BE; box-shadow:0 0 0 3px #E7F0FA; }
+</style>
+</helmet>
+
+<div style="font-family:Inter,sans-serif;min-height:100vh;display:flex;align-items:stretch">
+
+  <div style="width:250px;flex:none;box-sizing:border-box;background:#fff;border-right:1px solid #DEE7EF;padding:22px 18px">
+    <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#8FA0AF">Bloco 4</div>
+    <div style="font:600 18px Fraunces,serif;color:#0F3D63;margin:5px 0 6px">Ajustes</div>
+    <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:18px">O que muda o resultado sem mexer no código, e as obrigações que vêm com guardar dado de gente.</div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <sc-for list="{{ abas }}" as="a" hint-placeholder-count="5">
+        <div onClick="{{ a.ir }}" style="cursor:pointer;display:flex;gap:11px;padding:11px 12px;border-radius:9px;background:{{ a.bg }};border:1px solid {{ a.borda }}">
+          <div style="width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 10.5px Inter,sans-serif;color:#fff;background:{{ a.dot }}">{{ a.n }}</div>
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:{{ a.cor }}">{{ a.nome }}</div>
+            <div style="font:400 11px/1.5 Inter,sans-serif;color:#8FA0AF;margin-top:2px">{{ a.sub }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ sujo }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:18px;padding:14px;border-radius:9px;background:#FDF1E7;border:1px solid #F0CBA8">
+        <div style="font:600 12px Inter,sans-serif;color:#C4570B;margin-bottom:6px">Alterações não salvas</div>
+        <div style="font:400 11px/1.6 Inter,sans-serif;color:#C4570B">{{ avisoSujo }}</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ alterado }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:18px;padding:14px;border-radius:9px;background:#EAFBE3;border:1px solid #C8EFB7">
+        <div style="font:600 12px Inter,sans-serif;color:#2f8a12;margin-bottom:6px">Fatores personalizados</div>
+        <div style="font:400 11px/1.6 Inter,sans-serif;color:#2f8a12">Diferentes do padrão do racional. Os estudos em aberto já usam estes valores.</div>
+      </div>
+    </sc-if>
+    <div onClick="{{ irPainel }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE;margin-top:18px">← Painel do corretor</div>
+  </div>
+
+  <div style="flex:1;min-width:0;padding:26px 32px 60px">
+    <div style="margin-bottom:20px">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF">Ajustes</div>
+      <div style="font:600 26px Fraunces,serif;color:#0F3D63;margin:5px 0 4px">{{ tituloTela }}</div>
+      <div style="font:400 13px/1.6 Inter,sans-serif;color:#5B6B7A;max-width:660px">{{ subTela }}</div>
+    </div>
+
+    <!-- 1. FATORES DE CÁLCULO -->
+    <sc-if value="{{ eh1 }}" hint-placeholder-val="{{ true }}">
+    <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:16px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <sc-for list="{{ grupos }}" as="g" hint-placeholder-count="4">
+          <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+            <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:3px">{{ g.nome }}</div>
+            <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:14px">{{ g.sub }}</div>
+            <div style="display:flex;flex-direction:column;gap:11px">
+              <sc-for list="{{ g.campos }}" as="cp" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:1fr 116px;gap:14px;align-items:center;padding-bottom:11px;border-bottom:1px solid #EDF2F7">
+                  <div>
+                    <div style="font:600 12.5px Inter,sans-serif;color:{{ cp.tituloCor }}">{{ cp.rotulo }}</div>
+                    <div style="font:400 11px/1.55 Inter,sans-serif;color:#8FA0AF;margin-top:2px">{{ cp.nota }}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:7px;justify-content:flex-end">
+                    <input type="text" value="{{ cp.campo.value }}" onChange="{{ cp.campo.onChange }}" disabled="{{ cp.travado }}" style="width:62px;padding:9px 10px;border:1.5px solid {{ cp.borda }};border-radius:8px;font:700 13px Inter,sans-serif;color:{{ cp.valorCor }};background:{{ cp.bg }};text-align:center;box-sizing:border-box">
+                    <span style="font:500 11.5px Inter,sans-serif;color:#8FA0AF;width:42px">{{ cp.unidade }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:26px">
+        <div style="background:#0F3D63;border-radius:12px;padding:22px 24px;color:#fff">
+          <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.11em;color:#39CC00;margin-bottom:4px">Efeito ao salvar</div>
+          <div style="font:600 20px Fraunces,serif;margin:6px 0 12px">{{ efeitoTitulo }}</div>
+          <div style="font:400 12px/1.7 Inter,sans-serif;color:rgba(255,255,255,.75);margin-bottom:16px">{{ efeitoTexto }}</div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid rgba(255,255,255,.18)">
+            <sc-for list="{{ contagem }}" as="ct" hint-placeholder-count="2">
+              <div style="display:flex;justify-content:space-between;gap:12px;font:500 12px Inter,sans-serif;color:rgba(255,255,255,.7)"><span>{{ ct.rotulo }}</span><span style="font-weight:700;color:{{ ct.cor }}">{{ ct.valor }}</span></div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:18px">
+            <div onClick="{{ restaurar }}" style="cursor:pointer;flex:none;font:600 12px Inter,sans-serif;color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.32);padding:11px 15px;border-radius:999px">Restaurar</div>
+            <div onClick="{{ salvar }}" style="cursor:pointer;flex:1;font:700 12.5px Inter,sans-serif;color:{{ salvarCor }};background:{{ salvarBg }};padding:12px;border-radius:999px;text-align:center">{{ salvarRotulo }}</div>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Simulação · estudo da Marina</div>
+          <div style="font:400 11px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:14px">Um estudo em aberto, recalculado com os valores desta tela. Serve para você ver o efeito antes de salvar.</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ simulacao }}" as="sm" hint-placeholder-count="5">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+                  <span style="font:500 12px Inter,sans-serif;color:#1A1A1A">{{ sm.rotulo }}</span>
+                  <span style="font:700 12.5px Inter,sans-serif;color:#0F3D63">{{ sm.valor }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:2px">
+                  <span style="font:400 10.5px Inter,sans-serif;color:#8FA0AF">antes {{ sm.antes }}</span>
+                  <span style="font:600 10.5px Inter,sans-serif;color:{{ sm.difCor }}">{{ sm.dif }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:18px 20px;font:400 11.5px/1.7 Inter,sans-serif;color:#8a6a00">Os mapas já gerados não mudam. A Marina tem o v2 travado em 25/08 — se ela pedir o número novo, o caminho é duplicar o estudo.</div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 2. HORÁRIOS -->
+    <sc-if value="{{ eh2 }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:16px;align-items:start">
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+        <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:3px">As três opções fixas</div>
+        <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">Cada opção é um turno relativo ao dia em que o lead preenche, mais a hora. A regra não muda de lead para lead.</div>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <sc-for list="{{ slots }}" as="sl" hint-placeholder-count="3">
+            <div style="border:1.5px solid #DEE7EF;border-radius:11px;padding:15px 17px">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px">
+                <div style="font:700 11px Inter,sans-serif;color:#0F3D63">{{ sl.titulo }}</div>
+                <div style="font:600 11px Inter,sans-serif;color:#1B72BE">{{ sl.exemplo }}</div>
+              </div>
+              <div style="display:grid;grid-template-columns:minmax(120px,1fr) 88px 88px;gap:10px;align-items:end">
+                <div>
+                  <div style="font:500 10.5px Inter,sans-serif;color:#8FA0AF;margin-bottom:4px">Dia</div>
+                  <select value="{{ sl.dia.value }}" onChange="{{ sl.dia.onChange }}" style="width:100%;padding:9px 10px;border:1.5px solid #DEE7EF;border-radius:8px;font:500 12px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;box-sizing:border-box">
+                    <option value="1">amanhã</option>
+                    <option value="2">depois de amanhã</option>
+                    <option value="3">em três dias</option>
+                  </select>
+                </div>
+                <div>
+                  <div style="font:500 10.5px Inter,sans-serif;color:#8FA0AF;margin-bottom:4px">Hora</div>
+                  <input type="text" value="{{ sl.hora.value }}" onChange="{{ sl.hora.onChange }}" style="width:100%;padding:9px 10px;border:1.5px solid #DEE7EF;border-radius:8px;font:700 12.5px Inter,sans-serif;color:#0F3D63;background:#fbfdff;text-align:center;box-sizing:border-box">
+                </div>
+                <div>
+                  <div style="font:500 10.5px Inter,sans-serif;color:#8FA0AF;margin-bottom:4px">Duração</div>
+                  <select value="{{ sl.dur.value }}" onChange="{{ sl.dur.onChange }}" style="width:100%;padding:9px 10px;border:1.5px solid #DEE7EF;border-radius:8px;font:500 12px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;box-sizing:border-box">
+                    <option value="30">30 min</option>
+                    <option value="45">45 min</option>
+                    <option value="60">1 hora</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid #EDF2F7">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ opcoesAgenda }}" as="oa" hint-placeholder-count="3">
+              <div onClick="{{ oa.alternar }}" style="cursor:pointer;display:flex;gap:11px;align-items:flex-start;padding:13px 15px;border-radius:9px;background:{{ oa.bg }};border:1.5px solid {{ oa.borda }}">
+                <span style="width:17px;height:17px;flex:none;border-radius:4px;display:grid;place-items:center;font-size:10px;color:#fff;background:{{ oa.boxBg }};border:1.5px solid {{ oa.boxBorda }};margin-top:1px">{{ oa.check }}</span>
+                <div>
+                  <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63">{{ oa.titulo }}</div>
+                  <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:2px">{{ oa.nota }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Como o lead vê agora</div>
+          <div style="font:400 11px Inter,sans-serif;color:#5B6B7A;margin-bottom:14px">Simulando um preenchimento hoje, segunda 31 de agosto.</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ previa }}" as="pv" hint-placeholder-count="3">
+              <div style="border:1.5px solid #DEE7EF;border-radius:10px;padding:12px 14px">
+                <div style="font:600 12.5px Inter,sans-serif;color:#1A1A1A">{{ pv.dia }}</div>
+                <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-top:2px">{{ pv.hora }}</div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ campoAberto }}" hint-placeholder-val="{{ true }}">
+              <div style="border:1.5px dashed #CBD6E1;border-radius:10px;padding:12px 14px">
+                <div style="font:600 12.5px Inter,sans-serif;color:#1A1A1A">Nenhum desses serve</div>
+                <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-top:2px">Digo o meu melhor dia e horário</div>
+              </div>
+            </sc-if>
+          </div>
+          <div onClick="{{ irCaptacao }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE;margin-top:14px">ver a tela completa do lead →</div>
+        </div>
+
+        <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:18px 20px">
+          <div style="font:600 13.5px Inter,sans-serif;color:#8a6a00;margin-bottom:7px">Conflito não bloqueia</div>
+          <div style="font:400 11.5px/1.7 Inter,sans-serif;color:#8a6a00">A ferramenta não consulta a sua agenda antes de oferecer o horário. Se cair em cima de um compromisso, o evento entra igual e você remarca. Um lead perdido na tela custa mais que um remarcamento.</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 3. LGPD -->
+    <sc-if value="{{ eh3 }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
+            <div>
+              <div style="font:600 16px Fraunces,serif;color:#0F3D63">Consentimentos registrados</div>
+              <div style="font:400 11.5px Inter,sans-serif;color:#5B6B7A;margin-top:2px">Cada aceite guarda a data, a origem e o texto que estava na tela.</div>
+            </div>
+            <div style="font:600 11.5px Inter,sans-serif;color:#1B72BE;cursor:pointer">exportar CSV</div>
+          </div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ consentimentos }}" as="cs" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:1.3fr 1fr 100px 92px;gap:12px;padding:11px 0;border-bottom:1px solid #EDF2F7;align-items:center">
+                <div style="font:600 12.5px Inter,sans-serif;color:#1A1A1A">{{ cs.nome }}</div>
+                <div style="font:400 11px Inter,sans-serif;color:#8FA0AF">{{ cs.origem }}</div>
+                <div style="font:500 11.5px Inter,sans-serif;color:#5B6B7A">{{ cs.data }}</div>
+                <div style="text-align:right"><span style="font:600 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:{{ cs.cor }};background:{{ cs.bg }};padding:4px 9px;border-radius:99px">{{ cs.status }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Pedido de exclusão</div>
+          <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">Quando o cliente pede para sair, tudo dele vai embora — não é a mesma coisa que excluir um mapa.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div style="border:1px solid #F0CBA8;background:#FDF1E7;border-radius:10px;padding:15px 17px">
+              <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#C4570B;margin-bottom:9px">Excluir mapa</div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <sc-for list="{{ compExcluirMapa }}" as="x" hint-placeholder-count="3">
+                  <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#C4570B">{{ x }}</div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="border:1px solid #1A1A1A;background:#fff;border-radius:10px;padding:15px 17px">
+              <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.08em;color:#1A1A1A;margin-bottom:9px">Excluir o cliente</div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <sc-for list="{{ compExcluirCliente }}" as="x" hint-placeholder-count="3">
+                  <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#1A1A1A">{{ x }}</div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:9px;align-items:center;margin-top:16px">
+            <input type="text" placeholder="Nome ou telefone do cliente que pediu exclusão" style="flex:1;padding:11px 13px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 12.5px Inter,sans-serif;background:#fbfdff;box-sizing:border-box">
+            <div style="font:700 12px Inter,sans-serif;color:#fff;background:#1A1A1A;padding:12px 18px;border-radius:999px;cursor:pointer;white-space:nowrap">Registrar pedido</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Retenção · fila dos 120 dias</div>
+          <div style="font:400 11px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:14px">O aviso aparece no dashboard. A exclusão espera você.</div>
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+            <input type="text" value="{{ retencao.value }}" onChange="{{ retencao.onChange }}" style="width:66px;padding:10px 11px;border:1.5px solid #DEE7EF;border-radius:8px;font:700 13.5px Inter,sans-serif;color:#0F3D63;background:#fbfdff;text-align:center;box-sizing:border-box">
+            <span style="font:500 12px Inter,sans-serif;color:#5B6B7A">dias sem movimento no CRM</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ regrasRetencao }}" as="rr" hint-placeholder-count="3">
+              <div style="display:flex;gap:10px;align-items:flex-start;font:400 11.5px/1.65 Inter,sans-serif;color:#1A1A1A">
+                <span style="color:{{ rr.cor }};font-weight:700;flex:none">{{ rr.icone }}</span>{{ rr.texto }}
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Política de privacidade</div>
+          <div style="font:400 11px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:14px">Página pública, linkada no formulário do lead e no rodapé do e-mail.</div>
+          <div style="background:#F3F6FA;border:1px solid #DEE7EF;border-radius:9px;padding:11px 13px;font:500 11.5px Inter,sans-serif;color:#0F3D63;word-break:break-all;margin-bottom:14px">{{ urlPolitica }}</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ secoesPolitica }}" as="sp" hint-placeholder-count="5">
+              <div style="display:flex;justify-content:space-between;gap:10px;padding-bottom:7px;border-bottom:1px dotted #DEE7EF">
+                <span style="font:500 11.5px Inter,sans-serif;color:#1A1A1A">{{ sp.nome }}</span>
+                <span style="font:600 10.5px Inter,sans-serif;color:{{ sp.cor }};white-space:nowrap">{{ sp.status }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font:400 11px/1.6 Inter,sans-serif;color:#8FA0AF;margin-top:12px">O texto final precisa de revisão jurídica antes de o link entrar no ar.</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 4. ACESSO E SENHA -->
+    <sc-if value="{{ eh4 }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
+      <sc-for list="{{ telasSenha }}" as="ts" hint-placeholder-count="3">
+        <div style="width:340px;flex:none">
+          <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:9px">{{ ts.etapa }}</div>
+          <div style="background:#fff;border:1px solid #DEE7EF;border-radius:14px;padding:26px 24px;min-height:330px;box-sizing:border-box;display:flex;flex-direction:column">
+            <div style="width:44px;height:44px;border-radius:10px;background:{{ ts.iconeBg }};display:grid;place-items:center;font:700 17px Inter,sans-serif;color:{{ ts.iconeCor }};margin-bottom:16px">{{ ts.icone }}</div>
+            <div style="font:600 19px/1.3 Fraunces,serif;color:#0F3D63;margin-bottom:8px">{{ ts.titulo }}</div>
+            <div style="font:400 12px/1.7 Inter,sans-serif;color:#5B6B7A;margin-bottom:18px">{{ ts.texto }}</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+              <sc-for list="{{ ts.campos }}" as="cm" hint-placeholder-count="2">
+                <div>
+                  <div style="font:600 11px Inter,sans-serif;color:#0F3D63;margin-bottom:5px">{{ cm.rotulo }}</div>
+                  <input type="text" placeholder="{{ cm.placeholder }}" style="width:100%;padding:11px 13px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 12.5px Inter,sans-serif;background:#fbfdff;box-sizing:border-box">
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ ts.temNota }}" hint-placeholder-val="{{ false }}">
+              <div style="background:{{ ts.notaBg }};border:1px solid {{ ts.notaBorda }};border-radius:9px;padding:12px 14px;font:400 11.5px/1.65 Inter,sans-serif;color:{{ ts.notaCor }};margin-bottom:16px">{{ ts.nota }}</div>
+            </sc-if>
+            <div style="margin-top:auto">
+              <div style="font:700 12.5px Inter,sans-serif;color:#fff;background:{{ ts.botaoBg }};padding:13px;border-radius:999px;text-align:center;cursor:pointer">{{ ts.botao }}</div>
+              <div style="font:600 11.5px Inter,sans-serif;color:#1B72BE;text-align:center;margin-top:12px;cursor:pointer">{{ ts.link }}</div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+
+      <div style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:14px">Regras do acesso</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ regrasAcesso }}" as="ra" hint-placeholder-count="4">
+              <div style="display:flex;justify-content:space-between;gap:12px;padding-bottom:8px;border-bottom:1px dotted #DEE7EF">
+                <span style="font:500 12px Inter,sans-serif;color:#1A1A1A">{{ ra.rotulo }}</span>
+                <span style="font:700 11.5px Inter,sans-serif;color:#0F3D63;text-align:right;white-space:nowrap">{{ ra.valor }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:18px 20px;font:400 11.5px/1.7 Inter,sans-serif;color:#8a6a00">Hoje há um corretor. Quando abrir para outros, esta tela ganha o convite por e-mail e a lista de quem tem acesso — mas o estudo já nasce com dono desde agora, então nada precisa ser refeito.</div>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1440, &quot;height&quot;: 940 }
+}">
+const PADRAO = {
+  pctSucessao: 15, mesesVitalicia: 12, prazoManutencao: 5, teto: 8,
+  prazoPensao: 15, idadeIndep: 25,
+  fatorCLT: 1, fatorServidor: 1, fatorPensaoServidor: 0.6, fatorAutonomo: 1.25,
+  anosInvalidez: 5, pctInvalidezDoenca: 50, pctRendaInvalidez: 50, pctDIT: 70, fatorDG: 1.5,
+  retencao: 120
+};
+
+// estudo da Marina, em aberto
+const M = { renda: 15000, rendaEquivBase: [[6000, 'clt'], [9000, 'autonomo']], conjuge: 4000, terceiros: 2000,
+  patrimonio: 1190000, liquidavel: 90000, fgts: 25000, inss: 80000, prev: 45000, seguro: 150000,
+  objetivos: 40000, educTotal: 759360 };
+
+// valores travados no Mapa v2, com os fatores padrão
+const V2 = { vitalicia: 358500, temporaria: 389285, total: 747785, pensao: 3013, dit: 10500, dg: 270000 };
+
+const brl = n => 'R$ ' + Math.round(n || 0).toLocaleString('pt-BR');
+const brlCurto = n => {
+  n = Math.round(n || 0);
+  if (n >= 1000000) return 'R$ ' + (n / 1000000).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + ' mi';
+  if (n >= 1000) return 'R$ ' + Math.round(n / 1000) + ' mil';
+  return brl(n);
+};
+const num = v => { const n = parseFloat(String(v).replace(',', '.').replace(/[^\d.]/g, '')); return isNaN(n) ? 0 : n; };
+const clone = o => JSON.parse(JSON.stringify(o));
+
+const ABAS = [
+  { k: 1, nome: 'Fatores de cálculo', sub: 'o racional, editável', titulo: 'Fatores de cálculo',
+    sub2: 'Os parâmetros do racional saem do código e ficam aqui. Estudos em aberto recalculam ao salvar; mapas gerados não mudam.' },
+  { k: 2, nome: 'Horários sugeridos', sub: 'o que o lead vê', titulo: 'Horários sugeridos',
+    sub2: 'As três opções que a página do lead oferece, calculadas a partir do dia do preenchimento, e o campo aberto.' },
+  { k: 3, nome: 'LGPD e retenção', sub: 'consentimento e exclusão', titulo: 'LGPD e retenção',
+    sub2: 'Onde o consentimento fica registrado, como um cliente sai do sistema, e a fila dos mapas parados.' },
+  { k: 4, nome: 'Acesso e senha', sub: 'login e recuperação', titulo: 'Acesso e senha',
+    sub2: 'O caminho completo de recuperação de senha, e as regras do acesso enquanto há um corretor só.' }
+];
+
+class Component extends DCLogic {
+  state = {
+    aba: 1, f: clone(PADRAO), salvo: clone(PADRAO), confirmado: false,
+    slots: [{ dia: 1, hora: '15:00', dur: 30 }, { dia: 2, hora: '09:00', dur: 30 }, { dia: 2, hora: '16:00', dur: 30 }],
+    campoAberto: true, lancaOcupado: true, soDiaUtil: false
+  };
+
+  campo(k, unidade, decimal) {
+    const v = this.state.f[k];
+    return {
+      value: decimal ? String(v).replace('.', ',') : String(v),
+      onChange: e => this.setState(s => { const f = clone(s.f); f[k] = num(e.target.value); return { f, confirmado: false }; })
+    };
+  }
+
+  calc(f) {
+    const familiar = M.renda + M.conjuge + M.terceiros;
+    const part = M.renda / familiar;
+    const fatores = { clt: f.fatorCLT, servidor: f.fatorServidor, autonomo: f.fatorAutonomo };
+    const rendaEquiv = M.rendaEquivBase.reduce((a, x) => a + x[0] * (fatores[x[1]] || 1), 0);
+    const vitalicia = M.patrimonio * (f.pctSucessao / 100) + M.renda * f.mesesVitalicia;
+    const recLiq = M.liquidavel + M.fgts + M.inss + M.prev + M.seguro;
+    const tempBruta = rendaEquiv * part * f.prazoManutencao * 12;
+    const teto = M.renda * 12 * f.teto;
+    const manutencao = Math.min(Math.max(0, tempBruta - recLiq), teto);
+    const temporaria = manutencao + M.objetivos;
+    const pensao = f.prazoPensao > 0 ? M.educTotal * part / (f.prazoPensao * 12) : 0;
+    return { part, rendaEquiv, vitalicia, temporaria, total: vitalicia + temporaria, pensao,
+      dit: M.renda * (f.pctDIT / 100), dg: M.renda * 12 * f.fatorDG,
+      invalidez: M.renda * 12 * f.anosInvalidez, tetoAtingido: Math.max(0, tempBruta - recLiq) > teto };
+  }
+
+  renderVals() {
+    const s = this.state, f = s.f;
+    const sujo = JSON.stringify(f) !== JSON.stringify(s.salvo);
+    const alterado = JSON.stringify(s.salvo) !== JSON.stringify(PADRAO);
+    const c = this.calc(f);
+    const atual = ABAS.find(a => a.k === s.aba) || ABAS[0];
+
+    const abas = ABAS.map(a => {
+      const on = s.aba === a.k;
+      return { n: String(a.k), nome: a.nome, sub: a.sub,
+        ir: () => this.setState({ aba: a.k }),
+        bg: on ? '#E7F0FA' : 'transparent', borda: on ? '#C9E0F5' : 'transparent',
+        dot: on ? '#1B72BE' : '#CBD6E1', cor: on ? '#0F3D63' : '#1A1A1A' };
+    });
+
+    const mk = (k, rotulo, unidade, nota, opts) => {
+      opts = opts || {};
+      return { rotulo, unidade, nota, travado: !!opts.travado,
+        campo: this.campo(k, unidade, !!opts.decimal),
+        tituloCor: opts.travado ? '#8FA0AF' : '#0F3D63',
+        valorCor: opts.travado ? '#8FA0AF' : '#0F3D63',
+        bg: opts.travado ? '#F3F6FA' : '#fbfdff',
+        borda: (f[k] !== s.salvo[k]) ? '#1B72BE' : (f[k] !== PADRAO[k] ? '#C8EFB7' : '#DEE7EF') };
+    };
+
+    const grupos = [
+      { nome: 'Cobertura vitalícia', sub: 'Patrimônio × custo de transmissão, mais um bloco de renda para a família atravessar o inventário.',
+        campos: [
+          mk('pctSucessao', 'Custo de transmissão sucessória', '%', 'ITCMD, custas e honorários sobre o patrimônio total.'),
+          mk('mesesVitalicia', 'Meses de renda somados', 'meses', 'Tempo de casa custeado enquanto o inventário corre.')
+        ] },
+      { nome: 'Cobertura temporária', sub: 'Manutenção do padrão de vida, limitada pelo teto de razoabilidade.',
+        campos: [
+          mk('prazoManutencao', 'Prazo de manutenção', 'anos', 'Por quanto tempo a família mantém a rotina atual.'),
+          mk('teto', 'Teto de razoabilidade', '× ano', 'Múltiplo da renda anual. Acima disso, o valor é cortado e o estudo avisa.')
+        ] },
+      { nome: 'Educação', sub: 'Custo total até a formação, transformado em pensão mensal.',
+        campos: [
+          mk('prazoPensao', 'Prazo padrão da pensão', 'anos', 'Sugestão inicial; o estudo permite trocar caso a caso.'),
+          mk('idadeIndep', 'Idade de independência', 'anos', 'Até quando o custo educacional é contado.')
+        ] },
+      { nome: 'Fatores de risco por vínculo', sub: 'Incidem sobre a renda de cada vínculo, não sobre o total.',
+        campos: [
+          mk('fatorCLT', 'CLT', '×', 'Sem majoração.', { travado: true, decimal: true }),
+          mk('fatorServidor', 'Servidor público', '×', 'Sem majoração de renda.', { travado: true, decimal: true }),
+          mk('fatorPensaoServidor', 'Fator de pensão do servidor', '×', 'O RPPS já paga parte; reduz a pensão de educação.', { decimal: true }),
+          mk('fatorAutonomo', 'Autônomo, liberal, empresário', '×', 'Sem rede formal de proteção.', { decimal: true })
+        ] },
+      { nome: 'Invalidez e complementares', sub: 'Eventos que interrompem a renda sem interromper as despesas.',
+        campos: [
+          mk('anosInvalidez', 'Invalidez por acidente', 'anos', 'Anos de renda que compõem o capital.'),
+          mk('pctInvalidezDoenca', 'Invalidez por doença', '%', 'Percentual do capital de invalidez por acidente.'),
+          mk('pctRendaInvalidez', 'Renda vitalícia por invalidez', '%', 'Da renda mensal. Não se aplica a servidor.'),
+          mk('pctDIT', 'DIT', '%', 'Da renda mensal, enquanto durar o afastamento.'),
+          mk('fatorDG', 'Doenças graves', '× ano', 'Múltiplo da renda anual, pago no diagnóstico.', { decimal: true })
+        ] }
+    ];
+
+    const cSalvo = this.calc(s.salvo);
+    const simulacao = [
+      { rotulo: 'Capital em seguro de vida', v: c.total, a: V2.total },
+      { rotulo: 'Cobertura vitalícia', v: c.vitalicia, a: V2.vitalicia },
+      { rotulo: 'Cobertura temporária', v: c.temporaria, a: V2.temporaria },
+      { rotulo: 'Pensão de educação (mês)', v: c.pensao, a: V2.pensao },
+      { rotulo: 'DIT (mês)', v: c.dit, a: V2.dit },
+      { rotulo: 'Doenças graves', v: c.dg, a: V2.dg }
+    ].map(x => {
+      const dif = x.v - x.a, p = x.a ? Math.round(dif / x.a * 100) : 0;
+      return { rotulo: x.rotulo, valor: brl(x.v), antes: brl(x.a),
+        dif: dif === 0 ? 'sem mudança' : (dif > 0 ? '+' : '') + p + '%',
+        difCor: dif > 0 ? '#2f8a12' : dif < 0 ? '#C4570B' : '#8FA0AF' };
+    });
+
+    const DIAS = { 1: 'Amanhã, terça 1 de setembro', 2: 'Quarta, 2 de setembro', 3: 'Quinta, 3 de setembro' };
+    const slots = s.slots.map((sl, i) => ({
+      titulo: 'Opção ' + (i + 1),
+      exemplo: (DIAS[sl.dia] || '').split(',')[0] + ' · ' + sl.hora,
+      dia: { value: String(sl.dia), onChange: e => this.setState(st => { const ss = clone(st.slots); ss[i].dia = parseInt(e.target.value, 10); return { slots: ss }; }) },
+      hora: { value: sl.hora, onChange: e => this.setState(st => { const ss = clone(st.slots); ss[i].hora = e.target.value; return { slots: ss }; }) },
+      dur: { value: String(sl.dur), onChange: e => this.setState(st => { const ss = clone(st.slots); ss[i].dur = parseInt(e.target.value, 10); return { slots: ss }; }) }
+    }));
+    const previa = s.slots.map(sl => ({ dia: DIAS[sl.dia] || '—', hora: sl.hora + ' · ' + sl.dur + ' minutos' }));
+
+    const tog = (k, titulo, nota) => {
+      const on = !!s[k];
+      const o = {};
+      return { titulo, nota, alternar: () => { o[k] = !on; this.setState(o); }, check: on ? '✓' : '',
+        bg: on ? '#F7FBFF' : '#fff', borda: on ? '#C9E0F5' : '#DEE7EF',
+        boxBg: on ? '#1B72BE' : 'transparent', boxBorda: on ? '#1B72BE' : '#CBD6E1' };
+    };
+
+    return {
+      abas, tituloTela: atual.titulo, subTela: atual.sub2,
+      eh1: s.aba === 1, eh2: s.aba === 2, eh3: s.aba === 3, eh4: s.aba === 4,
+      sujo, avisoSujo: 'Os fatores mudaram nesta tela. Nada foi aplicado até você salvar.',
+      alterado,
+
+      grupos, simulacao,
+      efeitoTitulo: sujo ? '3 estudos em aberto mudam de valor'
+        : s.confirmado ? 'Fatores aplicados'
+        : alterado ? 'Fatores personalizados em uso' : 'Nada muda agora',
+      efeitoTexto: sujo
+        ? 'Ao salvar, os estudos da Juliana, da Patrícia e o v3 da Marina passam a usar os fatores novos. Os quatro mapas já gerados continuam como estão.'
+        : s.confirmado
+          ? 'Os três estudos em aberto já recalcularam com os valores novos. O capital da Marina passou para ' + brl(cSalvo.total) + '. Os mapas gerados não mudaram.'
+          : alterado
+            ? 'Os estudos em aberto estão usando estes fatores. Restaurar volta a tudo ao padrão do racional.'
+            : 'Os fatores estão nos valores padrão do racional. Altere um campo para ver o efeito antes de aplicar.',
+      contagem: [
+        { rotulo: 'Estudos em aberto', valor: sujo ? '3 recalculam ao salvar' : '3 já atualizados', cor: sujo ? '#FCF3D9' : '#39CC00' },
+        { rotulo: 'Mapas gerados', valor: '4 intactos', cor: '#39CC00' },
+        { rotulo: 'Teto de razoabilidade', valor: c.tetoAtingido ? 'atingido na simulação' : 'não atingido', cor: c.tetoAtingido ? '#FCF3D9' : '#fff' }
+      ],
+      salvarRotulo: sujo ? 'Salvar e recalcular' : s.confirmado ? '✓ Salvo' : 'Nada para salvar',
+      salvarBg: sujo ? '#39CC00' : s.confirmado ? 'rgba(57,204,0,.28)' : 'rgba(255,255,255,.18)',
+      salvarCor: sujo ? '#0F3D63' : s.confirmado ? '#EAFBE3' : 'rgba(255,255,255,.5)',
+      salvar: () => { if (sujo) this.setState({ salvo: clone(f), confirmado: true }); },
+      restaurar: () => this.setState({ f: clone(PADRAO), salvo: clone(PADRAO), confirmado: false }),
+
+      slots, previa, campoAberto: s.campoAberto,
+      opcoesAgenda: [
+        tog('campoAberto', 'Oferecer o campo aberto', 'O lead escreve o dia e a hora que preferir. Vai para a agenda como está.'),
+        tog('lancaOcupado', 'Aceitar horário já ocupado', 'Sem consultar a agenda antes. Você vê o conflito e remarca.'),
+        tog('soDiaUtil', 'Pular fim de semana', 'Se a próxima data cair em sábado ou domingo, empurra para segunda.')
+      ],
+
+      consentimentos: [
+        { nome: 'Marina Albuquerque', origem: 'link · campanha família', data: '12/08/2026', status: 'aceito', cor: '#2f8a12', bg: '#EAFBE3' },
+        { nome: 'Juliana Serra', origem: 'link · campanha autônomos', data: '30/08/2026', status: 'aceito', cor: '#2f8a12', bg: '#EAFBE3' },
+        { nome: 'Rogério Tavares', origem: 'preenchido pelo corretor', data: '20/08/2026', status: 'verbal', cor: '#8a6a00', bg: '#FCF3D9' },
+        { nome: 'Carla Buriti', origem: 'link · campanha família', data: '31/08/2026', status: 'aceito', cor: '#2f8a12', bg: '#EAFBE3' },
+        { nome: 'Edmilson Rocha', origem: 'contato direto', data: '01/07/2026', status: 'pendente', cor: '#C4570B', bg: '#FDF1E7' }
+      ],
+      compExcluirMapa: [
+        'Sai o mapa e o estudo que o gerou.',
+        'O cadastro do cliente permanece.',
+        'Sem estudo, ele sai do funil e vira contato.'
+      ],
+      compExcluirCliente: [
+        'Sai tudo: cadastro, estudos, mapas e histórico.',
+        'Fica só o registro do pedido, com data — a prova de que você atendeu.',
+        'Não tem volta e não passa pela fila dos 120 dias.'
+      ],
+      retencao: this.campo('retencao', 'dias'),
+      regrasRetencao: [
+        { icone: '✓', cor: '#2f8a12', texto: 'O dashboard avisa e espera. Nenhuma exclusão automática.' },
+        { icone: '✓', cor: '#2f8a12', texto: 'Cliente fechado não entra na contagem enquanto a apólice estiver ativa.' },
+        { icone: '→', cor: '#0F3D63', texto: 'Qualquer movimento no CRM — anotação, mudança de estágio, contato — zera o contador.' },
+        { icone: '!', cor: '#C4570B', texto: 'Hoje há 1 mapa na fila: Silvana Kruger, 128 dias.' }
+      ],
+      urlPolitica: 'setornorteseguros.com.br/privacidade',
+      secoesPolitica: [
+        { nome: 'Quais dados são coletados', status: 'escrito', cor: '#2f8a12' },
+        { nome: 'Para que servem', status: 'escrito', cor: '#2f8a12' },
+        { nome: 'Com quem são compartilhados', status: 'escrito', cor: '#2f8a12' },
+        { nome: 'Por quanto tempo ficam guardados', status: 'escrito', cor: '#2f8a12' },
+        { nome: 'Como pedir a exclusão', status: 'escrito', cor: '#2f8a12' },
+        { nome: 'Revisão jurídica', status: 'pendente', cor: '#C4570B' }
+      ],
+
+      telasSenha: [
+        { etapa: 'Passo 1', icone: '?', iconeBg: '#E7F0FA', iconeCor: '#1B72BE',
+          titulo: 'Esqueceu a senha?', texto: 'Informe o e-mail da sua conta. Enviamos um link para você criar uma senha nova.',
+          campos: [{ rotulo: 'E-mail', placeholder: 'edgar@setornorteseguros.com.br' }],
+          temNota: false, botao: 'Enviar o link', botaoBg: '#1B72BE', link: 'Voltar para o login' },
+        { etapa: 'Passo 2', icone: '✉', iconeBg: '#EAFBE3', iconeCor: '#2f8a12',
+          titulo: 'Link enviado', texto: 'Enviamos para edgar@setornorteseguros.com.br. O link vale por 30 minutos e serve uma vez só.',
+          campos: [], temNota: true, nota: 'Não chegou? Confira o spam. Você pode pedir outro link em 60 segundos.',
+          notaBg: '#F3F6FA', notaBorda: '#DEE7EF', notaCor: '#5B6B7A',
+          botao: 'Reenviar em 60s', botaoBg: '#CBD6E1', link: 'Trocar o e-mail' },
+        { etapa: 'Passo 3', icone: '🔒', iconeBg: '#E7F0FA', iconeCor: '#1B72BE',
+          titulo: 'Nova senha', texto: 'Mínimo de 8 caracteres. Depois de salvar, as sessões abertas em outros aparelhos caem.',
+          campos: [{ rotulo: 'Nova senha', placeholder: 'ao menos 8 caracteres' }, { rotulo: 'Repetir a senha', placeholder: 'a mesma senha' }],
+          temNota: true, nota: 'Você entra direto no painel depois de salvar.',
+          notaBg: '#EAFBE3', notaBorda: '#C8EFB7', notaCor: '#2f8a12',
+          botao: 'Salvar e entrar', botaoBg: '#39CC00', link: 'Cancelar' }
+      ],
+      regrasAcesso: [
+        { rotulo: 'Validade do link de recuperação', valor: '30 minutos' },
+        { rotulo: 'Usos do link', valor: 'uma vez' },
+        { rotulo: 'Espera entre reenvios', valor: '60 segundos' },
+        { rotulo: 'Tamanho mínimo da senha', valor: '8 caracteres' },
+        { rotulo: 'Sessão expira em', valor: '30 dias sem uso' },
+        { rotulo: 'Corretores com acesso', valor: '1' }
+      ],
+
+      irCaptacao: () => { window.location.href = 'Captação e Agendamento.dc.html'; },
+      irPainel: () => { window.location.href = 'Painel do Corretor.dc.html'; }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

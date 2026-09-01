@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#F3F6FA; }
+  a { color:#1B72BE; } a:hover { color:#0F3D63; }
+  input, button, select, textarea { font-family:Inter, sans-serif; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:#1B72BE; box-shadow:0 0 0 3px #E7F0FA; }
+</style>
+</helmet>
+
+<div style="font-family:Inter,sans-serif;min-height:100vh;display:flex;align-items:stretch">
+
+  <div style="width:250px;flex:none;box-sizing:border-box;background:#fff;border-right:1px solid #DEE7EF;padding:22px 18px">
+    <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#8FA0AF">Bloco 5</div>
+    <div style="font:600 18px Fraunces,serif;color:#0F3D63;margin:5px 0 6px">Acesso e identidade</div>
+    <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:18px">A entrada na ferramenta e o que faz os documentos parecerem seus.</div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <sc-for list="{{ telas }}" as="t" hint-placeholder-count="6">
+        <div onClick="{{ t.ir }}" style="cursor:pointer;display:flex;gap:11px;padding:11px 12px;border-radius:9px;background:{{ t.bg }};border:1px solid {{ t.borda }}">
+          <div style="width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 10.5px Inter,sans-serif;color:#fff;background:{{ t.dot }}">{{ t.n }}</div>
+          <div>
+            <div style="font:600 12.5px Inter,sans-serif;color:{{ t.cor }}">{{ t.nome }}</div>
+            <div style="font:400 11px/1.5 Inter,sans-serif;color:#8FA0AF;margin-top:2px">{{ t.sub }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin-top:20px;padding:14px;border-radius:9px;background:#FCF3D9;border:1px solid #EEDCA6;font:400 11.5px/1.65 Inter,sans-serif;color:#8a6a00">A recuperação de senha está em Ajustes → Acesso e senha. Aqui é a entrada e a marca.</div>
+    <div onClick="{{ irPainel }}" style="cursor:pointer;font:600 11.5px Inter,sans-serif;color:#1B72BE;margin-top:18px">← Painel do corretor</div>
+  </div>
+
+  <div style="flex:1;min-width:0;padding:26px 32px 60px">
+    <div style="margin-bottom:20px">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF">{{ contador }}</div>
+      <div style="font:600 26px Fraunces,serif;color:#0F3D63;margin:5px 0 4px">{{ titulo }}</div>
+      <div style="font:400 13px/1.6 Inter,sans-serif;color:#5B6B7A;max-width:660px">{{ subtitulo }}</div>
+    </div>
+
+    <!-- 1. LOGIN -->
+    <sc-if value="{{ eh1 }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap">
+      <div style="width:920px;max-width:100%;border:1px solid #DEE7EF;border-radius:14px;overflow:hidden;display:flex;flex-wrap:wrap;background:#fff">
+        <div style="flex:1 1 340px;min-width:0;box-sizing:border-box;background:#0F3D63;position:relative;overflow:hidden;padding:38px 36px;color:#fff;display:flex;flex-direction:column">
+          <div style="position:absolute;right:-120px;top:-140px;width:340px;height:340px;border-radius:50%;background:rgba(57,204,0,.13)"></div>
+          <div style="position:absolute;left:-100px;bottom:-180px;width:320px;height:320px;border-radius:50%;background:rgba(27,114,190,.35)"></div>
+          <div style="position:relative;display:flex;flex-direction:column;height:100%">
+            <div style="width:132px;height:36px;border:1px dashed rgba(255,255,255,.42);border-radius:6px;display:grid;place-items:center;font:600 8px Inter,sans-serif;color:rgba(255,255,255,.55)">LOGO</div>
+            <div style="flex:1"></div>
+            <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.17em;color:#39CC00;margin-bottom:14px">Mapa da Proteção</div>
+            <div style="font:600 30px/1.2 Fraunces,serif;margin-bottom:14px">Uma conversa sustentada por números.</div>
+            <div style="font:400 13px/1.75 Inter,sans-serif;color:rgba(255,255,255,.72)">O estudo calcula o que a família precisa. Você explica por quê.</div>
+            <div style="flex:1"></div>
+            <div style="font:400 11px Inter,sans-serif;color:rgba(255,255,255,.5)">{{ rodapeLegal }}</div>
+          </div>
+        </div>
+
+        <div style="flex:1 1 340px;min-width:300px;box-sizing:border-box;padding:38px 40px;display:flex;flex-direction:column">
+          <div style="font:600 22px Fraunces,serif;color:#0F3D63;margin-bottom:5px">Entrar</div>
+          <div style="font:400 12.5px Inter,sans-serif;color:#5B6B7A;margin-bottom:24px">Acesso do corretor.</div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <div style="font:600 11.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">E-mail</div>
+              <input type="text" placeholder="edgar@setornorteseguros.com.br" style="width:100%;padding:12px 14px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 13px Inter,sans-serif;background:#fbfdff;box-sizing:border-box">
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+                <span style="font:600 11.5px Inter,sans-serif;color:#0F3D63">Senha</span>
+                <span onClick="{{ irAjustes }}" style="cursor:pointer;font:600 11px Inter,sans-serif;color:#1B72BE">Esqueci a senha</span>
+              </div>
+              <input type="password" placeholder="••••••••" style="width:100%;padding:12px 14px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 13px Inter,sans-serif;background:#fbfdff;box-sizing:border-box">
+            </div>
+            <div onClick="{{ f.lembrar.alternar }}" style="cursor:pointer;display:flex;align-items:center;gap:9px">
+              <span style="width:17px;height:17px;flex:none;border-radius:4px;display:grid;place-items:center;font-size:10px;color:#fff;background:{{ f.lembrar.boxBg }};border:1.5px solid {{ f.lembrar.boxBorda }}">{{ f.lembrar.check }}</span>
+              <span style="font:500 12px Inter,sans-serif;color:#5B6B7A">Continuar conectado neste aparelho</span>
+            </div>
+          </div>
+          <div onClick="{{ irPainel }}" style="cursor:pointer;font:700 13.5px Inter,sans-serif;color:#fff;background:#1B72BE;padding:14px;border-radius:999px;text-align:center;margin-top:22px">Entrar</div>
+          <div style="display:flex;align-items:center;gap:12px;margin:22px 0">
+            <div style="flex:1;height:1px;background:#DEE7EF"></div>
+            <span style="font:500 10.5px Inter,sans-serif;color:#8FA0AF">ou</span>
+            <div style="flex:1;height:1px;background:#DEE7EF"></div>
+          </div>
+          <div onClick="{{ irCriar }}" style="cursor:pointer;font:600 12.5px Inter,sans-serif;color:#0F3D63;border:1.5px solid #DEE7EF;padding:13px;border-radius:999px;text-align:center">Criar uma conta</div>
+          <div style="flex:1"></div>
+          <div style="font:400 10.5px/1.6 Inter,sans-serif;color:#8FA0AF;margin-top:22px">Ao entrar você concorda com os termos de uso e a <span style="text-decoration:underline">política de privacidade</span>.</div>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:260px;display:flex;flex-direction:column;gap:14px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:12px">Erros e estados</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ estadosLogin }}" as="el" hint-placeholder-count="4">
+              <div style="border:1px solid {{ el.borda }};background:{{ el.bg }};border-radius:9px;padding:11px 13px">
+                <div style="font:600 12px Inter,sans-serif;color:{{ el.cor }}">{{ el.titulo }}</div>
+                <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:2px">{{ el.texto }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 2. CRIAR CONTA -->
+    <sc-if value="{{ eh2 }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap">
+      <div style="width:520px;max-width:100%;background:#fff;border:1px solid #DEE7EF;border-radius:14px;padding:34px 36px;box-sizing:border-box">
+        <div style="width:120px;height:32px;border:1px dashed #8FA0AF;border-radius:6px;display:grid;place-items:center;font:600 7.5px Inter,sans-serif;color:#8FA0AF;margin-bottom:22px">LOGO</div>
+        <div style="font:600 23px Fraunces,serif;color:#0F3D63;margin-bottom:5px">Criar conta</div>
+        <div style="font:400 12.5px/1.7 Inter,sans-serif;color:#5B6B7A;margin-bottom:24px">Estes dados aparecem nos documentos que você entrega ao cliente. Dá para mudar depois em Ajustes.</div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <sc-for list="{{ camposConta }}" as="cc" hint-placeholder-count="5">
+            <div>
+              <div style="font:600 11.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">{{ cc.rotulo }}</div>
+              <input type="text" placeholder="{{ cc.placeholder }}" style="width:100%;padding:12px 14px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 13px Inter,sans-serif;background:#fbfdff;box-sizing:border-box">
+              <div style="font:400 10.5px/1.55 Inter,sans-serif;color:#8FA0AF;margin-top:4px">{{ cc.nota }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div onClick="{{ f.termos.alternar }}" style="cursor:pointer;display:flex;align-items:flex-start;gap:10px;margin-top:20px;padding:14px 16px;border:1.5px solid {{ f.termos.borda }};border-radius:9px;background:{{ f.termos.bg }}">
+          <span style="width:17px;height:17px;flex:none;margin-top:1px;border-radius:4px;display:grid;place-items:center;font-size:10px;color:#fff;background:{{ f.termos.boxBg }};border:1.5px solid {{ f.termos.boxBorda }}">{{ f.termos.check }}</span>
+          <span style="font:400 12px/1.65 Inter,sans-serif;color:#1A1A1A">Aceito os termos de uso e a política de privacidade, e assumo a responsabilidade pelos dados dos clientes que eu cadastrar.</span>
+        </div>
+
+        <div onClick="{{ irOnboard }}" style="cursor:pointer;font:700 13.5px Inter,sans-serif;color:{{ criarCor }};background:{{ criarBg }};padding:14px;border-radius:999px;text-align:center;margin-top:20px">Criar conta</div>
+        <div onClick="{{ irLogin }}" style="cursor:pointer;font:600 12px Inter,sans-serif;color:#1B72BE;text-align:center;margin-top:14px">Já tenho conta</div>
+      </div>
+
+      <div style="flex:1;min-width:260px;display:flex;flex-direction:column;gap:14px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:20px 22px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Por que a SUSEP no cadastro</div>
+          <div style="font:400 12px/1.7 Inter,sans-serif;color:#1A1A1A">O número aparece no rodapé da proposta, do e-mail e do cartão de contato da apresentação. Sem ele, os documentos saem incompletos e o cliente não consegue verificar seu registro.</div>
+        </div>
+        <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:18px 20px;font:400 11.5px/1.7 Inter,sans-serif;color:#8a6a00">Hoje o cadastro é aberto porque só você usa. Quando abrir para outros corretores, esta tela passa a exigir convite por e-mail — e é por isso que cada estudo já nasce com dono.</div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 3. PRIMEIRO ACESSO -->
+    <sc-if value="{{ eh3 }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:14px;padding:26px 30px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
+          <sc-for list="{{ passosOnboard }}" as="po" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:10px;flex:{{ po.flex }}">
+              <div style="width:26px;height:26px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 11px Inter,sans-serif;color:#fff;background:{{ po.dot }}">{{ po.marca }}</div>
+              <div style="font:600 12.5px Inter,sans-serif;color:{{ po.cor }};white-space:nowrap">{{ po.nome }}</div>
+              <div style="flex:1;height:2px;background:{{ po.linha }};min-width:20px"></div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:26px;align-items:start">
+          <div>
+            <div style="font:600 21px Fraunces,serif;color:#0F3D63;margin-bottom:6px">{{ onboard.titulo }}</div>
+            <div style="font:400 12.5px/1.75 Inter,sans-serif;color:#5B6B7A;margin-bottom:20px">{{ onboard.texto }}</div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ onboard.itens }}" as="oi" hint-placeholder-count="3">
+                <div style="border:1.5px solid #DEE7EF;border-radius:10px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start">
+                  <span style="width:19px;height:19px;border-radius:50%;flex:none;display:grid;place-items:center;font:700 10px Inter,sans-serif;color:#fff;background:#1B72BE;margin-top:1px">{{ oi.n }}</span>
+                  <div>
+                    <div style="font:600 12.5px Inter,sans-serif;color:#1A1A1A">{{ oi.titulo }}</div>
+                    <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:2px">{{ oi.texto }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:9px;margin-top:22px">
+              <div onClick="{{ onboardVoltar }}" style="cursor:pointer;font:600 12.5px Inter,sans-serif;color:#5B6B7A;border:1.5px solid #DEE7EF;padding:12px 20px;border-radius:999px;visibility:{{ onboard.visVoltar }}">Voltar</div>
+              <div onClick="{{ onboardAvancar }}" style="cursor:pointer;font:700 13px Inter,sans-serif;color:#fff;background:#1B72BE;padding:13px 22px;border-radius:999px">{{ onboard.botao }}</div>
+              <div onClick="{{ irPainel }}" style="cursor:pointer;font:600 12px Inter,sans-serif;color:#8FA0AF;padding:13px 8px">Fazer isso depois</div>
+            </div>
+          </div>
+
+          <div style="background:#F3F6FA;border-radius:12px;padding:22px 24px">
+            <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:12px">Onde isso aparece</div>
+            <div style="background:#fff;border:1px solid #DEE7EF;border-radius:9px;padding:16px 18px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;border-bottom:1px solid #1A1A1A">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="width:52px;height:16px;border:1px dashed #8FA0AF;border-radius:2px;display:grid;place-items:center;font:600 5.5px Inter,sans-serif;color:#8FA0AF">LOGO</div>
+                  <span style="font:600 8.5px Inter,sans-serif;color:#1A1A1A">Setor Norte Seguros</span>
+                </div>
+                <div style="font:400 6.5px/1.5 Inter,sans-serif;color:#5B6B7A;text-align:right">SUSEP 202087923<br>pág. 1 de 3</div>
+              </div>
+              <div style="margin-top:16px">
+                <div style="font:700 6.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#39CC00;margin-bottom:6px">Mapa da proteção</div>
+                <div style="font:600 17px Fraunces,serif;color:#1A1A1A">Marina Albuquerque</div>
+                <div style="font:400 7.5px Inter,sans-serif;color:#5B6B7A;margin-top:3px">Arquiteta · 43 anos · Casada · Theo (14) e João (11)</div>
+              </div>
+              <div style="margin-top:18px;padding:12px 0;border-top:1px solid #DEE7EF;border-bottom:1px solid #DEE7EF;display:flex;justify-content:space-between;align-items:flex-end">
+                <div>
+                  <div style="font:700 6.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.11em;color:#5B6B7A;margin-bottom:4px">Capital sugerido</div>
+                  <div style="font:600 19px Fraunces,serif;color:#1A1A1A">R$ 748 mil</div>
+                </div>
+                <div style="font:400 7px/1.6 Inter,sans-serif;color:#5B6B7A;text-align:right">Vitalícia R$ 359 mil<br>Temporária R$ 389 mil</div>
+              </div>
+              <div style="font:400 6px/1.5 Inter,sans-serif;color:#5B6B7A;margin-top:14px">{{ rodapeLegal }}</div>
+            </div>
+            <div style="font:400 11px/1.6 Inter,sans-serif;color:#8FA0AF;margin-top:12px">Prévia da proposta em A4. A mesma marca vai na apresentação e no e-mail.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 4. PERFIL -->
+    <sc-if value="{{ eh4 }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:start">
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+        <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Seus dados</div>
+        <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:18px">O que aparece no rodapé da proposta, no cartão da apresentação e na assinatura do e-mail.</div>
+
+        <div style="display:flex;gap:18px;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid #EDF2F7;margin-bottom:20px">
+          <div style="width:88px;height:88px;border-radius:50%;border:1.5px dashed #8FA0AF;display:grid;place-items:center;font:600 8.5px Inter,sans-serif;color:#8FA0AF;flex:none;text-align:center;line-height:1.5">SUA<br>FOTO</div>
+          <div style="flex:1">
+            <div style="font:600 12.5px Inter,sans-serif;color:#0F3D63;margin-bottom:5px">Foto de perfil</div>
+            <div style="font:400 11.5px/1.65 Inter,sans-serif;color:#5B6B7A;margin-bottom:11px">Aparece no último slide da apresentação e na assinatura do e-mail. Rosto reconhecível ajuda mais que logotipo nesses dois lugares.</div>
+            <div style="display:flex;gap:8px">
+              <div style="font:600 11.5px Inter,sans-serif;color:#fff;background:#1B72BE;padding:9px 15px;border-radius:999px;cursor:pointer">Enviar foto</div>
+              <div style="font:600 11.5px Inter,sans-serif;color:#5B6B7A;border:1.5px solid #DEE7EF;padding:8px 14px;border-radius:999px;cursor:pointer">Remover</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <sc-for list="{{ camposPerfil }}" as="cp" hint-placeholder-count="6">
+            <div style="grid-column:{{ cp.span }}">
+              <div style="font:600 11.5px Inter,sans-serif;color:#0F3D63;margin-bottom:6px">{{ cp.rotulo }}</div>
+              <input type="text" value="{{ cp.campo.value }}" onChange="{{ cp.campo.onChange }}" style="width:100%;padding:11px 13px;border:1.5px solid #DEE7EF;border-radius:9px;font:500 12.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff;box-sizing:border-box">
+              <div style="font:400 10.5px/1.55 Inter,sans-serif;color:#8FA0AF;margin-top:4px">{{ cp.nota }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;gap:9px;margin-top:22px;padding-top:18px;border-top:1px solid #EDF2F7">
+          <div onClick="{{ salvar }}" style="cursor:pointer;font:700 12.5px Inter,sans-serif;color:#fff;background:{{ salvarBg }};padding:12px 20px;border-radius:999px">{{ salvarRotulo }}</div>
+          <div style="flex:1"></div>
+          <div style="font:400 11px Inter,sans-serif;color:#8FA0AF;align-self:center">{{ avisoSalvo }}</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px;position:sticky;top:26px">
+        <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Cartão de contato ao vivo</div>
+        <div style="font:400 11px Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">Último slide da apresentação, em escala reduzida.</div>
+        <div style="border:1px solid #DEE7EF;border-radius:10px;padding:22px 24px">
+          <div style="font:700 7.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#1B72BE;margin-bottom:8px">Próximo passo</div>
+          <div style="font:600 22px/1.2 Fraunces,serif;color:#0F3D63;margin-bottom:20px">Qualquer dúvida,<br>fale comigo direto.</div>
+          <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding-top:16px;border-top:1.5px solid #DEE7EF">
+            <div style="width:58px;height:58px;border-radius:50%;border:1px dashed #8FA0AF;display:grid;place-items:center;font:600 6.5px Inter,sans-serif;color:#8FA0AF;flex:none">FOTO</div>
+            <div style="flex:1;min-width:0">
+              <div style="font:600 15px Fraunces,serif;color:#0F3D63">{{ preview.nome }}</div>
+              <div style="font:400 9.5px Inter,sans-serif;color:#8FA0AF;margin:2px 0 7px">{{ preview.cargo }}</div>
+              <div style="font:600 10.5px Inter,sans-serif;color:#1A1A1A">{{ preview.contato }}</div>
+            </div>
+            <div style="width:54px;height:54px;border:1px dashed #8FA0AF;border-radius:6px;display:grid;place-items:center;font:600 6px Inter,sans-serif;color:#8FA0AF;text-align:center;line-height:1.4;flex:none">QR<br>ZAP</div>
+          </div>
+          <div style="font:400 7.5px Inter,sans-serif;color:#8FA0AF;margin-top:12px">{{ preview.rodape }}</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 5. MARCA -->
+    <sc-if value="{{ eh5 }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Logotipo</div>
+          <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">Duas versões, porque os documentos têm fundo claro e fundo escuro.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="border:1.5px dashed #CBD6E1;border-radius:10px;padding:22px 16px;text-align:center;background:#fff">
+              <div style="height:44px;display:grid;place-items:center;font:600 8px Inter,sans-serif;color:#8FA0AF;margin-bottom:12px">LOGO ESCURO</div>
+              <div style="font:600 11.5px Inter,sans-serif;color:#0F3D63">Para fundo claro</div>
+              <div style="font:400 10.5px/1.55 Inter,sans-serif;color:#8FA0AF;margin-top:3px">Proposta A4, e-mail, painel</div>
+              <div style="font:600 11px Inter,sans-serif;color:#1B72BE;margin-top:11px;cursor:pointer">Enviar arquivo</div>
+            </div>
+            <div style="border:1.5px dashed rgba(255,255,255,.4);border-radius:10px;padding:22px 16px;text-align:center;background:#0F3D63">
+              <div style="height:44px;display:grid;place-items:center;font:600 8px Inter,sans-serif;color:rgba(255,255,255,.55);margin-bottom:12px">LOGO CLARO</div>
+              <div style="font:600 11.5px Inter,sans-serif;color:#fff">Para fundo escuro</div>
+              <div style="font:400 10.5px/1.55 Inter,sans-serif;color:rgba(255,255,255,.55);margin-top:3px">Capa da apresentação, login</div>
+              <div style="font:600 11px Inter,sans-serif;color:#39CC00;margin-top:11px;cursor:pointer">Enviar arquivo</div>
+            </div>
+          </div>
+          <div style="background:#F3F6FA;border-radius:9px;padding:12px 14px;font:400 11px/1.65 Inter,sans-serif;color:#5B6B7A;margin-top:14px">PNG com fundo transparente ou SVG. Altura mínima de 120px. O sistema encaixa dentro do espaço reservado sem distorcer.</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 16px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Cor de destaque</div>
+          <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:16px">Usada nos títulos de seção e nos números em evidência. O marinho da estrutura não muda.</div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap">
+            <sc-for list="{{ cores }}" as="co" hint-placeholder-count="4">
+              <div onClick="{{ co.escolher }}" style="cursor:pointer;width:64px;text-align:center">
+                <div style="height:52px;border-radius:9px;background:{{ co.hex }};border:2.5px solid {{ co.anel }}"></div>
+                <div style="font:600 10px Inter,sans-serif;color:{{ co.rotuloCor }};margin-top:6px">{{ co.nome }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Onde a marca entra</div>
+          <div style="font:400 11px Inter,sans-serif;color:#5B6B7A;margin-bottom:14px">Cinco lugares, sempre no mesmo formato.</div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ locaisMarca }}" as="lm" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:1fr auto;gap:12px;padding:11px 0;border-bottom:1px solid #EDF2F7;align-items:center">
+                <div>
+                  <div style="font:600 12.5px Inter,sans-serif;color:#1A1A1A">{{ lm.local }}</div>
+                  <div style="font:400 10.5px Inter,sans-serif;color:#8FA0AF;margin-top:2px">{{ lm.detalhe }}</div>
+                </div>
+                <span style="font:600 10px Inter,sans-serif;color:{{ lm.cor }};background:{{ lm.bg }};padding:4px 9px;border-radius:99px;white-space:nowrap">{{ lm.versao }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:14px">Prévia da capa</div>
+          <div style="border-radius:9px;overflow:hidden;background:#0F3D63;position:relative;height:200px">
+            <div style="position:absolute;right:-60px;top:-70px;width:190px;height:190px;border-radius:50%;background:rgba(57,204,0,.14)"></div>
+            <div style="position:relative;padding:20px 22px;height:100%;box-sizing:border-box;display:flex;flex-direction:column;color:#fff">
+              <div style="width:88px;height:24px;border:1px dashed rgba(255,255,255,.4);border-radius:4px;display:grid;place-items:center;font:600 6.5px Inter,sans-serif;color:rgba(255,255,255,.55)">LOGO CLARO</div>
+              <div style="flex:1"></div>
+              <div style="font:700 7px Inter,sans-serif;text-transform:uppercase;letter-spacing:.19em;color:{{ corEscolhida }};margin-bottom:8px">Mapa da proteção</div>
+              <div style="font:600 25px/1.1 Fraunces,serif">Marina Albuquerque</div>
+              <div style="width:32px;height:3px;background:{{ corEscolhida }};margin-top:11px"></div>
+              <div style="flex:1"></div>
+              <div style="font:400 8.5px Inter,sans-serif;color:rgba(255,255,255,.65)">{{ preview.nome }} · 31 de agosto de 2026</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- 6. INTEGRAÇÕES -->
+    <sc-if value="{{ eh6 }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ integracoes }}" as="ig" hint-placeholder-count="4">
+          <div style="background:#fff;border:1px solid {{ ig.borda }};border-radius:12px;padding:20px 22px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:12px">
+              <div>
+                <div style="display:flex;align-items:center;gap:9px">
+                  <span style="width:9px;height:9px;border-radius:50%;flex:none;background:{{ ig.dot }}"></span>
+                  <span style="font:600 14.5px Inter,sans-serif;color:#0F3D63">{{ ig.nome }}</span>
+                  <span style="font:700 9px Inter,sans-serif;text-transform:uppercase;letter-spacing:.07em;color:{{ ig.statusCor }};background:{{ ig.statusBg }};padding:3px 8px;border-radius:99px">{{ ig.status }}</span>
+                </div>
+                <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:5px">{{ ig.desc }}</div>
+              </div>
+              <div onClick="{{ ig.alternar }}" style="cursor:pointer;width:42px;height:23px;border-radius:99px;flex:none;background:{{ ig.trilha }};padding:2px;box-sizing:border-box;display:flex;justify-content:{{ ig.alinha }}">
+                <div style="width:19px;height:19px;border-radius:50%;background:#fff"></div>
+              </div>
+            </div>
+            <div style="background:#F7FAFD;border-radius:9px;padding:12px 14px">
+              <div style="font:700 9px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#8FA0AF;margin-bottom:7px">{{ ig.rotuloCampo }}</div>
+              <input type="text" placeholder="{{ ig.placeholder }}" style="width:100%;padding:10px 12px;border:1.5px solid #DEE7EF;border-radius:8px;font:500 11.5px Inter,sans-serif;background:#fff;box-sizing:border-box">
+              <div style="font:400 10.5px/1.6 Inter,sans-serif;color:#8FA0AF;margin-top:7px">{{ ig.nota }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#0F3D63;border-radius:12px;padding:22px 24px;color:#fff">
+          <div style="font:700 9.5px Inter,sans-serif;text-transform:uppercase;letter-spacing:.11em;color:#39CC00;margin-bottom:4px">Como funciona</div>
+          <div style="font:600 19px Fraunces,serif;margin:6px 0 12px">O n8n é quem orquestra</div>
+          <div style="font:400 12px/1.75 Inter,sans-serif;color:rgba(255,255,255,.75)">A ferramenta não fala direto com Google, WhatsApp ou IA. Ela chama um webhook e o n8n cuida do resto. Nenhuma credencial de terceiro fica guardada aqui — você configura tudo lá, uma vez.</div>
+          <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.18)">
+            <sc-for list="{{ fluxo }}" as="fx" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:7px">
+                <span style="font:600 11px Inter,sans-serif;color:{{ fx.cor }};background:{{ fx.bg }};padding:7px 11px;border-radius:7px;white-space:nowrap">{{ fx.nome }}</span>
+                <span style="font:700 11px Inter,sans-serif;color:rgba(255,255,255,.4)">{{ fx.seta }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:22px 24px">
+          <div style="font:600 15px Fraunces,serif;color:#0F3D63;margin-bottom:3px">Webhooks a criar no n8n</div>
+          <div style="font:400 11px/1.6 Inter,sans-serif;color:#5B6B7A;margin-bottom:14px">Um por evento. Os quatro cartões ao lado são serviços que você liga e desliga; estes seis endereços são a canalização, sempre ativa. <strong style="color:#0F3D63">Lead</strong> e <strong style="color:#0F3D63">esquecer</strong> não têm chave própria: disparam sozinhos quando o evento acontece.</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ webhooks }}" as="wh" hint-placeholder-count="5">
+              <div style="border:1px solid #DEE7EF;border-radius:9px;padding:12px 14px">
+                <div style="font:600 11.5px Inter,sans-serif;color:#0F3D63;word-break:break-all">{{ wh.rota }}</div>
+                <div style="font:400 11px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:4px">{{ wh.quando }}</div>
+                <div style="font:500 10.5px Inter,sans-serif;color:#8FA0AF;margin-top:5px">envia: {{ wh.payload }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#FCF3D9;border:1px solid #EEDCA6;border-radius:12px;padding:18px 20px;font:400 11.5px/1.7 Inter,sans-serif;color:#8a6a00">Nenhum webhook recebe valor de cobertura. O evento da agenda leva nome e contato; a mensagem de WhatsApp leva nome, profissão e origem. Os números ficam no sistema.</div>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1440, &quot;height&quot;: 940 }
+}">
+const TELAS = [
+  { k: 1, nome: 'Login', sub: 'a entrada', titulo: 'Login',
+    sub2: 'Uma tela dividida: a marca à esquerda, o formulário à direita. É a primeira coisa que você vê todo dia.' },
+  { k: 2, nome: 'Criar conta', sub: 'nome, SUSEP, senha', titulo: 'Criar conta',
+    sub2: 'O cadastro pede o que vai aparecer nos documentos do cliente. Nada é decorativo aqui.' },
+  { k: 3, nome: 'Primeiro acesso', sub: 'três passos guiados', titulo: 'Primeiro acesso',
+    sub2: 'Logo, contato e uma conferida nos fatores de cálculo, com a prévia da proposta ao lado para você ver o efeito.' },
+  { k: 4, nome: 'Perfil', sub: 'foto, SUSEP, contato', titulo: 'Perfil',
+    sub2: 'Seus dados, com o cartão de contato da apresentação atualizando ao vivo enquanto você digita.' },
+  { k: 5, nome: 'Marca e logo', sub: 'duas versões e a cor', titulo: 'Marca e logo',
+    sub2: 'Logo para fundo claro e para fundo escuro, a cor de destaque, e onde cada um entra.' },
+  { k: 6, nome: 'Integrações', sub: 'webhooks do n8n', titulo: 'Integrações',
+    sub2: 'Agenda, WhatsApp, e-mail e IA. A ferramenta chama webhooks; a orquestração é toda no n8n.' }
+];
+
+const ONBOARD = [
+  { nome: 'Sua marca', titulo: 'Comece pela marca', botao: 'Continuar',
+    texto: 'O cliente vê o seu logotipo antes de ver qualquer número. Três minutos aqui melhoram todos os documentos que você vai entregar.',
+    itens: [
+      { n: '1', titulo: 'Envie o logotipo', texto: 'Duas versões: uma para fundo claro, uma para fundo escuro.' },
+      { n: '2', titulo: 'Escolha a cor de destaque', texto: 'Aparece nos títulos de seção e nos números em evidência.' },
+      { n: '3', titulo: 'Confira a prévia ao lado', texto: 'A proposta em A4 atualiza conforme você mexe.' }
+    ] },
+  { nome: 'Seu contato', titulo: 'Como o cliente fala com você', botao: 'Continuar',
+    texto: 'Nome, SUSEP e telefone entram no rodapé de todo documento e no cartão do último slide. Sem isso, a proposta sai incompleta.',
+    itens: [
+      { n: '1', titulo: 'Foto de perfil', texto: 'Rosto reconhecível no cartão de contato e na assinatura do e-mail.' },
+      { n: '2', titulo: 'Registro SUSEP', texto: 'O cliente pode verificar o seu registro. Obrigatório no rodapé.' },
+      { n: '3', titulo: 'WhatsApp e e-mail', texto: 'Os dois canais de retorno. O WhatsApp vira QR na apresentação.' }
+    ] },
+  { nome: 'Seus fatores', titulo: 'Confira o racional', botao: 'Ir para o painel',
+    texto: 'Os fatores vêm com os padrões que combinamos. Vale abrir uma vez e conferir se batem com o seu jeito de trabalhar, porque eles definem todo número que você vai apresentar.',
+    itens: [
+      { n: '1', titulo: 'Custo de transmissão em 15%', texto: 'ITCMD, custas e honorários sobre o patrimônio.' },
+      { n: '2', titulo: 'Padrão de vida por 5 anos', texto: 'Prazo de manutenção da rotina da família.' },
+      { n: '3', titulo: 'Teto de 8 vezes a renda anual', texto: 'Limite de razoabilidade do capital sugerido.' }
+    ] }
+];
+
+const CORES = [
+  { nome: 'Verde', hex: '#39CC00' },
+  { nome: 'Azul', hex: '#1B72BE' },
+  { nome: 'Âmbar', hex: '#D9A400' },
+  { nome: 'Terracota', hex: '#C4570B' }
+];
+
+class Component extends DCLogic {
+  state = {
+    tela: 1, onboard: 0, lembrar: true, termos: false, cor: '#39CC00', salvo: true,
+    perfil: {
+      nome: 'Edgar Torres', cargo: 'Consultor de proteção familiar',
+      corretora: 'Setor Norte Seguros', susep: 'SUSEP 202087923',
+      whats: '(96) 98133-9955', email: 'contato@setornorteseguros.com.br',
+      legal: 'Torres Norte Corretora de Seguros Ltda · CNPJ 11.903.619/0001-22'
+    },
+    integracoes: { agenda: true, zap: true, email: true, ia: false }
+  };
+
+  bool(k) {
+    const on = !!this.state[k], o = {};
+    return { alternar: () => { o[k] = !on; this.setState(o); }, check: on ? '✓' : '',
+      bg: on ? '#E7F0FA' : '#fbfdff', borda: on ? '#1B72BE' : '#DEE7EF',
+      boxBg: on ? '#1B72BE' : 'transparent', boxBorda: on ? '#1B72BE' : '#C6D2DE' };
+  }
+  perfilCampo(k) {
+    return { value: this.state.perfil[k] || '',
+      onChange: e => this.setState(s => {
+        const p = Object.assign({}, s.perfil); p[k] = e.target.value; return { perfil: p, salvo: false };
+      }) };
+  }
+
+  renderVals() {
+    const s = this.state, p = s.perfil;
+    const atual = TELAS.find(t => t.k === s.tela) || TELAS[0];
+    const ob = ONBOARD[s.onboard];
+
+    const telas = TELAS.map(t => {
+      const on = s.tela === t.k;
+      return { n: String(t.k), nome: t.nome, sub: t.sub,
+        ir: () => this.setState({ tela: t.k }),
+        bg: on ? '#E7F0FA' : 'transparent', borda: on ? '#C9E0F5' : 'transparent',
+        dot: on ? '#1B72BE' : '#CBD6E1', cor: on ? '#0F3D63' : '#1A1A1A' };
+    });
+
+    const INT = [
+      { k: 'agenda', nome: 'Google Agenda', desc: 'Lança a reunião escolhida pelo lead, com nome e contato. Nenhum valor do estudo entra no evento.',
+        rotuloCampo: 'Webhook de agendamento', placeholder: 'https://n8n.seudominio.com/webhook/agendar',
+        nota: 'No n8n, este fluxo autentica no Google e cria o evento no seu calendário.' },
+      { k: 'zap', nome: 'WhatsApp · Evolution', desc: 'Avisa você quando um lead termina de preencher e quando escolhe horário.',
+        rotuloCampo: 'Webhook de notificação', placeholder: 'https://n8n.seudominio.com/webhook/notificar',
+        nota: 'A instância da Evolution fica configurada no n8n, não aqui.' },
+      { k: 'email', nome: 'E-mail do mapa', desc: 'Envia o resumo no corpo da mensagem com a proposta em anexo, depois de você revisar.',
+        rotuloCampo: 'Webhook de envio', placeholder: 'https://n8n.seudominio.com/webhook/enviar-mapa',
+        nota: 'Remetente e domínio verificado ficam no fluxo do n8n.' },
+      { k: 'ia', nome: 'IA · textos do estudo', desc: 'Escreve o "Resumo para você" e a análise interna a partir dos números já calculados.',
+        rotuloCampo: 'Webhook de geração de texto', placeholder: 'https://n8n.seudominio.com/webhook/gerar-texto',
+        nota: 'Recebe os números do estudo e devolve os parágrafos. A análise interna nunca sai da sua tela.' }
+    ];
+    const integracoes = INT.map(i => {
+      const on = !!s.integracoes[i.k];
+      return { nome: i.nome, desc: i.desc, rotuloCampo: i.rotuloCampo, placeholder: i.placeholder, nota: i.nota,
+        alternar: () => this.setState(st => {
+          const g = Object.assign({}, st.integracoes); g[i.k] = !on; return { integracoes: g };
+        }),
+        status: on ? 'ativa' : 'desligada',
+        statusCor: on ? '#fff' : '#8FA0AF', statusBg: on ? '#39CC00' : '#F3F6FA',
+        dot: on ? '#39CC00' : '#CBD6E1', borda: on ? '#C8EFB7' : '#DEE7EF',
+        trilha: on ? '#39CC00' : '#CBD6E1', alinha: on ? 'flex-end' : 'flex-start' };
+    });
+
+    const cores = CORES.map(c => {
+      const on = s.cor === c.hex;
+      return { nome: c.nome, hex: c.hex, escolher: () => this.setState({ cor: c.hex }),
+        anel: on ? '#0F3D63' : 'transparent', rotuloCor: on ? '#0F3D63' : '#8FA0AF' };
+    });
+
+    const passosOnboard = ONBOARD.map((o, i) => {
+      const feito = i < s.onboard, aqui = i === s.onboard;
+      return { nome: o.nome, marca: feito ? '✓' : String(i + 1),
+        dot: feito ? '#39CC00' : aqui ? '#1B72BE' : '#CBD6E1',
+        cor: aqui ? '#0F3D63' : feito ? '#5B6B7A' : '#8FA0AF',
+        linha: feito ? '#39CC00' : '#DEE7EF',
+        flex: i === ONBOARD.length - 1 ? '0 0 auto' : '1' };
+    });
+
+    return {
+      telas, contador: 'Tela ' + s.tela + ' de 6',
+      titulo: atual.titulo, subtitulo: atual.sub2,
+      eh1: s.tela === 1, eh2: s.tela === 2, eh3: s.tela === 3, eh4: s.tela === 4, eh5: s.tela === 5, eh6: s.tela === 6,
+      rodapeLegal: p.legal + ' · ' + p.susep,
+      f: { lembrar: this.bool('lembrar'), termos: this.bool('termos') },
+
+      estadosLogin: [
+        { titulo: 'Senha errada', texto: 'Mensagem única: "E-mail ou senha não conferem." Não dizemos qual dos dois está errado.', cor: '#C4570B', bg: '#FDF1E7', borda: '#F0CBA8' },
+        { titulo: 'Cinco tentativas', texto: 'Bloqueia por 15 minutos e sugere recuperar a senha.', cor: '#8a6a00', bg: '#FCF3D9', borda: '#EEDCA6' },
+        { titulo: 'Sessão expirada', texto: 'Volta para cá com aviso e devolve você à tela onde estava depois de entrar.', cor: '#0F3D63', bg: '#F3F6FA', borda: '#DEE7EF' },
+        { titulo: 'Entrando', texto: 'O botão vira "Entrando…" e desabilita. Sem tela branca no meio.', cor: '#0F3D63', bg: '#F3F6FA', borda: '#DEE7EF' }
+      ],
+
+      camposConta: [
+        { rotulo: 'Nome completo', placeholder: 'Edgar Torres', nota: 'Vai no rodapé da proposta e no cartão da apresentação.' },
+        { rotulo: 'Corretora', placeholder: 'Setor Norte Seguros', nota: 'Nome que aparece no cabeçalho dos documentos.' },
+        { rotulo: 'Registro SUSEP', placeholder: '202087923', nota: 'Obrigatório nos documentos que o cliente recebe.' },
+        { rotulo: 'E-mail', placeholder: 'edgar@setornorteseguros.com.br', nota: 'Também é o seu login.' },
+        { rotulo: 'Senha', placeholder: 'ao menos 8 caracteres', nota: 'Mínimo de 8 caracteres.' }
+      ],
+      criarBg: s.termos ? '#1B72BE' : '#CBD6E1',
+      criarCor: s.termos ? '#fff' : '#F3F6FA',
+
+      passosOnboard, onboard: {
+        titulo: ob.titulo, texto: ob.texto, itens: ob.itens,
+        botao: ob.botao, visVoltar: s.onboard === 0 ? 'hidden' : 'visible'
+      },
+      onboardAvancar: () => {
+        if (s.onboard < ONBOARD.length - 1) this.setState({ onboard: s.onboard + 1 });
+        else window.location.href = 'Painel do Corretor.dc.html';
+      },
+      onboardVoltar: () => this.setState({ onboard: Math.max(0, s.onboard - 1) }),
+
+      camposPerfil: [
+        { rotulo: 'Nome completo', campo: this.perfilCampo('nome'), nota: 'Rodapé da proposta e cartão de contato.', span: 'span 1' },
+        { rotulo: 'Cargo', campo: this.perfilCampo('cargo'), nota: 'Linha abaixo do nome na apresentação.', span: 'span 1' },
+        { rotulo: 'Corretora', campo: this.perfilCampo('corretora'), nota: 'Cabeçalho dos documentos.', span: 'span 1' },
+        { rotulo: 'Registro SUSEP', campo: this.perfilCampo('susep'), nota: 'Obrigatório no rodapé.', span: 'span 1' },
+        { rotulo: 'WhatsApp', campo: this.perfilCampo('whats'), nota: 'Vira QR code no último slide.', span: 'span 1' },
+        { rotulo: 'E-mail de contato', campo: this.perfilCampo('email'), nota: 'Assinatura do e-mail do mapa.', span: 'span 1' },
+        { rotulo: 'Razão social e CNPJ', campo: this.perfilCampo('legal'), nota: 'Aparece no rodapé legal de todo documento, junto da SUSEP.', span: 'span 2' }
+      ],
+      preview: {
+        nome: p.nome || 'Seu nome',
+        cargo: [p.cargo, p.corretora].filter(Boolean).join(' · '),
+        contato: [p.whats, p.email].filter(Boolean).join(' · '),
+        rodape: p.legal + ' · ' + p.susep
+      },
+      salvar: () => this.setState({ salvo: true }),
+      salvarBg: s.salvo ? '#CBD6E1' : '#39CC00',
+      salvarRotulo: s.salvo ? 'Nada para salvar' : 'Salvar alterações',
+      avisoSalvo: s.salvo ? 'Tudo salvo' : 'Alterações não aplicadas aos documentos ainda',
+
+      cores, corEscolhida: s.cor,
+      locaisMarca: [
+        { local: 'Capa da apresentação', detalhe: 'canto superior esquerdo, 150×40', versao: 'claro', cor: '#fff', bg: '#0F3D63' },
+        { local: 'Cabeçalho da proposta', detalhe: 'ao lado do nome da corretora, 84×24', versao: 'escuro', cor: '#0F3D63', bg: '#E7F0FA' },
+        { local: 'Topo do e-mail', detalhe: 'sobre a faixa marinho, 104×30', versao: 'claro', cor: '#fff', bg: '#0F3D63' },
+        { local: 'Login e painel', detalhe: 'barra lateral e tela de entrada', versao: 'os dois', cor: '#5B6B7A', bg: '#F3F6FA' },
+        { local: 'Página do lead', detalhe: 'topo do formulário público, 78×22', versao: 'claro', cor: '#fff', bg: '#0F3D63' }
+      ],
+
+      integracoes,
+      fluxo: [
+        { nome: 'Ferramenta', cor: '#0F3D63', bg: '#fff', seta: '→' },
+        { nome: 'Webhook', cor: '#fff', bg: 'rgba(255,255,255,.16)', seta: '→' },
+        { nome: 'n8n', cor: '#0F3D63', bg: '#39CC00', seta: '→' },
+        { nome: 'Google · Evolution · IA', cor: '#fff', bg: 'rgba(255,255,255,.16)', seta: '' }
+      ],
+      webhooks: [
+        { rota: 'POST /webhook/lead', quando: 'Lead termina o formulário público.', payload: 'nome, telefone, e-mail, campanha' },
+        { rota: 'POST /webhook/agendar', quando: 'Lead escolhe horário ou propõe um no campo aberto.', payload: 'nome, contato, data, hora, duração' },
+        { rota: 'POST /webhook/notificar', quando: 'Lead novo, horário escolhido, lead repetido.', payload: 'tipo do evento, nome, profissão, origem' },
+        { rota: 'POST /webhook/gerar-texto', quando: 'Você clica em gerar os textos do estudo.', payload: 'números do estudo, perfil, dependentes' },
+        { rota: 'POST /webhook/enviar-mapa', quando: 'Você confirma o envio do e-mail.', payload: 'destinatário, assunto, corpo, anexos' },
+        { rota: 'POST /webhook/esquecer', quando: 'Você registra um pedido de exclusão LGPD.', payload: 'id opaco, eventos futuros a cancelar' }
+      ],
+
+      irLogin: () => this.setState({ tela: 1 }),
+      irCriar: () => this.setState({ tela: 2 }),
+      irOnboard: () => this.setState({ tela: 3, onboard: 0 }),
+      irAjustes: () => { window.location.href = 'Ajustes.dc.html'; },
+      irPainel: () => { window.location.href = 'Painel do Corretor.dc.html'; }
+    };
+  }
+}
+
+</script>
+</body>
+</html>

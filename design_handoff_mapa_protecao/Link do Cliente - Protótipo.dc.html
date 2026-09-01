@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;background:#e7ebf1;font-family:Inter,system-ui,sans-serif}a{color:#1B72BE}a:hover{color:#0F3D63}input,textarea,button{font-family:Inter,system-ui,sans-serif}input:focus,textarea:focus{outline:none;border-color:#1B72BE!important;box-shadow:0 0 0 3px #E7F0FA}::placeholder{color:#A9B8C6}</style></helmet>
+
+<div style="min-height:100vh;display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start;justify-content:center;padding:44px 32px 64px;box-sizing:border-box">
+
+  <div style="width:300px;flex:none;padding-top:16px">
+    <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:#8FA0AF;margin-bottom:10px">Protótipo clicável</div>
+    <div style="font:600 26px/1.2 Fraunces,serif;color:#0F3D63;margin-bottom:12px">Link do cliente</div>
+    <div style="font:400 13px/1.7 Inter,sans-serif;color:#5B6B7A;margin-bottom:20px">Funciona de verdade: responda, volte, feche e recarregue — as respostas ficam salvas. Nome primeiro, apresentação depois, dados de contato e consentimento no fim, resumo antes de enviar.</div>
+    <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:16px 18px;margin-bottom:14px">
+      <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#8FA0AF;margin-bottom:10px">Onde você está</div>
+      <div style="font:600 14px Inter,sans-serif;color:#0F3D63">{{ stepName }}</div>
+      <div style="font:400 12px/1.6 Inter,sans-serif;color:#5B6B7A;margin-top:4px">{{ stepNote }}</div>
+    </div>
+    <button onClick="{{ reset }}" style="width:100%;font:600 12.5px Inter,sans-serif;color:#0F3D63;background:#fff;border:1.5px solid #DEE7EF;padding:11px;border-radius:999px;cursor:pointer">Recomeçar o teste</button>
+    <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#8FA0AF;margin-top:14px">Fluxo: nome → convite → perguntas → contato e consentimento → resumo → agendamento.</div>
+  </div>
+
+  <div style="width:392px;flex:none;border-radius:44px;background:#0b1520;padding:11px;box-shadow:0 30px 60px -30px rgba(11,21,32,.6),0 2px 6px rgba(11,21,32,.25)">
+    <div style="border-radius:34px;overflow:hidden;background:#F3F6FA;height:812px;display:flex;flex-direction:column;position:relative">
+
+      <div style="flex:none;padding:12px 24px 2px;display:flex;justify-content:space-between;align-items:center;background:{{ barBg }}">
+        <span style="font:600 12px Inter,sans-serif;color:{{ barFg }}">09:41</span>
+        <span style="font:600 11px Inter,sans-serif;color:{{ barFg }};letter-spacing:.1em">▪▪▪ ▮</span>
+      </div>
+
+      <sc-if value="{{ isNome }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;background:#0F3D63;padding:30px 26px 28px;display:flex;flex-direction:column;color:#fff;overflow-y:auto">
+          <div style="width:46px;height:46px;border-radius:11px;border:1px dashed rgba(255,255,255,.45);display:grid;place-items:center;font:600 8px Inter,sans-serif;color:rgba(255,255,255,.6);flex:none">LOGO</div>
+          <div style="flex:1;min-height:20px"></div>
+          <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#39CC00;margin-bottom:14px">Mapa da proteção</div>
+          <div style="font:600 30px/1.22 Fraunces,serif;margin-bottom:12px">Antes de começar: como é o seu nome?</div>
+          <div style="font:400 13.5px/1.7 Inter,sans-serif;color:rgba(255,255,255,.72);margin-bottom:20px">É o único dado que preciso agora. Telefone e e-mail ficam para o fim.</div>
+          <input type="text" value="{{ nome }}" onInput="{{ setNome }}" placeholder="Nome e sobrenome" style="width:100%;box-sizing:border-box;padding:17px;border:1.5px solid rgba(255,255,255,.3);border-radius:14px;font:600 17px Inter,sans-serif;color:#0F3D63;background:#fff;margin-bottom:14px" />
+          <button onClick="{{ start }}" style="font:700 15px Inter,sans-serif;color:{{ nomeFc }};background:{{ nomeBg }};border:none;padding:17px;border-radius:14px;cursor:pointer;width:100%">Continuar</button>
+          <div style="flex:1;min-height:20px"></div>
+          <div style="display:flex;align-items:center;gap:12px;padding-top:20px;border-top:1px solid rgba(255,255,255,.16)">
+            <div style="width:42px;height:42px;border-radius:50%;border:1px dashed rgba(255,255,255,.45);display:grid;place-items:center;font:600 7.5px Inter,sans-serif;color:rgba(255,255,255,.6);flex:none">FOTO</div>
+            <div><div style="font:600 13px Inter,sans-serif">Edgar Torres</div><div style="font:400 11.5px Inter,sans-serif;color:rgba(255,255,255,.6)">Setor Norte Seguros · SUSEP 202087923</div></div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isWelcome }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;background:#0F3D63;padding:26px 26px 28px;display:flex;flex-direction:column;color:#fff;overflow-y:auto">
+          <button onClick="{{ voltarNome }}" style="border:none;background:none;color:rgba(255,255,255,.7);font:600 13px Inter,sans-serif;cursor:pointer;padding:0;text-align:left;flex:none">‹ Voltar</button>
+          <div style="flex:1;min-height:20px"></div>
+          <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.16em;color:#39CC00;margin-bottom:14px">Setor Norte Seguros</div>
+          <div style="font:600 30px/1.2 Fraunces,serif;margin-bottom:16px">{{ saudacao }}, são {{ total }} perguntas sobre a sua família.</div>
+          <div style="font:400 14px/1.75 Inter,sans-serif;color:rgba(255,255,255,.8);margin-bottom:10px">Elas servem para eu preparar o seu mapa de proteção antes da nossa conversa. Leva cerca de 6 minutos e pode parar no meio — o link guarda o que você já respondeu, e você pode voltar em qualquer pergunta.</div>
+          <div style="font:400 13px/1.7 Inter,sans-serif;color:rgba(255,255,255,.58);margin-bottom:24px">Nenhum valor de seguro aparece aqui. Os números eu apresento pessoalmente.</div>
+          <button onClick="{{ irQ }}" style="font:700 15px Inter,sans-serif;color:#0F3D63;background:#fff;border:none;padding:17px;border-radius:14px;cursor:pointer;width:100%">{{ startLabel }}</button>
+          <div style="flex:1;min-height:20px"></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isQ }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;display:flex;flex-direction:column;min-height:0">
+          <div style="flex:none;padding:10px 22px 14px;display:flex;align-items:center;gap:12px;background:#F3F6FA">
+            <button onClick="{{ back }}" style="border:none;background:none;font:600 12.5px Inter,sans-serif;color:#1B72BE;cursor:pointer;padding:4px 6px 4px 0;white-space:nowrap">‹ Voltar</button>
+            <div style="flex:1;height:5px;border-radius:99px;background:#DEE7EF;overflow:hidden"><div style="height:100%;background:#39CC00;border-radius:99px;transition:width .25s;width:{{ pct }}%"></div></div>
+            <span style="font:600 11px Inter,sans-serif;color:#5B6B7A">{{ counter }}</span>
+          </div>
+
+          <div style="flex:1;overflow-y:auto;padding:8px 24px 20px">
+            <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:#1B72BE;margin-bottom:10px">{{ q.grupo }}</div>
+            <div style="font:600 24px/1.28 Fraunces,serif;color:#0F3D63;margin-bottom:10px">{{ q.label }}</div>
+            <div style="font:400 13px/1.65 Inter,sans-serif;color:#5B6B7A;margin-bottom:22px">{{ q.help }}</div>
+
+            <sc-if value="{{ isMoney }}" hint-placeholder-val="{{ true }}">
+              <input type="text" inputmode="numeric" value="{{ val }}" onInput="{{ setMoney }}" placeholder="R$ 0" style="width:100%;box-sizing:border-box;padding:16px;border:1.5px solid #DEE7EF;border-radius:14px;font:700 22px Fraunces,serif;color:#0F3D63;background:#fff" />
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <sc-for list="{{ atalhos }}" as="s" hint-placeholder-count="3">
+                  <button onClick="{{ s.on }}" style="font:600 12.5px Inter,sans-serif;color:#0F3D63;background:#fff;border:1.5px solid #DEE7EF;padding:9px 13px;border-radius:99px;cursor:pointer">{{ s.label }}</button>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isFontes }}" hint-placeholder-val="{{ true }}">
+              <div style="background:#fff;border:1.5px solid #DEE7EF;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:15px">
+                <sc-for list="{{ fontes }}" as="f" hint-placeholder-count="2">
+                  <div>
+                    <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63;margin-bottom:7px">{{ f.label }}</div>
+                    <input type="text" inputmode="numeric" value="{{ f.valor }}" onInput="{{ f.on }}" placeholder="R$ por mês" style="width:100%;box-sizing:border-box;padding:12px;border:1.5px solid #DEE7EF;border-radius:10px;font:600 15px Inter,sans-serif;color:#0F3D63;background:#fbfdff" />
+                  </div>
+                </sc-for>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;padding-top:12px;border-top:1px solid #DEE7EF">
+                  <span style="font:600 12.5px Inter,sans-serif;color:#5B6B7A">Somando as fontes</span>
+                  <span style="font:700 15px Inter,sans-serif;color:{{ somaCor }}">{{ somaTxt }}</span>
+                </div>
+                <div style="font:400 11.5px/1.6 Inter,sans-serif;color:{{ somaCor }}">{{ somaNota }}</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isDate }}" hint-placeholder-val="{{ true }}">
+              <input type="text" inputmode="numeric" value="{{ val }}" onInput="{{ setDate }}" placeholder="dd/mm/aaaa" style="width:100%;box-sizing:border-box;padding:16px;border:1.5px solid #DEE7EF;border-radius:14px;font:600 20px Inter,sans-serif;color:#1A1A1A;background:#fff;letter-spacing:.02em" />
+              <div style="font:500 13px Inter,sans-serif;color:#39CC00;margin-top:10px">{{ idadeTxt }}</div>
+            </sc-if>
+
+            <sc-if value="{{ isChoice }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ opts }}" as="o" hint-placeholder-count="4">
+                  <button onClick="{{ o.on }}" style="text-align:left;cursor:pointer;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:{{ o.bg }};border:1.5px solid {{ o.bc }};color:{{ o.fc }};font:600 15px Inter,sans-serif">{{ o.label }}<span style="font-size:13px;color:#1B72BE">{{ o.check }}</span></button>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isMulti }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ multiOpts }}" as="o" hint-placeholder-count="3">
+                  <button onClick="{{ o.on }}" style="text-align:left;cursor:pointer;border-radius:14px;padding:15px;display:flex;align-items:center;gap:12px;background:{{ o.bg }};border:1.5px solid {{ o.bc }};color:{{ o.fc }};font:600 14.5px Inter,sans-serif"><span style="width:22px;height:22px;flex:none;border-radius:6px;display:grid;place-items:center;font-size:12px;color:#fff;background:{{ o.boxBg }};border:1.5px solid {{ o.boxBc }}">{{ o.check }}</span>{{ o.label }}</button>
+                </sc-for>
+                <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#8FA0AF">Pode marcar mais de uma. Na próxima pergunta você separa quanto vem de cada uma.</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isPeople }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ people }}" as="p" hint-placeholder-count="2">
+                  <div style="background:#fff;border:1.5px solid {{ p.bc }};border-radius:14px;padding:14px">
+                    <div style="display:flex;gap:9px;align-items:center;margin-bottom:9px">
+                      <input type="text" value="{{ p.nome }}" onInput="{{ p.onNome }}" placeholder="Nome" style="flex:1;min-width:0;padding:11px 12px;border:1.5px solid #DEE7EF;border-radius:10px;font:600 14.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff" />
+                      <button onClick="{{ p.onRm }}" style="width:34px;height:34px;flex:none;border:1.5px solid #DEE7EF;background:#fff;border-radius:9px;color:#C4570B;cursor:pointer;font-size:13px">✕</button>
+                    </div>
+                    <div style="display:flex;gap:9px;align-items:center">
+                      <input type="text" inputmode="numeric" value="{{ p.nasc }}" onInput="{{ p.onNasc }}" placeholder="dd/mm/aaaa" style="width:130px;flex:none;padding:11px 12px;border:1.5px solid #DEE7EF;border-radius:10px;font:500 13.5px Inter,sans-serif;color:#1A1A1A;background:#fbfdff" />
+                      <button onClick="{{ p.onRel }}" style="flex:1;min-width:0;padding:11px 12px;border:1.5px solid #DEE7EF;border-radius:10px;font:600 13.5px Inter,sans-serif;color:#5B6B7A;background:#fbfdff;cursor:pointer;text-align:left">{{ p.rel }} ⇄</button>
+                    </div>
+                    <div style="font:500 12px Inter,sans-serif;color:{{ p.idadeCor }};margin-top:9px">{{ p.idadeTxt }}</div>
+                  </div>
+                </sc-for>
+                <button onClick="{{ addPerson }}" style="border:1.5px dashed #C9E0F5;background:#fff;border-radius:14px;padding:16px;font:700 14px Inter,sans-serif;color:#1B72BE;cursor:pointer">+ adicionar pessoa</button>
+                <button onClick="{{ noPeople }}" style="border:none;background:none;font:600 13px Inter,sans-serif;color:#8FA0AF;cursor:pointer;padding:6px">Ninguém depende da minha renda</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isItems }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ items }}" as="it" hint-placeholder-count="2">
+                  <div style="background:#fff;border:1.5px solid #DEE7EF;border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:9px">
+                    <div style="display:flex;gap:9px;align-items:center">
+                      <input type="text" value="{{ it.desc }}" onInput="{{ it.onDesc }}" placeholder="{{ it.phDesc }}" style="flex:1;min-width:0;padding:11px 12px;border:1.5px solid #DEE7EF;border-radius:10px;font:500 14px Inter,sans-serif;color:#1A1A1A;background:#fbfdff" />
+                      <button onClick="{{ it.onRm }}" style="width:34px;height:34px;flex:none;border:1.5px solid #DEE7EF;background:#fff;border-radius:9px;color:#C4570B;cursor:pointer;font-size:13px">✕</button>
+                    </div>
+                    <input type="text" inputmode="numeric" value="{{ it.valor }}" onInput="{{ it.onValor }}" placeholder="{{ it.phValor }}" style="padding:11px 12px;border:1.5px solid #DEE7EF;border-radius:10px;font:600 15px Inter,sans-serif;color:#0F3D63;background:#fbfdff" />
+                  </div>
+                </sc-for>
+                <button onClick="{{ addItem }}" style="border:1.5px dashed #C9E0F5;background:#fff;border-radius:14px;padding:16px;font:700 14px Inter,sans-serif;color:#1B72BE;cursor:pointer">{{ addItemLabel }}</button>
+                <button onClick="{{ skip }}" style="border:none;background:none;font:600 13px Inter,sans-serif;color:#8FA0AF;cursor:pointer;padding:6px">Não tenho / prefiro falar depois</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isPhases }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:9px;margin-bottom:16px">
+                <button onClick="{{ estudosSim }}" style="flex:1;padding:15px;border-radius:14px;cursor:pointer;font:700 15px Inter,sans-serif;background:{{ simBg }};border:1.5px solid {{ simBc }};color:{{ simFc }}">Sim</button>
+                <button onClick="{{ estudosNao }}" style="flex:1;padding:15px;border-radius:14px;cursor:pointer;font:700 15px Inter,sans-serif;background:{{ naoBg }};border:1.5px solid {{ naoBc }};color:{{ naoFc }}">Não</button>
+              </div>
+              <sc-if value="{{ estudosOn }}" hint-placeholder-val="{{ true }}">
+                <div style="background:#fff;border:1.5px solid #DEE7EF;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px">
+                  <div style="background:#EAFBE3;border:1px solid #C8EFB7;border-radius:10px;padding:12px 13px">
+                    <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.09em;color:#2f8a12;margin-bottom:6px">Valor de um filho só</div>
+                    <div style="font:400 12px/1.65 Inter,sans-serif;color:#1A1A1A">{{ exemploFase }}</div>
+                  </div>
+                  <div style="font:400 12px/1.6 Inter,sans-serif;color:#8FA0AF">Deixe em branco a fase que não se aplica.</div>
+                  <sc-for list="{{ fases }}" as="f" hint-placeholder-count="3">
+                    <div>
+                      <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63;margin-bottom:2px">{{ f.label }}</div>
+                      <div style="font:400 11.5px Inter,sans-serif;color:#8FA0AF;margin-bottom:7px">{{ f.faixa }}</div>
+                      <input type="text" inputmode="numeric" value="{{ f.valor }}" onInput="{{ f.on }}" placeholder="R$ por mês, por filho" style="width:100%;box-sizing:border-box;padding:12px;border:1.5px solid #DEE7EF;border-radius:10px;font:600 15px Inter,sans-serif;color:#0F3D63;background:#fbfdff" />
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </sc-if>
+
+            <sc-if value="{{ isExtras }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ extras }}" as="x" hint-placeholder-count="1">
+                  <div style="background:#fff;border:1.5px solid #DEE7EF;border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:9px">
+                    <div style="display:flex;gap:9px;align-items:center">
+                      <input type="text" value="{{ x.desc }}" onInput="{{ x.onDesc }}" placeholder="Ex: curso de inglês" style="flex:1;min-width:0;padding:11px 12px;border:1.5px solid #DEE7EF;border-radius:10px;font:500 14px Inter,sans-serif;color:#1A1A1A;background:#fbfdff" />
+                      <button onClick="{{ x.onRm }}" style="width:34px;height:34px;flex:none;border:1.5px solid #DEE7EF;background:#fff;border-radius:9px;color:#C4570B;cursor:pointer;font-size:13px">✕</button>
+                    </div>
+                    <input type="text" inputmode="numeric" value="{{ x.valor }}" onInput="{{ x.onValor }}" placeholder="Quanto custa por mês" style="padding:11px 12px;border:1.5px solid #DEE7EF;border-radius:10px;font:600 15px Inter,sans-serif;color:#0F3D63;background:#fbfdff" />
+                    <div>
+                      <div style="font:600 11.5px Inter,sans-serif;color:#8FA0AF;margin-bottom:6px">Por quanto tempo ainda?</div>
+                      <button onClick="{{ x.onPrazo }}" style="width:100%;text-align:left;padding:11px 12px;border:1.5px solid #C9E0F5;border-radius:10px;font:600 13.5px Inter,sans-serif;color:#0F3D63;background:#E7F0FA;cursor:pointer">{{ x.prazo }} ⇄</button>
+                    </div>
+                  </div>
+                </sc-for>
+                <button onClick="{{ addExtra }}" style="border:1.5px dashed #C9E0F5;background:#fff;border-radius:14px;padding:16px;font:700 14px Inter,sans-serif;color:#1B72BE;cursor:pointer">+ adicionar despesa de estudo</button>
+                <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#8FA0AF">Inglês por 3 anos, natação por tempo indeterminado, intercâmbio de 1 ano — vale qualquer despesa que você queira proteger.</div>
+                <button onClick="{{ skip }}" style="border:none;background:none;font:600 13px Inter,sans-serif;color:#8FA0AF;cursor:pointer;padding:6px">Não quero incluir nada aqui</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isGroup }}" hint-placeholder-val="{{ true }}">
+              <div style="background:#fff;border:1.5px solid #DEE7EF;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:15px">
+                <sc-for list="{{ campos }}" as="g" hint-placeholder-count="3">
+                  <div>
+                    <div style="font:600 13.5px Inter,sans-serif;color:#0F3D63;margin-bottom:2px">{{ g.label }}</div>
+                    <div style="font:400 11.5px/1.5 Inter,sans-serif;color:#8FA0AF;margin-bottom:7px">{{ g.help }}</div>
+                    <input type="text" inputmode="numeric" value="{{ g.valor }}" onInput="{{ g.on }}" placeholder="R$ 0" style="width:100%;box-sizing:border-box;padding:12px;border:1.5px solid #DEE7EF;border-radius:10px;font:600 15px Inter,sans-serif;color:#0F3D63;background:#fbfdff" />
+                  </div>
+                </sc-for>
+                <button onClick="{{ skip }}" style="border:none;background:none;font:600 13px Inter,sans-serif;color:#8FA0AF;cursor:pointer;padding:2px;text-align:left">Não sei esses valores agora</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ isNote }}" hint-placeholder-val="{{ true }}">
+              <textarea onInput="{{ setVal }}" value="{{ val }}" placeholder="Opcional — qualquer coisa que você queira que eu saiba antes da conversa" style="width:100%;box-sizing:border-box;min-height:130px;padding:15px;border:1.5px solid #DEE7EF;border-radius:14px;font:500 14.5px/1.6 Inter,sans-serif;color:#1A1A1A;background:#fff;resize:vertical"></textarea>
+            </sc-if>
+          </div>
+
+          <div style="flex:none;padding:14px 24px 20px;background:#F3F6FA;border-top:1px solid #E3E9F0">
+            <button onClick="{{ next }}" style="width:100%;font:700 15.5px Inter,sans-serif;color:#fff;background:{{ nextBg }};border:none;padding:17px;border-radius:14px;cursor:pointer">{{ nextLabel }}</button>
+            <div style="font:400 11.5px Inter,sans-serif;color:#8FA0AF;text-align:center;margin-top:11px">Salvo automaticamente. Pode fechar e voltar depois.</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isContato }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;display:flex;flex-direction:column;min-height:0">
+          <div style="flex:none;padding:10px 22px 14px;display:flex;align-items:center;gap:12px;background:#F3F6FA">
+            <button onClick="{{ back }}" style="border:none;background:none;font:600 12.5px Inter,sans-serif;color:#1B72BE;cursor:pointer;padding:4px 6px 4px 0;white-space:nowrap">‹ Voltar</button>
+            <div style="flex:1;height:5px;border-radius:99px;background:#DEE7EF;overflow:hidden"><div style="height:100%;background:#39CC00;border-radius:99px;width:100%"></div></div>
+            <span style="font:600 11px Inter,sans-serif;color:#5B6B7A">{{ counterFim }}</span>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:8px 24px 20px">
+            <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:#1B72BE;margin-bottom:10px">Seus dados</div>
+            <div style="font:600 24px/1.28 Fraunces,serif;color:#0F3D63;margin-bottom:10px">Como eu falo com você?</div>
+            <div style="font:400 13px/1.65 Inter,sans-serif;color:#5B6B7A;margin-bottom:22px">Uso só para combinar a nossa conversa e enviar o seu mapa.</div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div>
+                <div style="font:600 13px Inter,sans-serif;color:#0F3D63;margin-bottom:7px">WhatsApp</div>
+                <input type="text" inputmode="numeric" value="{{ wpp }}" onInput="{{ setWpp }}" placeholder="(96) 99999-9999" style="width:100%;box-sizing:border-box;padding:16px;border:1.5px solid #DEE7EF;border-radius:14px;font:600 17px Inter,sans-serif;color:#1A1A1A;background:#fff" />
+              </div>
+              <div>
+                <div style="font:600 13px Inter,sans-serif;color:#0F3D63;margin-bottom:7px">E-mail</div>
+                <input type="email" value="{{ email }}" onInput="{{ setEmail }}" placeholder="seunome@email.com" style="width:100%;box-sizing:border-box;padding:16px;border:1.5px solid #DEE7EF;border-radius:14px;font:500 15.5px Inter,sans-serif;color:#1A1A1A;background:#fff" />
+              </div>
+              <button onClick="{{ toggleLgpd }}" style="text-align:left;display:flex;gap:12px;align-items:flex-start;background:#fff;border:1.5px solid {{ lgpdBc }};border-radius:14px;padding:15px;cursor:pointer">
+                <span style="width:22px;height:22px;flex:none;border-radius:6px;display:grid;place-items:center;font-size:12px;color:#fff;background:{{ lgpdBg }};border:1.5px solid {{ lgpdBoxBc }};margin-top:1px">{{ lgpdCheck }}</span>
+                <span style="font:400 12px/1.65 Inter,sans-serif;color:#1A1A1A">Autorizo a Torres Norte Corretora de Seguros a tratar os dados informados com a finalidade de elaborar meu estudo de proteção e entrar em contato comigo. Sei que posso pedir a correção ou a exclusão dos meus dados a qualquer momento pelo e-mail contato@setornorteseguros.com.br. <span style="color:#1B72BE;font-weight:600">Política de privacidade</span></span>
+              </button>
+              <div style="font:400 11.5px/1.6 Inter,sans-serif;color:#8FA0AF">LGPD, Lei 13.709/2018. Seus dados não são compartilhados com terceiros nem usados para outra finalidade.</div>
+            </div>
+          </div>
+          <div style="flex:none;padding:14px 24px 20px;background:#F3F6FA;border-top:1px solid #E3E9F0">
+            <button onClick="{{ irRevisao }}" style="width:100%;font:700 15.5px Inter,sans-serif;color:#fff;background:{{ contatoBg }};border:none;padding:17px;border-radius:14px;cursor:pointer">Revisar respostas</button>
+            <div style="font:400 11.5px Inter,sans-serif;color:#8FA0AF;text-align:center;margin-top:11px">{{ contatoNota }}</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isRevisao }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;display:flex;flex-direction:column;min-height:0">
+          <div style="flex:none;padding:10px 22px 14px;display:flex;align-items:center;gap:12px;background:#F3F6FA">
+            <button onClick="{{ voltarContato }}" style="border:none;background:none;font:600 12.5px Inter,sans-serif;color:#1B72BE;cursor:pointer;padding:4px 6px 4px 0;white-space:nowrap">‹ Voltar</button>
+            <span style="font:600 11.5px Inter,sans-serif;color:#5B6B7A">Conferir antes de enviar</span>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:8px 24px 20px">
+            <div style="font:600 24px/1.28 Fraunces,serif;color:#0F3D63;margin-bottom:8px">{{ revisaoTitulo }}</div>
+            <div style="font:400 13px/1.65 Inter,sans-serif;color:#5B6B7A;margin-bottom:20px">Toque em corrigir para mudar qualquer resposta. Nada é enviado até você confirmar.</div>
+            <div style="background:#fff;border:1px solid #DEE7EF;border-radius:14px;padding:6px 16px">
+              <sc-for list="{{ revisao }}" as="r" hint-placeholder-count="8">
+                <div style="padding:13px 0;border-bottom:1px solid #EDF1F6">
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px">
+                    <span style="font:600 11.5px Inter,sans-serif;color:#8FA0AF;text-transform:uppercase;letter-spacing:.06em">{{ r.k }}</span>
+                    <button onClick="{{ r.onFix }}" style="border:none;background:none;font:700 11.5px Inter,sans-serif;color:#1B72BE;cursor:pointer;padding:0;flex:none">corrigir</button>
+                  </div>
+                  <div style="font:500 14px/1.55 Inter,sans-serif;color:{{ r.cor }};margin-top:4px">{{ r.v }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="flex:none;padding:14px 24px 20px;background:#F3F6FA;border-top:1px solid #E3E9F0">
+            <button onClick="{{ enviar }}" style="width:100%;font:700 15.5px Inter,sans-serif;color:#fff;background:#1B72BE;border:none;padding:17px;border-radius:14px;cursor:pointer">Está tudo certo, enviar</button>
+            <div style="font:400 11.5px Inter,sans-serif;color:#8FA0AF;text-align:center;margin-top:11px">Suas respostas vão apenas para o Edgar.</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isFim }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;overflow-y:auto;padding:22px 24px 28px">
+          <button onClick="{{ voltarRevisao }}" style="border:none;background:none;font:600 12.5px Inter,sans-serif;color:#1B72BE;cursor:pointer;padding:0 0 18px 0">‹ Voltar ao resumo</button>
+          <div style="width:54px;height:54px;border-radius:50%;background:#EAFBE3;color:#39CC00;display:grid;place-items:center;font:700 23px Inter,sans-serif;margin-bottom:20px">✓</div>
+          <div style="font:600 26px/1.25 Fraunces,serif;color:#0F3D63;margin-bottom:12px">{{ fimTitulo }}</div>
+          <div style="font:400 13.5px/1.7 Inter,sans-serif;color:#5B6B7A;margin-bottom:22px">Vou montar o seu mapa de proteção com essas respostas e apresentar pessoalmente. Escolha um horário na minha agenda.</div>
+          <div style="background:#fff;border:1px solid #DEE7EF;border-radius:14px;padding:18px;margin-bottom:12px">
+            <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#8FA0AF;margin-bottom:14px">Horários livres na agenda do Edgar</div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <sc-for list="{{ slots }}" as="s" hint-placeholder-count="3">
+                <button onClick="{{ s.on }}" style="cursor:pointer;border-radius:11px;padding:14px;display:flex;justify-content:space-between;align-items:center;background:{{ s.bg }};border:1.5px solid {{ s.bc }};color:{{ s.fc }};font:600 13.5px Inter,sans-serif"><span>{{ s.dia }}</span><span>{{ s.hora }}</span></button>
+              </sc-for>
+              <button onClick="{{ pedirOutra }}" style="cursor:pointer;border-radius:11px;padding:14px;text-align:left;background:{{ outraBg }};border:1.5px dashed {{ outraBc }};color:{{ outraFc }};font:600 13.5px Inter,sans-serif">Nenhum desses — quero sugerir outro dia</button>
+              <sc-if value="{{ outraOn }}" hint-placeholder-val="{{ true }}">
+                <input type="text" value="{{ outraTexto }}" onInput="{{ setOutra }}" placeholder="Ex: terça de manhã, ou 10/09 às 14h" style="width:100%;box-sizing:border-box;padding:13px;border:1.5px solid #1B72BE;border-radius:11px;font:500 13.5px Inter,sans-serif;color:#1A1A1A;background:#fff" />
+              </sc-if>
+            </div>
+          </div>
+          <button onClick="{{ confirmar }}" style="width:100%;font:700 15px Inter,sans-serif;color:#fff;background:{{ confBg }};border:none;padding:16px;border-radius:14px;cursor:pointer">Confirmar horário</button>
+          <button onClick="{{ confirmarWpp }}" style="width:100%;border:none;background:none;font:600 13.5px Inter,sans-serif;color:#1B72BE;cursor:pointer;padding:15px">Prefiro que o Edgar me chame no WhatsApp</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isOk }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;background:#0F3D63;padding:34px 26px;display:flex;flex-direction:column;color:#fff;overflow-y:auto">
+          <div style="flex:1"></div>
+          <div style="width:56px;height:56px;border-radius:50%;background:rgba(57,204,0,.2);border:1px solid rgba(57,204,0,.55);color:#39CC00;display:grid;place-items:center;font:700 24px Inter,sans-serif;margin-bottom:24px">✓</div>
+          <div style="font:600 29px/1.22 Fraunces,serif;margin-bottom:14px">Combinado!</div>
+          <div style="font:400 14px/1.75 Inter,sans-serif;color:rgba(255,255,255,.78);margin-bottom:18px">{{ okTexto }}</div>
+          <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:16px 18px;font:400 12.5px/1.7 Inter,sans-serif;color:rgba(255,255,255,.75);margin-bottom:12px">Enviei um e-mail de agradecimento para <strong style="color:#fff">{{ emailOk }}</strong> com a confirmação e os meus contatos.</div>
+          <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:16px 18px;font:400 12.5px/1.7 Inter,sans-serif;color:rgba(255,255,255,.75)">Se lembrar de algo depois, o link continua aberto — pode voltar e corrigir até a nossa conversa.</div>
+          <div style="flex:1"></div>
+          <div style="display:flex;align-items:center;gap:12px;padding-top:22px;border-top:1px solid rgba(255,255,255,.16)">
+            <div style="width:42px;height:42px;border-radius:50%;border:1px dashed rgba(255,255,255,.45);display:grid;place-items:center;font:600 7.5px Inter,sans-serif;color:rgba(255,255,255,.6);flex:none">FOTO</div>
+            <div><div style="font:600 13px Inter,sans-serif">Edgar Torres</div><div style="font:400 11.5px Inter,sans-serif;color:rgba(255,255,255,.6)">(96) 98133-9955 · Setor Norte Seguros</div></div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="flex:none;padding:8px 0 10px;display:flex;justify-content:center;background:{{ homeBg }}"><div style="width:120px;height:4px;border-radius:99px;background:{{ homeFg }}"></div></div>
+    </div>
+  </div>
+
+  <div style="width:300px;flex:none;padding-top:16px">
+    <div style="font:700 10px Inter,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:#8FA0AF;margin-bottom:10px">O que você recebe</div>
+    <div style="background:#fff;border:1px solid #DEE7EF;border-radius:12px;padding:18px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+        <div style="font:600 15px Fraunces,serif;color:#0F3D63">{{ nomeResumo }}</div>
+        <div style="font:700 10.5px Inter,sans-serif;color:{{ statusFc }};background:{{ statusBg }};padding:4px 9px;border-radius:99px">{{ statusTxt }}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <sc-for list="{{ resumo }}" as="r" hint-placeholder-count="6">
+          <div style="display:flex;justify-content:space-between;gap:10px;padding-bottom:9px;border-bottom:1px dotted #DEE7EF">
+            <span style="font:400 12px Inter,sans-serif;color:#5B6B7A">{{ r.k }}</span>
+            <span style="font:600 12px Inter,sans-serif;color:{{ r.cor }};text-align:right">{{ r.v }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font:400 11px/1.6 Inter,sans-serif;color:#8FA0AF;margin-top:12px">Espelho da sua caixa de entrada. O cliente nunca vê esta coluna.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180,&quot;height&quot;:940}}">
+const FASES = [
+  {k:'inf', label:'Creche e pré-escola', faixa:'até 5 anos'},
+  {k:'fun', label:'Fundamental', faixa:'6 a 14 anos'},
+  {k:'med', label:'Ensino médio', faixa:'15 a 17 anos'},
+  {k:'sup', label:'Faculdade', faixa:'18 a 22 anos'}
+];
+const SLOTS = [
+  {dia:'Quinta, 03/09', hora:'09:00'},
+  {dia:'Quinta, 03/09', hora:'16:30'},
+  {dia:'Sexta, 04/09', hora:'10:00'}
+];
+const RELS = ['Filho(a)', 'Cônjuge', 'Pai/Mãe', 'Outro'];
+const PRAZOS = ['1 ano', '2 anos', '3 anos', '5 anos', '10 anos', 'até concluir os estudos', 'por tempo indeterminado'];
+const VINCULOS = ['Carteira assinada (CLT)', 'Servidor público', 'Por conta própria / empresário', 'Aposentado(a) ou pensionista'];
+const KEY = 'mapa-link-cliente-proto-v2';
+const VAZIO = {nome:'', contato:{wpp:'', email:''}, lgpd:false, nasc:'', civil:'', vinculo:[], renda:'', fontes:{}, deps:[], rendaConj:'', estudos:{on:null,inf:'',fun:'',med:'',sup:''}, extras:[], rendas:[], patr:[], res:{fgts:'',prev:'',seg:''}, cenario:'', obs:''};
+
+const QS = [
+  {key:'nasc', t:'date', grupo:'Você', label:'Qual a sua data de nascimento?', help:'Serve para calcular os prazos das coberturas.'},
+  {key:'civil', t:'choice', grupo:'Você', label:'Qual o seu estado civil?', help:'', opts:['Solteiro(a)','Casado(a)','União estável','Divorciado(a)','Viúvo(a)']},
+  {key:'vinculo', t:'multi', grupo:'Trabalho', label:'Como você trabalha hoje?', help:'Marque tudo que se aplica. É comum trabalhar por conta própria e ter também um cargo ou outra fonte de renda.', opts:VINCULOS},
+  {key:'renda', t:'money', grupo:'Trabalho', label:'Quanto você recebe por mês pelo seu trabalho?', help:'Some apenas o que vem de atividade remunerada: salário, pró-labore, retiradas, comissões. Aluguéis, dividendos e outras rendas recorrentes entram mais adiante, em outra pergunta.'},
+  {key:'fontes', t:'fontes', grupo:'Trabalho', label:'Quanto vem de cada fonte?', help:'Separe o valor por origem — isso muda o cálculo, porque cada vínculo tem uma rede de proteção diferente.', cond:a=>(a.vinculo||[]).length>1},
+  {key:'deps', t:'people', grupo:'Família', label:'Quem depende da sua renda hoje?', help:'Qualquer pessoa que sentiria falta desse dinheiro no mês seguinte.'},
+  {key:'rendaConj', t:'money', grupo:'Família', label:'Quanto a outra pessoa da casa contribui por mês?', help:'Se preferir não informar, pode pular — conversamos depois.', cond:a=>a.civil==='Casado(a)'||a.civil==='União estável'},
+  {key:'estudos', t:'phases', grupo:'Família', label:'Vocês pagam escola ou faculdade?', help:'Se sim, informe o valor de um filho só. Se dois estiverem na mesma fase, eu multiplico aqui.', cond:a=>(a.deps||[]).length>0},
+  {key:'extras', t:'extras', grupo:'Família', label:'Tem outras despesas de estudo que você quer incluir?', help:'Inglês, esporte, música, intercâmbio, cursinho. Opcional — só o que você quiser que entre na conta.', cond:a=>(a.deps||[]).length>0},
+  {key:'rendas', t:'items', grupo:'Renda', label:'Entra alguma renda todo mês sem depender do seu trabalho?', help:'Aluguel, dividendos, sociedade. Continua entrando mesmo se você parar.', phDesc:'Ex: aluguel do apartamento', phValor:'Valor por mês', add:'+ adicionar renda'},
+  {key:'patr', t:'items', grupo:'Patrimônio', label:'O que a família tem hoje de patrimônio?', help:'Imóveis, veículos, aplicações. Valor aproximado de cada um.', phDesc:'Ex: casa própria', phValor:'Valor aproximado', add:'+ adicionar item'},
+  {key:'res', t:'group', grupo:'Reservas', label:'Vocês já têm alguma reserva guardada?', help:'Isso reduz o que falta proteger — vale informar.', campos:[
+    {k:'fgts', label:'FGTS', help:'Saldo aproximado da conta.'},
+    {k:'prev', label:'Previdência privada', help:'Valor acumulado hoje, se houver.'},
+    {k:'seg', label:'Seguro de vida que você já tem', help:'Capital contratado, se já houver apólice.'}
+  ]},
+  {key:'cenario', t:'choice', grupo:'Cenário', label:'Se você ficasse um ano sem poder trabalhar, quem sustentaria a casa?', help:'Escolha a opção mais próxima da sua realidade.', opts:['Ninguém — a renda é toda minha','Meu cônjuge, em parte','Temos reservas para um tempo','Não sei dizer']},
+  {key:'obs', t:'note', grupo:'Para terminar', label:'Quer deixar alguma observação para o Edgar?', help:'Opcional. Pode seguir sem escrever nada.'}
+];
+
+class Component extends DCLogic {
+  state = {tela:'nome', i:0, slot:null, outra:false, outraTexto:'', canal:null, voltarPara:null, a:JSON.parse(JSON.stringify(VAZIO)), tocou:{}};
+
+  componentDidMount(){
+    try{ const raw = localStorage.getItem(KEY); if(raw){ const s = JSON.parse(raw); if(s && s.a) this.setState(s); } }catch(e){}
+  }
+  save(patch){
+    this.setState(patch, () => {
+      try{ localStorage.setItem(KEY, JSON.stringify({tela:this.state.tela, i:this.state.i, slot:this.state.slot, outra:this.state.outra, outraTexto:this.state.outraTexto, canal:this.state.canal, voltarPara:this.state.voltarPara, a:this.state.a, tocou:this.state.tocou})); }catch(e){}
+    });
+  }
+  setA(key, value){
+    const a = Object.assign({}, this.state.a); a[key] = value;
+    const tocou = Object.assign({}, this.state.tocou); tocou[key] = true;
+    this.save({a, tocou});
+  }
+
+  visiveis(){ return QS.filter(q => !q.cond || q.cond(this.state.a)); }
+  atual(){ const v = this.visiveis(); return v[Math.min(this.state.i, v.length-1)] || v[0]; }
+
+  money(str){ const d = String(str||'').replace(/\D/g,'').slice(0,12); return d ? 'R$ ' + parseInt(d,10).toLocaleString('pt-BR') : ''; }
+  num(str){ const d = String(str||'').replace(/\D/g,''); return d ? parseInt(d,10) : 0; }
+  fone(str){
+    const d = String(str||'').replace(/\D/g,'').slice(0,11);
+    if(d.length<=2) return d;
+    if(d.length<=6) return '(' + d.slice(0,2) + ') ' + d.slice(2);
+    if(d.length<=10) return '(' + d.slice(0,2) + ') ' + d.slice(2,6) + '-' + d.slice(6);
+    return '(' + d.slice(0,2) + ') ' + d.slice(2,7) + '-' + d.slice(7);
+  }
+  dateMask(str){
+    const d = String(str||'').replace(/\D/g,'').slice(0,8);
+    if(d.length<=2) return d;
+    if(d.length<=4) return d.slice(0,2)+'/'+d.slice(2);
+    return d.slice(0,2)+'/'+d.slice(2,4)+'/'+d.slice(4);
+  }
+  idade(str){
+    const m = String(str||'').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if(!m) return null;
+    const nasc = new Date(+m[3], +m[2]-1, +m[1]);
+    if(isNaN(nasc.getTime())) return null;
+    const hoje = new Date();
+    let i = hoje.getFullYear() - nasc.getFullYear();
+    if(hoje.getMonth() < nasc.getMonth() || (hoje.getMonth()===nasc.getMonth() && hoje.getDate() < nasc.getDate())) i--;
+    return (i>=0 && i<120) ? i : null;
+  }
+  exemploFase(){
+    const deps = (this.state.a.deps||[]).filter(p=>p.nome);
+    if(deps.length >= 2) return 'Exemplo: se ' + deps[0].nome + ' e ' + deps[1].nome + ' estudam na mesma escola e cada um custa R$ 2.000, escreva R$ 2.000 — eu somo os dois.';
+    if(deps.length === 1) return 'Exemplo: se a escola de ' + deps[0].nome + ' custa R$ 2.000 por mês, escreva R$ 2.000.';
+    return 'Exemplo: se a escola custa R$ 2.000 por mês para um filho, escreva R$ 2.000 — não some os irmãos.';
+  }
+  respondida(q){
+    const a = this.state.a;
+    if(!q) return false;
+    if(q.t==='people') return !!this.state.tocou.deps;
+    if(q.t==='items') return (a[q.key]||[]).some(x=>x.desc||x.valor) || !!this.state.tocou[q.key];
+    if(q.t==='extras') return (a.extras||[]).some(x=>x.desc||x.valor) || !!this.state.tocou.extras;
+    if(q.t==='group') return Object.keys(a.res).some(k=>a.res[k]) || !!this.state.tocou.res;
+    if(q.t==='phases') return a.estudos.on !== null;
+    if(q.t==='multi') return (a.vinculo||[]).length > 0;
+    if(q.t==='fontes') return (a.vinculo||[]).every(v => a.fontes[v]);
+    if(q.t==='note') return true;
+    return !!a[q.key];
+  }
+  next(){
+    if(this.state.voltarPara === 'revisao'){ this.save({tela:'revisao', voltarPara:null}); return; }
+    const v = this.visiveis();
+    if(this.state.i >= v.length-1) this.save({tela:'contato'});
+    else this.save({i:this.state.i+1});
+  }
+  back(){
+    if(this.state.voltarPara === 'revisao'){ this.save({tela:'revisao', voltarPara:null}); return; }
+    if(this.state.tela === 'contato'){ this.save({tela:'q', i:this.visiveis().length-1}); return; }
+    if(this.state.i === 0) this.save({tela:'welcome'});
+    else this.save({i:this.state.i-1});
+  }
+  fix(i){ this.save({tela:'q', i, voltarPara:'revisao'}); }
+
+  linhasRevisao(){
+    const a = this.state.a, v = this.visiveis();
+    const idx = key => Math.max(0, v.findIndex(q => q.key === key));
+    const lin = [];
+    lin.push({k:'Nome', v:a.nome || 'em branco', cor: a.nome ? '#1A1A1A' : '#C4570B', onFix: () => this.save({tela:'nome', voltarPara:'revisao'})});
+    lin.push({k:'Nascimento', v: a.nasc ? a.nasc + (this.idade(a.nasc)!==null ? ' · ' + this.idade(a.nasc) + ' anos' : '') : 'em branco', cor: a.nasc ? '#1A1A1A' : '#C4570B', onFix: () => this.fix(idx('nasc'))});
+    lin.push({k:'Estado civil', v:a.civil || 'em branco', cor: a.civil ? '#1A1A1A' : '#C4570B', onFix: () => this.fix(idx('civil'))});
+    lin.push({k:'Trabalho', v:(a.vinculo||[]).length ? a.vinculo.join(' + ') : 'em branco', cor:(a.vinculo||[]).length ? '#1A1A1A' : '#C4570B', onFix: () => this.fix(idx('vinculo'))});
+    lin.push({k:'Renda do trabalho', v:a.renda || 'em branco', cor: a.renda ? '#1A1A1A' : '#C4570B', onFix: () => this.fix(idx('renda'))});
+    if((a.vinculo||[]).length > 1){
+      const det = a.vinculo.map(x => x + ': ' + (a.fontes[x] || '—')).join(' · ');
+      lin.push({k:'Por fonte', v:det, cor:'#1A1A1A', onFix: () => this.fix(idx('fontes'))});
+    }
+    lin.push({k:'Dependentes', v:(a.deps||[]).length ? a.deps.map(p => (p.nome||'sem nome') + (this.idade(p.nasc)!==null ? ' (' + this.idade(p.nasc) + ')' : '')).join(', ') : 'nenhum', cor:'#1A1A1A', onFix: () => this.fix(idx('deps'))});
+    if(a.civil==='Casado(a)' || a.civil==='União estável') lin.push({k:'Renda do cônjuge', v:a.rendaConj || 'não informado', cor:'#1A1A1A', onFix: () => this.fix(idx('rendaConj'))});
+    if((a.deps||[]).length){
+      const fases = FASES.filter(f => a.estudos[f.k]).map(f => f.label + ' ' + a.estudos[f.k]);
+      lin.push({k:'Escola e faculdade', v: a.estudos.on === true ? (fases.length ? fases.join(' · ') + ' (por filho)' : 'sim, sem valores') : (a.estudos.on === false ? 'não pagam' : 'em branco'), cor: a.estudos.on===null ? '#C4570B' : '#1A1A1A', onFix: () => this.fix(idx('estudos'))});
+      const ex = (a.extras||[]).filter(x=>x.desc||x.valor);
+      lin.push({k:'Outras despesas de estudo', v: ex.length ? ex.map(x => (x.desc||'item') + ' ' + (x.valor||'') + ' · ' + (x.prazo||'')).join(' · ') : 'nenhuma', cor:'#1A1A1A', onFix: () => this.fix(idx('extras'))});
+    }
+    const rd = (a.rendas||[]).filter(x=>x.desc||x.valor);
+    lin.push({k:'Rendas que não dependem de você', v: rd.length ? rd.map(x => (x.desc||'item') + ' ' + (x.valor||'')).join(' · ') : 'nenhuma', cor:'#1A1A1A', onFix: () => this.fix(idx('rendas'))});
+    const pt = (a.patr||[]).filter(x=>x.desc||x.valor);
+    lin.push({k:'Patrimônio', v: pt.length ? pt.map(x => (x.desc||'item') + ' ' + (x.valor||'')).join(' · ') : 'nenhum', cor:'#1A1A1A', onFix: () => this.fix(idx('patr'))});
+    const rs = [a.res.fgts ? 'FGTS ' + a.res.fgts : '', a.res.prev ? 'Previdência ' + a.res.prev : '', a.res.seg ? 'Seguro atual ' + a.res.seg : ''].filter(Boolean);
+    lin.push({k:'Reservas', v: rs.length ? rs.join(' · ') : 'nenhuma informada', cor:'#1A1A1A', onFix: () => this.fix(idx('res'))});
+    lin.push({k:'Um ano sem trabalhar', v:a.cenario || 'em branco', cor: a.cenario ? '#1A1A1A' : '#C4570B', onFix: () => this.fix(idx('cenario'))});
+    if(a.obs) lin.push({k:'Observação', v:a.obs, cor:'#1A1A1A', onFix: () => this.fix(idx('obs'))});
+    lin.push({k:'Contato', v:[a.contato.wpp, a.contato.email].filter(Boolean).join(' · ') || 'em branco', cor:(a.contato.wpp||a.contato.email) ? '#1A1A1A' : '#C4570B', onFix: () => this.save({tela:'contato'})});
+    lin.push({k:'Consentimento LGPD', v:a.lgpd ? 'autorizado' : 'pendente', cor:a.lgpd ? '#39CC00' : '#C4570B', onFix: () => this.save({tela:'contato'})});
+    return lin;
+  }
+
+  renderVals(){
+    const s = this.state, a = s.a, q = this.atual(), v = this.visiveis();
+    const escuro = s.tela === 'nome' || s.tela === 'welcome' || s.tela === 'ok';
+    const lista = Array.isArray(a[q.key]) ? a[q.key] : [];
+    const feitas = v.filter(x => x.t !== 'note' && this.respondida(x)).length;
+    const somaFontes = (a.vinculo||[]).reduce((t, x) => t + this.num(a.fontes[x]), 0);
+    const rendaNum = this.num(a.renda);
+    const bate = somaFontes > 0 && rendaNum > 0 && Math.abs(somaFontes - rendaNum) <= Math.max(50, rendaNum*0.02);
+    const somaVazia = somaFontes === 0;
+    const contatoOk = !!(a.contato.wpp || a.contato.email) && a.lgpd;
+    const agendaOk = s.outra ? !!s.outraTexto : s.slot !== null;
+
+    return {
+      total: (QS.filter(x => !x.cond).length + 2) + ' a ' + (QS.length + 2),
+      isNome: s.tela==='nome', isWelcome: s.tela==='welcome', isQ: s.tela==='q', isContato: s.tela==='contato',
+      isRevisao: s.tela==='revisao', isFim: s.tela==='fim', isOk: s.tela==='ok',
+      barBg: escuro ? '#0F3D63' : '#F3F6FA', barFg: escuro ? 'rgba(255,255,255,.85)' : '#0F3D63',
+      homeBg: escuro ? '#0F3D63' : '#F3F6FA', homeFg: escuro ? 'rgba(255,255,255,.45)' : '#C6D2DE',
+
+      nome: a.nome, setNome: e => this.setA('nome', e.target.value),
+      nomeBg: a.nome ? '#fff' : 'rgba(255,255,255,.35)', nomeFc: a.nome ? '#0F3D63' : 'rgba(255,255,255,.7)',
+      start: () => { if(a.nome) this.save(s.voltarPara === 'revisao' ? {tela:'revisao', voltarPara:null} : {tela:'welcome'}); },
+      saudacao: a.nome ? a.nome.split(' ')[0] : 'Olá',
+      startLabel: feitas > 0 ? 'Continuar de onde parei' : 'Começar',
+      irQ: () => this.save({tela:'q'}),
+      voltarNome: () => this.save({tela:'nome'}),
+      reset: () => { try{ localStorage.removeItem(KEY); }catch(e){} this.setState({tela:'nome', i:0, slot:null, outra:false, outraTexto:'', canal:null, voltarPara:null, tocou:{}, a:JSON.parse(JSON.stringify(VAZIO))}); },
+
+      next: () => this.next(), back: () => this.back(),
+      skip: () => { const t = Object.assign({}, s.tocou); t[q.key] = true; this.save({tocou:t}); this.next(); },
+      q: {grupo:q.grupo, label:q.label, help:q.help || ''},
+      pct: v.length ? Math.round(((s.i+1)/(v.length+1))*100) : 0,
+      counter: (s.i+2) + '/' + (v.length+2),
+      counterFim: (v.length+2) + '/' + (v.length+2),
+      nextLabel: s.voltarPara === 'revisao' ? 'Salvar e voltar ao resumo' : (s.i >= v.length-1 ? 'Ir para os meus dados' : (this.respondida(q) ? 'Continuar' : 'Pular esta pergunta')),
+      nextBg: this.respondida(q) ? '#1B72BE' : '#8FA0AF',
+
+      isMoney: q.t==='money', isDate: q.t==='date', isChoice: q.t==='choice', isMulti: q.t==='multi', isFontes: q.t==='fontes',
+      isPeople: q.t==='people', isItems: q.t==='items', isPhases: q.t==='phases', isExtras: q.t==='extras', isGroup: q.t==='group', isNote: q.t==='note',
+      val: a[q.key] || '',
+      setVal: e => this.setA(q.key, e.target.value),
+      setMoney: e => this.setA(q.key, this.money(e.target.value)),
+      setDate: e => this.setA(q.key, this.dateMask(e.target.value)),
+      idadeTxt: this.idade(a.nasc) !== null ? this.idade(a.nasc) + ' anos' : '',
+      atalhos: ['R$ 5.000','R$ 10.000','R$ 15.000'].map(l => ({label:l, on: () => this.setA(q.key, l)})),
+
+      opts: (q.opts||[]).map(o => {
+        const sel = a[q.key] === o;
+        return {label:o, check: sel ? '✓' : '', bg: sel ? '#E7F0FA' : '#fff', bc: sel ? '#1B72BE' : '#DEE7EF', fc: sel ? '#0F3D63' : '#1A1A1A',
+          on: () => { this.setA(q.key, o); setTimeout(() => this.next(), 160); }};      }),
+      multiOpts: VINCULOS.map(o => {
+        const sel = (a.vinculo||[]).indexOf(o) >= 0;
+        return {label:o, check: sel ? '✓' : '', bg: sel ? '#E7F0FA' : '#fff', bc: sel ? '#1B72BE' : '#DEE7EF', fc: sel ? '#0F3D63' : '#1A1A1A',
+          boxBg: sel ? '#1B72BE' : '#fff', boxBc: sel ? '#1B72BE' : '#C6D2DE',
+          on: () => {
+            const l = (a.vinculo||[]).slice();
+            const at = l.indexOf(o);
+            if(at >= 0) l.splice(at,1); else l.push(o);
+            this.setA('vinculo', l);
+          }};
+      }),
+      fontes: (a.vinculo||[]).map(x => ({label:x, valor:a.fontes[x] || '', on: e => this.setA('fontes', Object.assign({}, a.fontes, {[x]: this.money(e.target.value)}))})),
+      somaTxt: somaFontes ? 'R$ ' + somaFontes.toLocaleString('pt-BR') : '—',
+      somaCor: somaVazia ? '#8FA0AF' : (bate ? '#39CC00' : '#C4570B'),
+      somaNota: somaVazia ? 'Preencha os campos acima para eu conferir com a renda informada.' : (bate ? 'Confere com a renda que você informou.' : 'Diferente da renda informada (' + (a.renda || 'em branco') + '). Pode ajustar aqui ou voltar e corrigir.'),
+
+      people: (a.deps||[]).map((p, i) => {
+        const id = this.idade(p.nasc);
+        return {nome:p.nome, nasc:p.nasc, rel:p.rel, bc: p.nome && id!==null ? '#DEE7EF' : '#F0CBA8',
+          idadeTxt: id!==null ? id + ' anos' : 'falta a data de nascimento', idadeCor: id!==null ? '#39CC00' : '#C4570B',
+          onNome: e => { const d = a.deps.slice(); d[i] = Object.assign({}, d[i], {nome:e.target.value}); this.setA('deps', d); },
+          onNasc: e => { const d = a.deps.slice(); d[i] = Object.assign({}, d[i], {nasc:this.dateMask(e.target.value)}); this.setA('deps', d); },
+          onRel: () => { const d = a.deps.slice(); d[i] = Object.assign({}, d[i], {rel:RELS[(RELS.indexOf(d[i].rel)+1) % RELS.length]}); this.setA('deps', d); },
+          onRm: () => { const d = a.deps.slice(); d.splice(i,1); this.setA('deps', d); }};
+      }),
+      addPerson: () => this.setA('deps', (a.deps||[]).concat([{nome:'', nasc:'', rel:'Filho(a)'}])),
+      noPeople: () => { this.setA('deps', []); setTimeout(() => this.next(), 140); },
+
+      items: lista.map((it, i) => ({
+        desc:it.desc, valor:it.valor, phDesc:q.phDesc || '', phValor:q.phValor || '',
+        onDesc: e => { const l = lista.slice(); l[i] = Object.assign({}, l[i], {desc:e.target.value}); this.setA(q.key, l); },
+        onValor: e => { const l = lista.slice(); l[i] = Object.assign({}, l[i], {valor:this.money(e.target.value)}); this.setA(q.key, l); },
+        onRm: () => { const l = lista.slice(); l.splice(i,1); this.setA(q.key, l); }
+      })),
+      addItem: () => this.setA(q.key, lista.concat([{desc:'', valor:''}])),
+      addItemLabel: q.add || '+ adicionar',
+
+      estudosOn: a.estudos.on === true,
+      simBg: a.estudos.on===true ? '#1B72BE' : '#fff', simBc: a.estudos.on===true ? '#1B72BE' : '#DEE7EF', simFc: a.estudos.on===true ? '#fff' : '#5B6B7A',
+      naoBg: a.estudos.on===false ? '#1B72BE' : '#fff', naoBc: a.estudos.on===false ? '#1B72BE' : '#DEE7EF', naoFc: a.estudos.on===false ? '#fff' : '#5B6B7A',
+      estudosSim: () => this.setA('estudos', Object.assign({}, a.estudos, {on:true})),
+      estudosNao: () => { this.setA('estudos', Object.assign({}, a.estudos, {on:false})); setTimeout(() => this.next(), 160); },
+      fases: FASES.map(f => ({label:f.label, faixa:f.faixa, valor:a.estudos[f.k] || '', on: e => this.setA('estudos', Object.assign({}, a.estudos, {[f.k]:this.money(e.target.value)}))})),
+      exemploFase: this.exemploFase(),
+
+      extras: (a.extras||[]).map((x, i) => ({
+        desc:x.desc, valor:x.valor, prazo:x.prazo,
+        onDesc: e => { const l = a.extras.slice(); l[i] = Object.assign({}, l[i], {desc:e.target.value}); this.setA('extras', l); },
+        onValor: e => { const l = a.extras.slice(); l[i] = Object.assign({}, l[i], {valor:this.money(e.target.value)}); this.setA('extras', l); },
+        onPrazo: () => { const l = a.extras.slice(); l[i] = Object.assign({}, l[i], {prazo:PRAZOS[(PRAZOS.indexOf(l[i].prazo)+1) % PRAZOS.length]}); this.setA('extras', l); },
+        onRm: () => { const l = a.extras.slice(); l.splice(i,1); this.setA('extras', l); }
+      })),
+      addExtra: () => this.setA('extras', (a.extras||[]).concat([{desc:'', valor:'', prazo:PRAZOS[0]}])),
+      campos: (q.campos||[]).map(c => ({label:c.label, help:c.help, valor:a.res[c.k] || '', on: e => this.setA('res', Object.assign({}, a.res, {[c.k]:this.money(e.target.value)}))})),
+
+      wpp: a.contato.wpp, email: a.contato.email,
+      setWpp: e => this.setA('contato', Object.assign({}, a.contato, {wpp:this.fone(e.target.value)})),
+      setEmail: e => this.setA('contato', Object.assign({}, a.contato, {email:e.target.value})),
+      toggleLgpd: () => this.setA('lgpd', !a.lgpd),
+      lgpdCheck: a.lgpd ? '✓' : '', lgpdBg: a.lgpd ? '#39CC00' : '#fff', lgpdBoxBc: a.lgpd ? '#39CC00' : '#C6D2DE', lgpdBc: a.lgpd ? '#C8EFB7' : '#DEE7EF',
+      contatoBg: contatoOk ? '#1B72BE' : '#8FA0AF',
+      contatoNota: contatoOk ? 'Falta só conferir o resumo.' : 'Informe WhatsApp ou e-mail e marque a autorização.',
+      irRevisao: () => { if(contatoOk) this.save({tela:'revisao'}); },
+      voltarContato: () => this.save({tela:'contato'}),
+
+      revisaoTitulo: (a.nome ? a.nome.split(' ')[0] + ', confira' : 'Confira') + ' antes de enviar',
+      revisao: this.linhasRevisao(),
+      enviar: () => this.save({tela:'fim'}),
+
+      fimTitulo: (a.nome ? a.nome.split(' ')[0] : 'Tudo') + ', recebi as suas respostas.',
+      slots: SLOTS.map((sl, i) => {
+        const sel = !s.outra && s.slot === i;
+        return {dia:sl.dia, hora:sl.hora, bg: sel ? '#E7F0FA' : '#fff', bc: sel ? '#1B72BE' : '#DEE7EF', fc: sel ? '#0F3D63' : '#1A1A1A', on: () => this.save({slot:i, outra:false})};
+      }),
+      outraOn: s.outra, outraTexto: s.outraTexto,
+      outraBg: s.outra ? '#E7F0FA' : '#fff', outraBc: s.outra ? '#1B72BE' : '#C9E0F5', outraFc: s.outra ? '#0F3D63' : '#1B72BE',
+      pedirOutra: () => this.save({outra:true, slot:null}),
+      setOutra: e => this.save({outraTexto:e.target.value}),
+      confBg: agendaOk ? '#0F3D63' : '#8FA0AF',
+      confirmar: () => { if(agendaOk) this.save({tela:'ok', canal: s.outra ? 'sugerido' : 'agenda'}); },
+      confirmarWpp: () => this.save({tela:'ok', canal:'whatsapp'}),
+      voltarRevisao: () => this.save({tela:'revisao'}),
+      emailOk: a.contato.email || 'seu e-mail',
+      okTexto: s.canal === 'whatsapp'
+        ? 'O Edgar vai te chamar no WhatsApp para marcar o melhor momento. Suas respostas já estão com ele.'
+        : (s.canal === 'sugerido'
+          ? 'Enviei a sua sugestão de horário (' + (s.outraTexto || 'a data indicada') + ') para o Edgar confirmar na agenda dele.'
+          : 'Nosso encontro está marcado para ' + (s.slot !== null ? SLOTS[s.slot].dia.toLowerCase() + ' às ' + SLOTS[s.slot].hora : 'a data escolhida') + ', já reservado na agenda.'),
+
+      nomeResumo: a.nome || 'Sem nome ainda',
+      statusTxt: s.tela === 'ok' ? 'Completo' : (s.tela === 'revisao' || s.tela === 'fim' ? 'Revisando' : (feitas > 0 ? 'Em andamento' : 'Aberto')),
+      statusBg: s.tela === 'ok' ? '#EAFBE3' : (feitas > 0 ? '#FDF1E7' : '#F3F6FA'),
+      statusFc: s.tela === 'ok' ? '#39CC00' : (feitas > 0 ? '#C4570B' : '#5B6B7A'),
+      stepName: s.tela === 'nome' ? 'Pergunta do nome' : (s.tela === 'welcome' ? 'Apresentação' : (s.tela === 'q' ? 'Pergunta ' + (s.i+1) + ' de ' + v.length : (s.tela === 'contato' ? 'Contato e LGPD' : (s.tela === 'revisao' ? 'Resumo para conferir' : (s.tela === 'fim' ? 'Agendamento' : 'Confirmação'))))),
+      stepNote: s.tela === 'nome' ? 'Nome antes da apresentação, para poder chamar pelo nome.' : (s.tela === 'welcome' ? 'Agora sim o convite, já personalizado.' : (s.tela === 'q' ? q.grupo + ' · ' + (this.respondida(q) ? 'respondida' : 'em branco, pode pular') : (s.tela === 'contato' ? 'WhatsApp, e-mail e consentimento explícito.' : (s.tela === 'revisao' ? 'O cliente confere e corrige o que quiser.' : (s.tela === 'fim' ? 'Horários da agenda + sugestão livre.' : 'E-mail de agradecimento disparado.'))))),
+      resumo: [
+        {k:'Respostas', v: feitas + ' de ' + v.filter(x => x.t !== 'note').length, cor:'#1A1A1A'},
+        {k:'Contato', v:[a.contato.wpp, a.contato.email].filter(Boolean).join(' · ') || '—', cor:'#1A1A1A'},
+        {k:'LGPD', v:a.lgpd ? 'autorizado' : '—', cor:a.lgpd ? '#39CC00' : '#1A1A1A'},
+        {k:'Trabalho', v:(a.vinculo||[]).length ? a.vinculo.join(' + ') : '—', cor:'#1A1A1A'},
+        {k:'Renda do trabalho', v:a.renda || '—', cor:'#1A1A1A'},
+        {k:'Dependentes', v:(a.deps||[]).length ? a.deps.map(p=>p.nome||'sem nome').join(', ') : '—', cor:'#1A1A1A'},
+        {k:'Despesas extras', v:(a.extras||[]).filter(x=>x.desc||x.valor).length ? (a.extras||[]).filter(x=>x.desc||x.valor).map(x=>(x.desc||'item')+' ('+(x.prazo||'')+')').join(', ') : '—', cor:'#1A1A1A'},
+        {k:'Reunião', v: s.tela === 'ok' ? (s.canal === 'whatsapp' ? 'WhatsApp' : (s.canal === 'sugerido' ? 'sugeriu: ' + s.outraTexto : SLOTS[s.slot].dia + ' ' + SLOTS[s.slot].hora)) : '—', cor: s.tela === 'ok' ? '#39CC00' : '#1A1A1A'}
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
