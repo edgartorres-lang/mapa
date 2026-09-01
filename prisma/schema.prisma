@@ -1,0 +1,324 @@
+// Schema do Mapa da Proteção.
+// Vocabulário e distinções seguem ESPECIFICACAO.md / README.md do handoff de design
+// (design_handoff_mapa_protecao/). Não renomeie os termos do glossário (estudo, mapa,
+// capital a proteger, etc.) — foram definidos com o cliente para evitar ambiguidade.
+//
+// Regra central: Estudo guarda só entrada crua (`dados`) — nada derivado é persistido
+// enquanto está aberto. Mapa guarda o snapshot congelado de tudo que foi calculado, mais os
+// fatores usados na geração. Ver src/lib/calc.ts para o motor de cálculo.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Corretor — corretor_id vive em cliente, estudo e mapa desde o dia 1 (decisão do cliente,
+// mesmo com um corretor só na V1), para abrir a ferramenta a outros corretores sem migração.
+// ---------------------------------------------------------------------------
+model Corretor {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senhaHash String
+
+  // Campos de "Acesso e Identidade" — aparecem nos documentos gerados (Acesso e Identidade.dc.html)
+  cargo         String? // ex.: "Consultor de proteção familiar"
+  corretora     String? // nome fantasia
+  susep         String?
+  whatsapp      String?
+  emailContato  String?
+  razaoSocial   String? // razão social + CNPJ, rodapé dos documentos
+  fotoUrl       String?
+  logoClaroUrl  String? // logo para fundo escuro
+  logoEscuroUrl String? // logo para fundo claro
+  corDestaque   String  @default("#39CC00")
+
+  // Integrações (n8n) — cada uma com URL de webhook própria e toggle ativa/desligada.
+  // webhookLead e webhookEsquecer não têm tela própria no protótipo de Integrações; adicionados
+  // por consistência com a tabela de 6 webhooks do README — a confirmar com o Edgar na Etapa 5/6.
+  webhookLead              String?
+  webhookAgendar           String?
+  webhookNotificar         String?
+  webhookEnviarMapa        String?
+  webhookGerarTexto        String?
+  webhookEsquecer          String?
+  integracaoAgendaAtiva    Boolean @default(false)
+  integracaoWhatsappAtiva  Boolean @default(false)
+  integracaoEmailAtiva     Boolean @default(false)
+  integracaoIaAtiva        Boolean @default(false)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  clientes          Cliente[]
+  fatoresCalculo    FatoresCalculo?
+  horariosSugeridos HorarioSugerido[]
+  campanhas         Campanha[]
+  exclusoesLgpd     ExclusaoLgpd[]
+
+  @@map("corretores")
+}
+
+// Fatores editáveis em Ajustes → Fatores de cálculo. Um-para-um com o corretor; ao salvar,
+// estudos em aberto recalculam com os novos fatores — mapas gerados nunca mudam (o snapshot
+// deles já guarda os fatores que usou, em Mapa.fatoresUsados).
+model FatoresCalculo {
+  id         String   @id @default(cuid())
+  corretorId String   @unique
+  corretor   Corretor @relation(fields: [corretorId], references: [id], onDelete: Cascade)
+
+  pctCustoTransmissao  Float @default(15) // vitalícia
+  mesesVitalicia       Int   @default(12)
+  prazoManutencaoAnos  Int   @default(5) // temporária
+  tetoMultiplicador    Float @default(8)
+  prazoPensaoAnosPadrao Int  @default(15) // educação
+  idadeIndependencia   Int   @default(25)
+  fatorClt             Float @default(1) // fatores por vínculo — CLT e servidor ficam travados
+  fatorServidor        Float @default(1) // em 1,00 na UI (Ajustes.dc.html), mas o campo existe
+  fatorPensaoServidor  Float @default(0.6)
+  fatorAutonomo        Float @default(1.25)
+  anosInvalidez        Int   @default(5) // invalidez e complementares
+  pctInvalidezDoenca   Float @default(50)
+  pctRendaInvalidez    Float @default(50)
+  pctDit               Float @default(70)
+  fatorDoencasGraves   Float @default(1.5)
+  diasRetencao         Int   @default(120) // fila de limpeza dos mapas parados
+
+  atualizadoEm DateTime @updatedAt
+
+  @@map("fatores_calculo")
+}
+
+enum EstagioFunil {
+  lead
+  estudo
+  apresentado
+  cotando
+  fechado
+  perdido
+
+  @@map("estagio_funil")
+}
+
+enum LgpdStatus {
+  aceito
+  verbal
+  pendente
+
+  @@map("lgpd_status")
+}
+
+// Cliente sem `estagioFunil` (null) = "fora do funil": contato cadastrado sem nenhum estudo.
+// Isso acontece quando o único mapa/estudo dele é excluído (ciclo dos 120 dias ou manual).
+model Cliente {
+  id         String   @id @default(cuid())
+  corretorId String
+  corretor   Corretor @relation(fields: [corretorId], references: [id], onDelete: Cascade)
+
+  nome               String
+  telefone           String?
+  email              String?
+  nascimento         DateTime? @db.Date
+  sexo               String? // "F" | "M" — só para a flexão dos textos, não entra no cálculo
+  estadoCivil        String?
+  profissao          String?
+  idadeAposentadoria Int?
+
+  origem      String? // "Link · campanha família" | "Indicação · Marina" | "Contato direto" etc.
+  utmCampanha String?
+
+  estagioFunil        EstagioFunil?
+  estagioAtualizadoEm DateTime?
+
+  lgpdStatus   LgpdStatus @default(pendente)
+  lgpdOrigem   String? // onde o consentimento foi coletado (link, verbal, etc.)
+  lgpdAceitoEm DateTime?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  estudos      Estudo[]
+  eventos      EventoHistorico[]
+  notas        NotaCrm[]
+  agendamentos Agendamento[]
+
+  @@index([corretorId])
+  @@index([corretorId, estagioFunil])
+  @@map("clientes")
+}
+
+enum StatusEstudo {
+  aberto
+  gerado
+
+  @@map("status_estudo")
+}
+
+// Estudo: em aberto, aceita alteração, recalcula com os fatores atuais. `dados` é a única
+// fonte de verdade das respostas — nada derivado (vitalícia, temporária, etc.) é persistido
+// aqui; o motor de cálculo (src/lib/calc.ts) recalcula a cada leitura enquanto status=aberto.
+model Estudo {
+  id         String @id @default(cuid())
+  clienteId  String
+  cliente    Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  corretorId String // denormalizado de propósito — corretor_id em toda tabela de domínio
+
+  status StatusEstudo @default(aberto)
+
+  duplicadoDeEstudoId String?
+  duplicadoDe         Estudo?  @relation("Duplicacao", fields: [duplicadoDeEstudoId], references: [id])
+  duplicados           Estudo[] @relation("Duplicacao")
+
+  // Formato do EstudoDados em src/lib/calc.ts: perfil, vínculos, cônjuge, terceiros,
+  // dependentes, educação (fases + extras), prazos, teto, objetivos, bens, reservas,
+  // contato, consentimento LGPD.
+  dados Json
+
+  // Regeneráveis à vontade enquanto o estudo está aberto (decisão 7). Travam junto com o
+  // Mapa quando gerado — ver Mapa.resumoParaVoce / Mapa.analiseInterna.
+  resumoParaVoce String?
+  analiseInterna String?
+
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  geradoEm     DateTime?
+
+  mapa Mapa?
+
+  @@index([clienteId])
+  @@index([corretorId])
+  @@map("estudos")
+}
+
+// Mapa da Proteção: o estudo gerado. Travado — snapshot congelado de todos os derivados do
+// calc() + os fatores usados na geração + data/hora. Nunca é editado depois de criado; a
+// única correção é duplicar o estudo que o gerou (ver Estudo.duplicadoDeEstudoId) e gerar um
+// novo Mapa. Não existe (e não deve existir) nenhuma rota/UI de update aqui.
+model Mapa {
+  id         String @id @default(cuid())
+  estudoId   String @unique
+  estudo     Estudo @relation(fields: [estudoId], references: [id], onDelete: Cascade)
+  clienteId  String // denormalizado — evita join pra listar mapas de um cliente
+  corretorId String // denormalizado
+
+  numeroVersao Int // 1, 2, 3... por cliente
+
+  // Números principais (glossário) — também replicados dentro de `derivados`, mas ficam como
+  // colunas próprias por serem usados em listagens/filtros (funil, dashboard, comparar mapas).
+  capitalAProteger      Float
+  vitalicia             Float
+  temporaria            Float
+  custoEducacionalTotal Float
+  pensaoMensal          Float
+
+  // Resto do retorno de calc() (CalcResultado completo), para a tela de Memória de Cálculo.
+  derivados Json
+
+  // Fatores em vigor no momento da geração (snapshot de FatoresCalculo) — nunca mudam depois,
+  // mesmo que o corretor edite os fatores em Ajustes.
+  fatoresUsados Json
+
+  resumoParaVoce String? // trava com o snapshot; nunca entra em PDF/e-mail além da proposta
+  analiseInterna String? // NUNCA sai da tela do corretor — nunca em PDF nem e-mail, em nenhuma rota
+
+  geradoEm DateTime @default(now())
+
+  @@index([clienteId])
+  @@index([corretorId])
+  @@map("mapas")
+}
+
+// Linha do tempo do cliente (tela "Resumo" da página do cliente). "Movimento no CRM" para
+// zerar a fila dos 120 dias = qualquer linha nova aqui (decisão 4). Abrir a página não conta
+// — não gera evento_historico.
+model EventoHistorico {
+  id         String  @id @default(cuid())
+  clienteId  String
+  cliente    Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  corretorId String
+
+  tipo  String // "sistema" | "manual"
+  texto String
+
+  criadoEm DateTime @default(now())
+
+  @@index([clienteId])
+  @@map("eventos_historico")
+}
+
+// Anotações de venda — nunca entram em PDF nem e-mail (aba "Anotações" da página do cliente).
+model NotaCrm {
+  id         String  @id @default(cuid())
+  clienteId  String
+  cliente    Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  corretorId String
+
+  texto String
+
+  criadoEm DateTime @default(now())
+
+  @@index([clienteId])
+  @@map("notas_crm")
+}
+
+// Campanhas do link de captação (UTM), gerenciadas pelo corretor.
+model Campanha {
+  id          String   @id @default(cuid())
+  corretorId  String
+  corretor    Corretor @relation(fields: [corretorId], references: [id], onDelete: Cascade)
+  nome        String
+  utmCampanha String
+
+  criadoEm DateTime @default(now())
+
+  @@unique([corretorId, utmCampanha])
+  @@map("campanhas")
+}
+
+// Reunião marcada pelo lead (ou proposta no campo aberto). O evento no Google Agenda leva só
+// nome e contato — nenhum valor do estudo (decisão de arquitetura, README "Agendamento").
+model Agendamento {
+  id            String  @id @default(cuid())
+  clienteId     String
+  cliente       Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  dataHora      DateTime
+  origem        String // "horario1" | "horario2" | "horario3" | "campo_aberto"
+  googleEventId String?
+
+  criadoEm DateTime @default(now())
+
+  @@index([clienteId])
+  @@map("agendamentos")
+}
+
+// As três opções de horário oferecidas no formulário do lead (Ajustes → Horários sugeridos).
+// `Captação e Agendamento.dc.html` é a fonte da verdade da regra (decisão 5): tarde de amanhã,
+// manhã de depois de amanhã, tarde de depois de amanhã.
+model HorarioSugerido {
+  id          String   @id @default(cuid())
+  corretorId  String
+  corretor    Corretor @relation(fields: [corretorId], references: [id], onDelete: Cascade)
+  ordem       Int // 1, 2, 3
+  diaRelativo String // "amanha" | "depois_de_amanha" | "em_tres_dias"
+  hora        String // "15:00"
+  duracaoMin  Int      @default(60)
+
+  @@unique([corretorId, ordem])
+  @@map("horarios_sugeridos")
+}
+
+// Tudo que sobra depois de um pedido de exclusão LGPD (decisão 6): a linha do Cliente é
+// apagada de verdade (hard delete), e fica só isto — sem nome, telefone ou e-mail.
+model ExclusaoLgpd {
+  id         String   @id @default(cuid())
+  corretorId String
+  corretor   Corretor @relation(fields: [corretorId], references: [id], onDelete: Cascade)
+  canal      String // "whatsapp" | "email" | "verbal"
+  dataPedido DateTime @default(now())
+
+  @@map("exclusoes_lgpd")
+}
