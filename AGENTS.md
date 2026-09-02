@@ -105,6 +105,23 @@ passar de novo com `DATABASE_URL` apontando pro Postgres da VPS — ainda não f
 sessão porque não há Postgres acessível daqui. Isso fica pendente até existir um Postgres (VPS ou
 qualquer instância) pra rodar contra.
 
+## Saídas são rotas separadas, não uma página só
+
+O protótipo (`Mapa da Proteção 1a+1b - Unificado.dc.html`) tem apresentação, proposta e e-mail
+como `sc-if` dentro da mesma página — então um botão "imprimir" ali sempre tinha o HTML certo no
+DOM, não importa de onde foi clicado. Aqui não: cada saída é sua própria rota
+(`/estudo/[id]/apresentacao`, `/proposta`, `/email`), cada uma renderizando só o próprio conteúdo.
+
+**Isso já causou um bug real** (Etapa 2, 2026-09-02): o botão "Baixar A4" do compositor de e-mail
+chamava `window.print()` direto — mas a proposta de 3 páginas não existe no DOM da tela de
+e-mail, então ele imprimiria o preview do e-mail, não a proposta. Corrigido virando um link
+(`<Link href="/estudo/[id]/proposta">`) em vez de um botão de imprimir local.
+
+**Regra pra não repetir**: qualquer botão que precise do conteúdo de OUTRA saída (não a que está
+na tela) tem que navegar pra rota certa primeiro — nunca chamar `window.print()` (ou
+`imprimirComo()`, em `src/lib/imprimir.ts`) numa tela que não é a dona do conteúdo que você quer
+imprimir. Só imprima o que está de fato renderizado na página atual.
+
 ## Notas operacionais
 
 - **Nunca rode dois `npm install` ao mesmo tempo nesta pasta** (nem em background nem em
