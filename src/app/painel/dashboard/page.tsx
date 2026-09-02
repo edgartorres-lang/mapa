@@ -2,8 +2,9 @@ import Link from "next/link";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { carregarKpis, filaPrecisaDeVoce, agruparPorEstagio } from "@/lib/painel-dados";
 import { ESTAGIO_INFO, corDias, corDoEstagio, nomeDoEstagio, textoDias } from "@/lib/funil";
-import { brlCurto } from "@/lib/formato";
-import { ExcluirMapaBotao } from "@/components/painel/ExcluirMapaBotao";
+import { brl, brlCurto } from "@/lib/formato";
+import { ModalExclusao } from "@/components/painel/ModalExclusao";
+import { excluirHistoricoCompleto } from "@/app/painel/clientes/[id]/actions";
 
 /**
  * Porta de "Painel do Corretor.dc.html" (tela Dashboard). O cartão do link de captação (3
@@ -57,7 +58,24 @@ export default async function PaginaDashboard() {
                   >
                     Retomar contato
                   </Link>
-                  {r.mapaAtual && <ExcluirMapaBotao clienteNome={r.cliente.nome} />}
+                  {r.mapaAtual && (
+                    <ModalExclusao
+                      rotuloBotao="Excluir mapa"
+                      titulo={`Excluir o histórico de ${r.cliente.nome}?`}
+                      subtitulo={`Autorização da fila dos 120 dias — ${textoDias(r.diasParado)} sem movimento, mapa atual de ${brl(r.mapaAtual.capitalAProteger)}.`}
+                      vaiEmbora={[
+                        `Todos os mapas gerados dela (${r.quantidadeMapas}) e os estudos que os geraram, com todas as respostas.`,
+                        "As apresentações e propostas geradas a partir desses mapas.",
+                      ]}
+                      oQueFica={[
+                        `O cadastro de ${r.cliente.nome}: contato, dependentes, origem e consentimento.`,
+                        "As anotações e o histórico do CRM.",
+                        "O cliente sai do funil e passa a ser só um contato na lista.",
+                      ]}
+                      rotuloConfirmar="Excluir histórico e manter cadastro"
+                      acaoConfirmar={excluirHistoricoCompleto.bind(null, r.cliente.id)}
+                    />
+                  )}
                 </div>
               </div>
             ))}

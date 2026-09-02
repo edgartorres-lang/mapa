@@ -4,8 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { ESTAGIO_INFO, corDoEstagio, textoDias, fundoSuaveDoEstagio, nomeDoEstagio, diasDesde } from "@/lib/funil";
 import { brl } from "@/lib/formato";
 import type { EstagioFunil } from "@/lib/enums";
-import { ExcluirMapaBotao } from "@/components/painel/ExcluirMapaBotao";
-import { mudarEstagio, criarNota } from "./actions";
+import { ModalExclusao } from "@/components/painel/ModalExclusao";
+import { ModalDuplicar } from "@/components/painel/ModalDuplicar";
+import { duplicarEstudo } from "@/app/estudo/actions";
+import { mudarEstagio, criarNota, excluirMapaIsolado } from "./actions";
 
 const PASSOS_FUNIL: EstagioFunil[] = ["lead", "estudo", "apresentado", "cotando", "fechado"];
 const ABAS = [
@@ -72,14 +74,9 @@ export default async function PaginaCliente({
             </div>
           </div>
           <div style={{ display: "flex", gap: 9 }}>
-            <button
-              type="button"
-              disabled
-              title="Duplicar estudo é da Etapa 4, ainda não construída"
-              style={{ font: "600 12.5px var(--font-interface)", color: "var(--texto-terciario)", border: "1.5px solid var(--borda)", background: "#fff", padding: "10px 18px", borderRadius: 999, cursor: "not-allowed", whiteSpace: "nowrap" }}
-            >
-              Duplicar estudo
-            </button>
+            {!estudoAberto && mapas[0] && (
+              <ModalDuplicar clienteNome={cliente.nome} acaoConfirmar={duplicarEstudo.bind(null, mapas[0].estudo.id)} />
+            )}
             {(estudoAberto || mapas[0]) && (
               <Link
                 href={`/estudo/${(estudoAberto ?? mapas[0].estudo).id}`}
@@ -166,11 +163,29 @@ export default async function PaginaCliente({
                           <Link href={`/estudo/${estudo.id}/proposta`} style={{ font: "600 11px var(--font-interface)", color: "var(--marinho)", border: "1.5px solid var(--borda)", padding: "6px 10px", borderRadius: 999 }}>
                             Proposta
                           </Link>
-                          <button type="button" disabled title="Etapa 4, ainda não construída" style={{ font: "600 11px var(--font-interface)", color: "var(--texto-terciario)", border: "1.5px solid var(--borda)", background: "#fff", padding: "6px 10px", borderRadius: 999, cursor: "not-allowed" }}>
-                            Duplicar
-                          </button>
+                          <Link href={`/estudo/${estudo.id}/memoria`} style={{ font: "600 11px var(--font-interface)", color: "var(--marinho)", border: "1.5px solid var(--borda)", padding: "6px 10px", borderRadius: 999 }}>
+                            Memória
+                          </Link>
+                          {atual && !estudoAberto && (
+                            <ModalDuplicar rotuloBotao="Duplicar" clienteNome={cliente.nome} acaoConfirmar={duplicarEstudo.bind(null, estudo.id)} />
+                          )}
                         </div>
-                        <ExcluirMapaBotao clienteNome={cliente.nome} />
+                        <ModalExclusao
+                          rotuloBotao="Excluir mapa"
+                          titulo={`Excluir o Mapa da Proteção v${mapa.numeroVersao}?`}
+                          subtitulo={`${cliente.nome} · gerado em ${mapa.geradoEm.toLocaleDateString("pt-BR")} · ${brl(mapa.capitalAProteger)}`}
+                          vaiEmbora={[
+                            `O Mapa da Proteção v${mapa.numeroVersao} e as saídas geradas dele (apresentação, proposta, e-mail).`,
+                            `O estudo de ${estudo.criadoEm.toLocaleDateString("pt-BR")} que originou este mapa, com todas as respostas.`,
+                          ]}
+                          oQueFica={[
+                            `O cadastro de ${cliente.nome}: contato, dependentes, origem e consentimento.`,
+                            ...(mapas.length > 1 ? ["Os outros mapas deste cliente, que continuam no histórico."] : []),
+                            "As anotações e o histórico do CRM.",
+                          ]}
+                          rotuloConfirmar="Excluir mapa e estudo"
+                          acaoConfirmar={excluirMapaIsolado.bind(null, estudo.id)}
+                        />
                       </div>
                     </div>
                   );

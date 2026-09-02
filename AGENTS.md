@@ -52,18 +52,34 @@ de prospecção, fora da V1. Quando isso virar necessidade real, `Dependente` e 
 próprias (com `clienteId`, não mais só dentro do estudo) — é migração de dado, não só de schema.
 Não é bug nem esquecimento: é a V1 pagando esse preço de propósito por simplicidade agora.
 
-## Painel (Etapa 3) × Ciclo do estudo (Etapa 4) — onde é o limite
+## Ciclo do estudo (Etapa 4) — gerar, duplicar, excluir, memória de cálculo
 
-O painel (`src/app/painel/**`) construído na Etapa 3 é CRM: dashboard, funil, lista de clientes,
-página do cliente (resumo, comparar mapas, anotações), e mudar o estágio no funil (`mudarEstagio`
-em `src/app/painel/clientes/[id]/actions.ts` — isso é ação de CRM de verdade, já funciona). O que
-**não** funciona de propósito, porque é Etapa 4 (Ciclo do estudo, ainda não construída):
-"Duplicar estudo" (botão desabilitado, cabeçalho e cada mapa) e "Excluir mapa"
-(`src/components/painel/ExcluirMapaBotao.tsx` — abre o modal com "vai embora"/"fica" exigido pelo
-não-negociável, mas o botão "Confirmar exclusão" é só stub). Não implemente essas duas ações
-mexendo nesses arquivos existentes sem revisar o desenho completo do Ciclo do estudo primeiro —
-duplicar precisa decidir versão/numeroVersao, excluir precisa decidir granularidade (mapa isolado
-× cliente inteiro, ver decisão 3 no README do handoff).
+Todas as ações do ciclo do estudo são reais, não stub:
+
+- **Gerar**: `gerarMapa` (`src/app/estudo/actions.ts`), atrás do modal `ModalGerar` (lista o que
+  trava antes de confirmar — porta de `modalGerar` em Ciclo do Estudo.dc.html).
+- **Duplicar**: `duplicarEstudo` (mesmo arquivo) — só aceita um estudo `status:"gerado"`, cria um
+  estudo novo (`status:"aberto"`, `duplicadoDeEstudoId` apontando pro original) com as mesmas
+  respostas. Atrás do modal `ModalDuplicar` (`src/components/painel/ModalDuplicar.tsx`). Botão só
+  aparece quando não há estudo em aberto pro cliente (duplicar com um já aberto criaria dois
+  estudos em aberto ao mesmo tempo — ambíguo, evitei de propósito).
+- **Excluir**: duas ações com granularidades diferentes (decisão 3 do README do handoff), nunca
+  a mesma função:
+  - `excluirMapaIsolado` (`src/app/painel/clientes/[id]/actions.ts`) — um mapa+estudo só, pela
+    página do cliente. Os outros mapas do cliente ficam.
+  - `excluirHistoricoCompleto` (mesmo arquivo) — TODOS os mapas/estudos do cliente, só a partir
+    da fila dos 120 dias no dashboard, com autorização explícita (nunca automática). `Cascade` no
+    schema apaga o `Mapa` junto quando o `Estudo` é apagado; `EventoHistorico`/`NotaCrm` **nunca**
+    são apagados — são o registro de que aquilo aconteceu, sobrevivem à exclusão do mapa.
+  - Ambas atrás de `ModalExclusao` (`src/components/painel/ModalExclusao.tsx`, genérico, separa
+    "vai embora" × "fica" como o não-negociável exige).
+- **Memória de cálculo**: `/estudo/[id]/memoria`, só existe pra Mapa gerado (mesma regra das
+  saídas — lê o snapshot travado, nunca recalcula). `src/lib/memoria-calculo.ts` generaliza os 5
+  grupos do protótipo (que eram hardcoded pro exemplo da Marina) pra qualquer estudo.
+
+A fila dos 120 dias em si (quem entra nela) é computada ao vivo em `src/lib/painel-dados.ts` — não
+existe um job diário persistindo um flag "candidato à exclusão". O não-negociável ("nunca
+automática") está garantido pelo modal de confirmação, não por um cron que ainda não existe.
 
 ## Não-negociáveis
 

@@ -109,3 +109,38 @@ export async function gerarMapa(estudoId: string) {
   revalidatePath(`/estudo/${estudoId}`);
   redirect(`/estudo/${estudoId}`);
 }
+
+/**
+ * Duplicar: único caminho de correção depois que o Mapa foi gerado. Copia todas as respostas
+ * pra um estudo novo, em aberto — o mapa anterior continua intacto e visível no histórico do
+ * cliente. Porta de `efeitosDup` em Ciclo do Estudo.dc.html: "o estudo novo nasce com todas as
+ * respostas ... e volta a recalcular com os fatores atuais".
+ */
+export async function duplicarEstudo(estudoId: string) {
+  const estudo = await prisma.estudo.findUniqueOrThrow({ where: { id: estudoId } });
+  if (estudo.status !== "gerado") {
+    throw new Error("Só faz sentido duplicar um estudo que já virou Mapa da Proteção.");
+  }
+
+  const novoEstudo = await prisma.estudo.create({
+    data: {
+      clienteId: estudo.clienteId,
+      corretorId: estudo.corretorId,
+      status: "aberto",
+      duplicadoDeEstudoId: estudo.id,
+      dados: estudo.dados as object, // mesmas respostas; recalcula com os fatores atuais a partir daqui
+    },
+  });
+
+  await prisma.eventoHistorico.create({
+    data: {
+      clienteId: estudo.clienteId,
+      corretorId: estudo.corretorId,
+      tipo: "sistema",
+      texto: "Estudo duplicado para correção — novo estudo em aberto.",
+    },
+  });
+
+  revalidatePath(`/painel/clientes/${estudo.clienteId}`);
+  redirect(`/estudo/${novoEstudo.id}`);
+}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { EstudoFormulario } from "@/lib/estudo-formulario";
 import type { CalcResultado } from "@/lib/calc";
 import { brl, brlCurto } from "@/lib/formato";
-import styles from "@/components/ui/campos.module.css";
+import { ModalGerar } from "@/components/estudo/ModalGerar";
 
 const CORES_CATEGORIA = ["#0F3D63", "#1B72BE", "#39CC00", "#D9A400"];
 
@@ -198,18 +198,16 @@ export function Resultado({
           <div style={{ font: "400 11.5px var(--font-interface)", color: "var(--texto-secundario)", margin: "3px 0 14px" }}>
             Ao gerar, estes números travam — não mudam mais, nem se os fatores de cálculo mudarem depois.
           </div>
-          <button type="button" onClick={onGerar} disabled={gerando} className={styles.botaoPrimario}>
-            {gerando ? "Gerando…" : "Gerar Mapa da Proteção"}
-          </button>
+          <ModalGerar c={c} gerando={gerando} onConfirmar={onGerar} />
         </div>
       ) : (
         <div style={{ background: "#fff", border: "1px solid var(--sucesso-borda)", borderRadius: 12, padding: "22px 24px" }}>
           <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)", marginBottom: 4 }}>Mapa da Proteção gerado · travado</div>
           <div style={{ font: "400 11.5px var(--font-interface)", color: "var(--texto-secundario)", marginBottom: 14 }}>
             Os três formatos usam os mesmos números do estudo. Não existe botão de editar — a correção é
-            duplicar o estudo (Etapa 4, ainda não construída).
+            duplicar o estudo, na página do cliente.
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 10 }}>
             <Link href={`/estudo/${estudoId}/apresentacao`} style={{ border: "1.5px solid var(--borda)", borderRadius: 12, padding: "15px 16px", display: "block" }}>
               <div style={{ font: "700 13px var(--font-interface)", color: "var(--marinho)" }}>Apresentação</div>
               <div style={{ font: "400 11.5px/1.55 var(--font-interface)", color: "var(--texto-secundario)", marginTop: 3 }}>16:9 para a reunião. Seis telas.</div>
@@ -223,6 +221,9 @@ export function Resultado({
               <div style={{ font: "400 11.5px/1.55 var(--font-interface)", color: "var(--texto-secundario)", marginTop: 3 }}>Resumo no corpo, A4 anexado.</div>
             </Link>
           </div>
+          <Link href={`/estudo/${estudoId}/memoria`} style={{ font: "600 12px var(--font-interface)", color: "var(--azul)" }}>
+            Ver memória de cálculo →
+          </Link>
         </div>
       )}
     </div>
