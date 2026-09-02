@@ -67,6 +67,12 @@ export function textoDias(dias: number): string {
   return `${dias} dias`;
 }
 
+/** `N` dias antes de `agora` — extraída à parte pra não chamar Date.now()/new Date() direto no
+ * corpo de um componente (regra de pureza do React Compiler). */
+export function dataDiasAtras(dias: number, agora: Date = new Date()): Date {
+  return new Date(agora.getTime() - dias * MS_POR_DIA);
+}
+
 export function corDias(dias: number): string {
   if (dias >= 120) return "#C4570B";
   if (dias >= 30) return "#D9A400";

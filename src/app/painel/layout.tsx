@@ -23,7 +23,7 @@ export default async function PainelLayout({ children }: { children: ReactNode }
     { rotulo: "Funil", href: "/painel/funil", badge: funilCount },
     { rotulo: "Clientes", href: "/painel/clientes", badge: clientesCount },
     { rotulo: "Estudos", href: null, badge: estudosAbertosCount },
-    { rotulo: "Link de captação", href: null, badge: null },
+    { rotulo: "Link de captação", href: "/painel/captacao", badge: null },
     { rotulo: "Ajustes", href: null, badge: null },
   ];
 

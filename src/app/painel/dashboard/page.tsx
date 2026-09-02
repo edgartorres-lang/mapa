@@ -129,12 +129,12 @@ export default async function PaginaDashboard() {
             </div>
           </div>
 
-          <div style={{ background: "var(--azul-claro-fundo)", border: "1px solid var(--azul-claro-borda)", borderRadius: 12, padding: "18px 20px" }}>
-            <div style={{ font: "700 11px var(--font-interface)", color: "var(--azul)", marginBottom: 6 }}>Link de captação</div>
+          <Link href="/painel/captacao" style={{ display: "block", background: "var(--azul-claro-fundo)", border: "1px solid var(--azul-claro-borda)", borderRadius: 12, padding: "18px 20px" }}>
+            <div style={{ font: "700 11px var(--font-interface)", color: "var(--azul)", marginBottom: 6 }}>Link de captação →</div>
             <div style={{ font: "400 12px/1.6 var(--font-interface)", color: "var(--marinho)" }}>
-              Ainda não existe (Etapa 5). Por enquanto todo cliente entra pelo botão &ldquo;+ Novo estudo&rdquo;.
+              Endereço público, campanhas e o funil dos últimos 30 dias.
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

@@ -151,8 +151,67 @@ na tela) tem que navegar pra rota certa primeiro — nunca chamar `window.print(
 `imprimirComo()`, em `src/lib/imprimir.ts`) numa tela que não é a dona do conteúdo que você quer
 imprimir. Só imprima o que está de fato renderizado na página atual.
 
+## Captação pública (Etapa 5) — formulário do lead, agendamento, webhooks
+
+- **Rotas**: `/captacao` (formulário público, `src/app/captacao/`) e `/painel/captacao` (link,
+  campanhas, funil de 30 dias, área do corretor). `src/components/captacao/FormularioLead.tsx` é
+  o componente grande — máquina de estado `tela` (nome → welcome → 12 perguntas → contato →
+  revisão → agendar → ok), uma pergunta por tela, portado de "Link do Cliente - Protótipo.dc.html"
+  e "Captação e Agendamento.dc.html".
+- **Preenchimento sobrevive a fechar a aba**: persistido em `localStorage` (chave
+  `mapa-captacao-v1`) a cada mudança de tela/resposta. **`"ok"` (tela final, depois de confirmar
+  agendamento) nunca é salvo nem retomado** — é estado terminal, e `canalFinal`/`dataFinal` (o que
+  a tela de confirmação mostra) só existem como state local do componente, nunca vão pro
+  localStorage. Um bug real aqui (corrigido em 2026-09-02): o efeito de salvamento reescrevia o
+  localStorage com `tela:"ok"` depois que `handleConfirmar` já tinha limpado a chave, porque o
+  `removeItem` era síncrono mas o efeito de salvamento só roda no commit seguinte — a
+  correção fez o próprio efeito (e o carregamento inicial) tratar `"ok"` como não-persistível.
+  Se mexer nessa máquina de estado de novo, mantenha essa garantia dos dois lados (salvar e
+  carregar), não só de um.
+- **Lead repetido**: telefone OU e-mail iguais a um `Cliente` existente reaproveita o cadastro
+  (atualiza nome/telefone/email/estadoCivil/lgpd, **nunca mexe em `estagioFunil`** — um cliente já
+  avançado no funil não regride pra "lead") e abre um `Estudo` novo. Quem não bate com ninguém
+  vira `Cliente` novo com `estagioFunil:"lead"`. Ver `enviarLead` em `src/app/captacao/actions.ts`.
+  **Comportamento sinalizado ao Edgar, ainda sem decisão**: no caminho de lead repetido, o `nome`
+  do cliente é sobrescrito pelo que a nova submissão trouxe — se o corretor já tiver corrigido/
+  normalizado esse nome manualmente, um reenvio do link com um nome diferente (apelido, erro de
+  digitação) apaga essa correção sem aviso.
+- **Mapeamento das respostas do lead pro `EstudoFormulario`**: `mapearLeadParaEstudo` em
+  `src/lib/lead-formulario.ts`. Gaps conhecidos, documentados no próprio arquivo:
+  - Vínculo "Aposentado(a) ou pensionista" não tem `VinculoKey` equivalente em `calc.ts` → mapeia
+    pra `null`, não contribui renda nenhuma no cálculo até o corretor completar na reunião.
+  - O formulário público não pergunta profissão, idade de aposentadoria nem sexo — ficam no
+    padrão de `ESTUDO_VAZIO`.
+  - Reserva do INSS (`res.inss`) não é perguntada (só FGTS/previdência/seguro) — fica 0.
+  - Bens de patrimônio (`patr`) sempre viram `tipo:"Outro"`, `liquidavel:false` — o formulário não
+    pergunta essa distinção.
+  - Prazo em texto ("até concluir os estudos", "por tempo indeterminado") mapeia pra `0`
+    (indeterminado em `calc.ts`) — é aproximação, não pergunta símbolo-a-símbolo.
+- **Webhooks disparados** (`src/lib/webhooks.ts`, `dispararWebhook` — best-effort, nunca bloqueia
+  o fluxo, loga e segue se a URL não estiver configurada ou o n8n estiver fora do ar):
+  - `corretor.webhookLead`: ao enviar o formulário — `{ nome, telefone, email, campanha }`.
+  - `corretor.webhookNotificar`: em três pontos — lead novo/repetido (`tipo:"lead_novo"` ou
+    `"lead_repetido"`), horário escolhido (`tipo:"horario_escolhido"`, dispara também nos canais
+    "sugerido") e pedido de retorno por WhatsApp (`tipo:"pediu_whatsapp"`).
+  - `corretor.webhookAgendar`: ao confirmar horário fixo ou sugerido (não no canal WhatsApp, que
+    não agenda nada) — `{ nome, contato, data, hora, duracao:45, sugestaoLivre }`. Nunca leva
+    valor de cobertura (não-negociável).
+  - As três URLs ainda não têm tela pra configurar (Ajustes/Integrações é Etapa 6) — hoje ficam
+    `null` em todo `Corretor`, então todo disparo cai no branch "não configurado" e só loga.
+- **Canal "whatsapp" não cria `Agendamento`**: pedir retorno por WhatsApp registra o evento e
+  dispara `webhookNotificar`, mas não tem hora nem compromisso — não há linha em `Agendamento`
+  pra esse caso, só para os canais "horário fixo" e "sugerido" (`confirmarAgendamento` em
+  `src/app/captacao/actions.ts`).
+
 ## Notas operacionais
 
+- **Depois de qualquer mudança em `prisma/schema.prisma`, reinicie o `next dev`** — não basta
+  `prisma db push` + `prisma generate`. O processo do dev server já tem o Prisma Client antigo no
+  cache de módulos do Node; `generate` reescreve o client em disco mas o processo rodando não
+  recarrega sozinho. Sintoma: `PrismaClientValidationError` mencionando um campo que você acabou
+  de adicionar, mesmo com o client em disco correto (`node_modules/.prisma/client/index.d.ts` já
+  atualizado). Editou o schema → `db:push` → `generate` → **reinicie o servidor** (aconteceu de
+  verdade em 2026-09-02, campo `Agendamento.textoLivre`).
 - **Nunca rode dois `npm install` ao mesmo tempo nesta pasta** (nem em background nem em
   terminais diferentes) — já corrompeu o `node_modules` uma vez nesta sessão (pacotes de um
   processo pisando nos do outro, `ENOTEMPTY`). Rode um de cada vez e espere terminar.

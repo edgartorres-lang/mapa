@@ -271,12 +271,18 @@ model Campanha {
 // Reunião marcada pelo lead (ou proposta no campo aberto). O evento no Google Agenda leva só
 // nome e contato — nenhum valor do estudo (decisão de arquitetura, README "Agendamento").
 model Agendamento {
-  id            String   @id @default(cuid())
-  clienteId     String   @map("cliente_id")
-  cliente       Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
-  dataHora      DateTime @map("data_hora")
-  origem        String // "horario1" | "horario2" | "horario3" | "campo_aberto"
-  googleEventId String?  @map("google_event_id")
+  id        String  @id @default(cuid())
+  clienteId String  @map("cliente_id")
+  cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  // Um horário sugerido (horario1/2/3) sempre tem dataHora. O campo aberto às vezes só tem texto
+  // livre ("terça de manhã") sem data estruturada — por isso dataHora é opcional e textoLivre
+  // existe. Nunca os dois vazios ao mesmo tempo.
+  dataHora  DateTime? @map("data_hora")
+  textoLivre String?  @map("texto_livre")
+  origem    String // "horario1" | "horario2" | "horario3" | "campo_aberto"
+
+  googleEventId String? @map("google_event_id")
 
   criadoEm DateTime @default(now()) @map("criado_em")
 
