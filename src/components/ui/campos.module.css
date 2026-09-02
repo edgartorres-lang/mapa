@@ -1,0 +1,140 @@
+.cartao {
+  background: #fff;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 22px 24px;
+  margin-bottom: 16px;
+}
+
+.tituloCartao {
+  font: 600 13.5px var(--font-interface);
+  color: var(--marinho);
+}
+
+.notaCartao {
+  font: 400 11.5px/1.5 var(--font-interface);
+  color: var(--texto-terciario);
+  margin: 5px 0 14px;
+}
+
+.rotulo {
+  font: 600 12.5px var(--font-interface);
+  color: var(--marinho);
+  margin-bottom: 6px;
+}
+
+.input,
+.select {
+  padding: 10px 12px;
+  border: 1.5px solid var(--borda);
+  border-radius: 9px;
+  font: 500 13.5px var(--font-interface);
+  color: var(--texto);
+  background: #fbfdff;
+  width: 100%;
+}
+
+.input.dinheiro {
+  font-weight: 600;
+  color: var(--marinho);
+}
+
+.linha {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  padding: 11px 13px;
+  border-radius: 9px;
+  border: 1.5px solid var(--borda);
+  background: #fbfdff;
+}
+.linha.marcada {
+  border-color: var(--azul);
+  background: var(--azul-claro-fundo);
+}
+
+.caixa {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  color: #fff;
+  border: 1.5px solid var(--cinza-inativo);
+  background: transparent;
+}
+.caixa.marcada {
+  background: var(--azul);
+  border-color: var(--azul);
+}
+
+.pill {
+  flex: 1;
+  text-align: center;
+  cursor: pointer;
+  font: 600 12.5px var(--font-interface);
+  padding: 10px;
+  border-radius: 9px;
+  color: var(--texto);
+  background: #fff;
+  border: 1.5px solid var(--borda);
+}
+.pill.selecionada {
+  color: var(--marinho);
+  background: var(--azul-claro-fundo);
+  border-color: var(--azul-claro-borda);
+}
+
+.botaoRemover {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid var(--borda);
+  border-radius: 8px;
+  color: var(--alerta-texto);
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  flex: none;
+}
+
+.botaoAdicionar {
+  font: 700 12.5px var(--font-interface);
+  color: var(--azul);
+  background: none;
+  border: none;
+  padding: 14px 0 0;
+  cursor: pointer;
+}
+
+.botaoPrimario {
+  font: 700 13px var(--font-interface);
+  color: #fff;
+  background: var(--marinho);
+  border: none;
+  padding: 12px 22px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.botaoPrimario:disabled {
+  background: var(--cinza-inativo);
+  cursor: not-allowed;
+}
+
+.botaoContorno {
+  font: 600 12.5px var(--font-interface);
+  color: var(--texto-secundario);
+  border: 1.5px solid var(--borda);
+  background: #fff;
+  padding: 11px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.linhaGrade {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+}
