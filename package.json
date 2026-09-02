@@ -10,11 +10,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "db:push": "prisma db push",
+    "db:migrate:postgres": "prisma migrate dev"
   },
   "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.10.0",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "7.10.0",
+    "better-sqlite3": "^13.0.3",
     "dotenv": "^17.4.2",
     "next": "16.3.4",
     "react": "19.2.8",

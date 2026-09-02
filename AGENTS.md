@@ -80,6 +80,31 @@ passada de novo, explicitamente, em `src/lib/prisma.ts`). PDF real (para o e-mai
 um serviço separado (Chromium headless) — não roda no processo do Next. Testes com Vitest
 (`npm test`).
 
+## SQLite local × Postgres de produção
+
+Decisão do Edgar (2026-09-01): desenvolvimento roda em SQLite (arquivo local, `prisma/dev.db`,
+gitignored — não precisa instalar Docker nem Postgres pra testar), produção roda em Postgres.
+**Um schema só** (`prisma/schema.prisma`, sempre com `provider = "postgresql"`, é a única cópia
+editada à mão): `prisma.config.ts` detecta `DATABASE_URL` (`file:...` → sqlite) e gera
+`prisma/schema.generated.prisma` só com essa linha trocada — nunca editado à mão, recriado a cada
+comando do Prisma, gitignored. Prisma não suporta `enum` nem `@db.Date` no conector SQLite, então
+o schema já evita os dois (valores fechados viraram `String` validada em `src/lib/enums.ts` — ver
+"Vocabulário: chave de código × texto de interface" acima, mesma lógica de "ajustar o campo em vez
+de manter duas versões").
+
+**Comandos**: `npm run db:push` sincroniza o SQLite local direto (sem gerar arquivo de migração —
+é descartável, serve só pra desenvolver). `npm run db:migrate:postgres` gera migração de verdade
+e **só deve rodar com `DATABASE_URL` apontando pro Postgres** (nunca pro SQLite — o SQL gerado é
+de dialetos diferentes e migração de SQLite não serve pra Postgres). `prisma/migrations/` é
+reservado exclusivamente pra migrações geradas contra Postgres real.
+
+**A ressalva que importa**: SQLite prova que a lógica da aplicação funciona (schema, Prisma
+Client, `calc.ts`, os testes de integração em `src/lib/prisma.integration.test.ts`). **Não prova
+o banco de produção.** Antes de considerar qualquer etapa fechada, os mesmos testes precisam
+passar de novo com `DATABASE_URL` apontando pro Postgres da VPS — ainda não foi feito nesta
+sessão porque não há Postgres acessível daqui. Isso fica pendente até existir um Postgres (VPS ou
+qualquer instância) pra rodar contra.
+
 ## Notas operacionais
 
 - **Nunca rode dois `npm install` ao mesmo tempo nesta pasta** (nem em background nem em

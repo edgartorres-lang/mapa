@@ -97,24 +97,10 @@ model FatoresCalculo {
   @@map("fatores_calculo")
 }
 
-enum EstagioFunil {
-  lead
-  estudo
-  apresentado
-  cotando
-  fechado
-  perdido
-
-  @@map("estagio_funil")
-}
-
-enum LgpdStatus {
-  aceito
-  verbal
-  pendente
-
-  @@map("lgpd_status")
-}
+// `EstagioFunil` e `LgpdStatus` eram `enum` — trocados por `String` pra o schema rodar em SQLite
+// (dev) e Postgres (prod) sem duas versões de arquivo. Valores fechados e o tipo TS ficam em
+// src/lib/enums.ts (ESTAGIOS_FUNIL, LGPD_STATUS) — valide contra eles na camada de aplicação,
+// o banco não impõe mais isso sozinho. Ver AGENTS.md.
 
 // Cliente sem `estagioFunil` (null) = "fora do funil": contato cadastrado sem nenhum estudo.
 // Isso acontece quando o único mapa/estudo dele é excluído (ciclo dos 120 dias ou manual).
@@ -126,7 +112,9 @@ model Cliente {
   nome               String
   telefone           String?
   email              String?
-  nascimento         DateTime? @db.Date
+  // Sem @db.Date (atributo específico do Postgres, inválido no SQLite) — só data, sem hora,
+  // é uma regra da camada de aplicação, não do banco.
+  nascimento         DateTime?
   sexo               String? // "F" | "M" — só para a flexão dos textos, não entra no cálculo
   estadoCivil        String?   @map("estado_civil")
   profissao          String?
@@ -135,11 +123,14 @@ model Cliente {
   origem      String? // "Link · campanha família" | "Indicação · Marina" | "Contato direto" etc.
   utmCampanha String? @map("utm_campanha")
 
-  estagioFunil        EstagioFunil? @map("estagio_funil")
-  estagioAtualizadoEm DateTime?     @map("estagio_atualizado_em")
+  // "lead" | "estudo" | "apresentado" | "cotando" | "fechado" | "perdido" | null (fora do funil)
+  // — ver ESTAGIOS_FUNIL em src/lib/enums.ts.
+  estagioFunil        String?   @map("estagio_funil")
+  estagioAtualizadoEm DateTime? @map("estagio_atualizado_em")
 
-  lgpdStatus   LgpdStatus @default(pendente) @map("lgpd_status")
-  lgpdOrigem   String?    @map("lgpd_origem") // onde o consentimento foi coletado (link, verbal, etc.)
+  // "aceito" | "verbal" | "pendente" — ver LGPD_STATUS em src/lib/enums.ts.
+  lgpdStatus   String  @default("pendente") @map("lgpd_status")
+  lgpdOrigem   String? @map("lgpd_origem") // onde o consentimento foi coletado (link, verbal, etc.)
   lgpdAceitoEm DateTime?  @map("lgpd_aceito_em")
 
   criadoEm     DateTime @default(now()) @map("criado_em")
@@ -155,13 +146,6 @@ model Cliente {
   @@map("clientes")
 }
 
-enum StatusEstudo {
-  aberto
-  gerado
-
-  @@map("status_estudo")
-}
-
 // Estudo: em aberto, aceita alteração, recalcula com os fatores atuais. `dados` é a única
 // fonte de verdade das respostas — nada derivado (vitalícia, temporária, etc.) é persistido
 // aqui; o motor de cálculo (src/lib/calc.ts) recalcula a cada leitura enquanto status=aberto.
@@ -171,7 +155,8 @@ model Estudo {
   cliente    Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   corretorId String   @map("corretor_id") // denormalizado de propósito — corretor_id em toda tabela de domínio
 
-  status StatusEstudo @default(aberto)
+  // "aberto" | "gerado" — ver STATUS_ESTUDO em src/lib/enums.ts.
+  status String @default("aberto")
 
   duplicadoDeEstudoId String?  @map("duplicado_de_estudo_id")
   duplicadoDe         Estudo?  @relation("Duplicacao", fields: [duplicadoDeEstudoId], references: [id])

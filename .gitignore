@@ -53,3 +53,11 @@ next-env.d.ts
 service-account*.json
 *.env.local
 
+# banco SQLite de desenvolvimento local (dado fictício de teste, não é o banco de produção) e o
+# schema derivado gerado por prisma.config.ts — nunca editado à mão, recriado a cada comando
+prisma/dev.db
+prisma/dev.db-journal
+*.db
+*.db-journal
+prisma/schema.generated.prisma
+
