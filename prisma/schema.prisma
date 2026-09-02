@@ -110,6 +110,10 @@ model Cliente {
   corretor   Corretor @relation(fields: [corretorId], references: [id], onDelete: Cascade)
 
   nome               String
+  // true depois que o corretor corrige o nome pela página do cliente — a partir daí, um reenvio
+  // do link de captação (lead repetido, mesmo telefone/e-mail) nunca mais sobrescreve o nome. Ver
+  // AGENTS.md, "Captação pública", e editarNomeCliente em src/app/painel/clientes/[id]/actions.ts.
+  nomeEditadoManualmente Boolean @default(false) @map("nome_editado_manualmente")
   telefone           String?
   email              String?
   // Sem @db.Date (atributo específico do Postgres, inválido no SQLite) — só data, sem hora,

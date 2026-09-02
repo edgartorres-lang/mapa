@@ -31,6 +31,30 @@ export async function mudarEstagio(clienteId: string, novoEstagio: EstagioFunil)
   revalidatePath("/painel/dashboard");
 }
 
+/**
+ * Corrigir o nome do cliente pela página dele. Marca `nomeEditadoManualmente`: a partir daqui,
+ * um reenvio do link de captação com o mesmo telefone/e-mail (lead repetido) nunca mais
+ * sobrescreve o nome — só telefone/e-mail e o novo estudo. Ver `enviarLead` em
+ * src/app/captacao/actions.ts e AGENTS.md, "Captação pública".
+ */
+export async function editarNomeCliente(clienteId: string, novoNome: string) {
+  const limpo = novoNome.trim();
+  if (!limpo) return;
+  const cliente = await prisma.cliente.findUniqueOrThrow({ where: { id: clienteId } });
+  if (limpo === cliente.nome) return;
+
+  await prisma.$transaction([
+    prisma.cliente.update({ where: { id: clienteId }, data: { nome: limpo, nomeEditadoManualmente: true } }),
+    prisma.eventoHistorico.create({
+      data: { clienteId, corretorId: cliente.corretorId, tipo: "manual", texto: `Nome corrigido: "${cliente.nome}" → "${limpo}".` },
+    }),
+  ]);
+
+  revalidatePath(`/painel/clientes/${clienteId}`);
+  revalidatePath("/painel/clientes");
+  revalidatePath("/painel/dashboard");
+}
+
 /** Anotações de venda — nunca entram em PDF nem e-mail. Criar uma também conta como movimento. */
 export async function criarNota(clienteId: string, texto: string) {
   const limpo = texto.trim();

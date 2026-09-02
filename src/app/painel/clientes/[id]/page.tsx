@@ -6,6 +6,7 @@ import { brl } from "@/lib/formato";
 import type { EstagioFunil } from "@/lib/enums";
 import { ModalExclusao } from "@/components/painel/ModalExclusao";
 import { ModalDuplicar } from "@/components/painel/ModalDuplicar";
+import { NomeEditavel } from "@/components/painel/NomeEditavel";
 import { duplicarEstudo } from "@/app/estudo/actions";
 import { mudarEstagio, criarNota, excluirMapaIsolado } from "./actions";
 
@@ -54,7 +55,7 @@ export default async function PaginaCliente({
             </div>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ font: "600 19px var(--font-titulo)", color: "var(--marinho)" }}>{cliente.nome}</span>
+                <NomeEditavel clienteId={cliente.id} nome={cliente.nome} />
                 <span
                   style={{
                     font: "600 10.5px var(--font-interface)",

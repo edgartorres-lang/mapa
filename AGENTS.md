@@ -169,13 +169,16 @@ imprimir. Só imprima o que está de fato renderizado na página atual.
   Se mexer nessa máquina de estado de novo, mantenha essa garantia dos dois lados (salvar e
   carregar), não só de um.
 - **Lead repetido**: telefone OU e-mail iguais a um `Cliente` existente reaproveita o cadastro
-  (atualiza nome/telefone/email/estadoCivil/lgpd, **nunca mexe em `estagioFunil`** — um cliente já
+  (atualiza telefone/email/estadoCivil/lgpd, **nunca mexe em `estagioFunil`** — um cliente já
   avançado no funil não regride pra "lead") e abre um `Estudo` novo. Quem não bate com ninguém
   vira `Cliente` novo com `estagioFunil:"lead"`. Ver `enviarLead` em `src/app/captacao/actions.ts`.
-  **Comportamento sinalizado ao Edgar, ainda sem decisão**: no caminho de lead repetido, o `nome`
-  do cliente é sobrescrito pelo que a nova submissão trouxe — se o corretor já tiver corrigido/
-  normalizado esse nome manualmente, um reenvio do link com um nome diferente (apelido, erro de
-  digitação) apaga essa correção sem aviso.
+  **Nome protegido depois de correção manual** (decisão do Edgar, 2026-09-02): o `nome` só é
+  sobrescrito pelo lead repetido enquanto `Cliente.nomeEditadoManualmente` for `false`. Assim que o
+  corretor corrige o nome pela página do cliente (`NomeEditavel`, botão ✎ ao lado do nome — chama
+  `editarNomeCliente` em `src/app/painel/clientes/[id]/actions.ts`), a flag vira `true` e nenhum
+  reenvio do link (apelido, erro de digitação) apaga a correção de novo. A correção manual fica
+  registrada em `EventoHistorico` (`"Nome corrigido: ... → ..."`), igual aos outros eventos do
+  cliente.
 - **Mapeamento das respostas do lead pro `EstudoFormulario`**: `mapearLeadParaEstudo` em
   `src/lib/lead-formulario.ts`. Gaps conhecidos, documentados no próprio arquivo:
   - Vínculo "Aposentado(a) ou pensionista" não tem `VinculoKey` equivalente em `calc.ts` → mapeia

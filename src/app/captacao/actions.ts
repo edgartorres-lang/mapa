@@ -35,10 +35,13 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
   const origemTexto = utmCampanha ? `Link · campanha ${utmCampanha}` : "Link de captação";
 
   if (cliente) {
+    // Se o corretor já corrigiu o nome manualmente pela página do cliente, um reenvio do link
+    // (mesmo telefone/e-mail) nunca mais sobrescreve — só telefone/e-mail e o novo estudo. Ver
+    // editarNomeCliente em src/app/painel/clientes/[id]/actions.ts e AGENTS.md.
     cliente = await prisma.cliente.update({
       where: { id: cliente.id },
       data: {
-        nome: dados.nome || cliente.nome,
+        nome: cliente.nomeEditadoManualmente ? cliente.nome : dados.nome || cliente.nome,
         telefone: telefone || cliente.telefone,
         email: email || cliente.email,
         estadoCivil: dados.estadoCivil || cliente.estadoCivil,
