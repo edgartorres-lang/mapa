@@ -115,10 +115,10 @@ export function CustosPatrimonio({
         <div style={{ font: "600 13.5px var(--font-interface)", color: "var(--marinho)", marginBottom: 14 }}>Receitas e reservas já existentes</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
           {[
-            { chave: "fgts" as const, rotulo: "FGTS", nota: "Saldo aproximado da conta." },
-            { chave: "inss" as const, rotulo: "Pensão do INSS (equivalente em capital)", nota: "Estimativa, se houver." },
-            { chave: "prevPrivada" as const, rotulo: "Previdência privada", nota: "Valor acumulado hoje, se houver." },
-            { chave: "seguroAtual" as const, rotulo: "Seguro de vida que já tem", nota: "Capital contratado, se já houver apólice." },
+            { chave: "fgts" as const, rotulo: "Saldo FGTS", nota: "Liberado aos dependentes no falecimento." },
+            { chave: "inss" as const, rotulo: "Acumulado estimado INSS/outros", nota: "Capital equivalente da pensão por morte, quando existir." },
+            { chave: "prevPrivada" as const, rotulo: "Previdência privada", nota: "PGBL, VGBL, fundo de pensão." },
+            { chave: "seguroAtual" as const, rotulo: "Seguro de vida já existente", nota: "Capital contratado, inclusive o da empresa." },
           ].map((rs) => (
             <div key={rs.chave}>
               <div style={{ font: "600 12.5px var(--font-interface)", color: "var(--marinho)", marginBottom: 6 }}>{rs.rotulo}</div>

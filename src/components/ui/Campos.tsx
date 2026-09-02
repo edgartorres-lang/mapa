@@ -55,15 +55,18 @@ export function CampoDinheiro({
   placeholder = "R$ por mês",
   value,
   onChange,
+  disabled,
 }: {
   placeholder?: string;
   value: number;
   onChange: (v: number) => void;
+  disabled?: boolean;
 }) {
   return (
     <input
       type="text"
       inputMode="numeric"
+      disabled={disabled}
       className={`${styles.input} ${styles.dinheiro}`}
       placeholder={placeholder}
       value={value ? brl(value) : ""}

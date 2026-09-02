@@ -164,6 +164,34 @@ export function Resultado({
         </div>
       </div>
 
+      <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "22px 24px", marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 12 }}>
+          <div>
+            <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)" }}>Resumo para você</div>
+            <div style={{ font: "400 11.5px var(--font-interface)", color: "var(--texto-terciario)", marginTop: 2 }}>
+              Texto do cliente, escrito a partir dos números já calculados. Sai do webhook de IA — Etapa 5, ainda não conectada.
+            </div>
+          </div>
+          <button
+            type="button"
+            disabled
+            title="Depende do webhook /webhook/gerar-texto (n8n), construído na Etapa 5"
+            style={{ font: "700 12.5px var(--font-interface)", color: "#fff", background: "var(--cinza-inativo)", border: "none", padding: "10px 18px", borderRadius: 999, cursor: "not-allowed", whiteSpace: "nowrap" }}
+          >
+            Gerar textos
+          </button>
+        </div>
+        <div style={{ border: "1.5px dashed var(--borda)", borderRadius: 9, padding: "14px 16px", font: "400 12px/1.7 var(--font-interface)", color: "var(--texto-terciario)" }}>
+          Texto ainda não gerado nesta etapa.
+        </div>
+        <div style={{ marginTop: 16, background: "var(--nota-fundo)", border: "1px solid var(--nota-borda)", borderRadius: 10, padding: "16px 18px" }}>
+          <div style={{ font: "700 9.5px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".1em", color: "var(--nota-texto)", marginBottom: 8 }}>
+            Análise interna · nunca entra no PDF nem no e-mail
+          </div>
+          <div style={{ font: "400 12px/1.7 var(--font-interface)", color: "var(--texto-terciario)" }}>Texto ainda não gerado nesta etapa.</div>
+        </div>
+      </div>
+
       {status === "aberto" ? (
         <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "22px 24px" }}>
           <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)" }}>Gerar o mapa</div>

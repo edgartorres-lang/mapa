@@ -137,6 +137,7 @@ export function Perfil({
                 <CampoDinheiro
                   value={estado.renda}
                   onChange={(n) => set({ vinculos: { ...dados.vinculos, [v.k]: { ...estado, renda: n } } })}
+                  disabled={!estado.on}
                 />
                 <div style={{ font: "500 11.5px/1.4 var(--font-interface)", color: "var(--texto-terciario)" }}>{v.nota}</div>
               </div>

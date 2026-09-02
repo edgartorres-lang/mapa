@@ -39,6 +39,13 @@
   color: var(--marinho);
 }
 
+.input:disabled,
+.select:disabled {
+  background: var(--fundo-alt);
+  color: var(--texto-terciario);
+  cursor: not-allowed;
+}
+
 .linha {
   display: flex;
   align-items: center;
