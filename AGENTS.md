@@ -52,6 +52,19 @@ de prospecção, fora da V1. Quando isso virar necessidade real, `Dependente` e 
 próprias (com `clienteId`, não mais só dentro do estudo) — é migração de dado, não só de schema.
 Não é bug nem esquecimento: é a V1 pagando esse preço de propósito por simplicidade agora.
 
+## Painel (Etapa 3) × Ciclo do estudo (Etapa 4) — onde é o limite
+
+O painel (`src/app/painel/**`) construído na Etapa 3 é CRM: dashboard, funil, lista de clientes,
+página do cliente (resumo, comparar mapas, anotações), e mudar o estágio no funil (`mudarEstagio`
+em `src/app/painel/clientes/[id]/actions.ts` — isso é ação de CRM de verdade, já funciona). O que
+**não** funciona de propósito, porque é Etapa 4 (Ciclo do estudo, ainda não construída):
+"Duplicar estudo" (botão desabilitado, cabeçalho e cada mapa) e "Excluir mapa"
+(`src/components/painel/ExcluirMapaBotao.tsx` — abre o modal com "vai embora"/"fica" exigido pelo
+não-negociável, mas o botão "Confirmar exclusão" é só stub). Não implemente essas duas ações
+mexendo nesses arquivos existentes sem revisar o desenho completo do Ciclo do estudo primeiro —
+duplicar precisa decidir versão/numeroVersao, excluir precisa decidir granularidade (mapa isolado
+× cliente inteiro, ver decisão 3 no README do handoff).
+
 ## Não-negociáveis
 
 - **Nunca existe botão de editar um Mapa gerado.** Em lugar nenhum da UI ou da API.
