@@ -19,7 +19,7 @@ Cobertura vitalícia · Cobertura temporária · Pensão de educação · Custo 
 Receitas liquidáveis · Capital a proteger · Teto de razoabilidade · DIT · Doenças graves.
 
 **Saídas** — Apresentação (PDF 16:9 da reunião) · Proposta (PDF A4 de imprimir) · E-mail do mapa ·
-Análise interna (IA, só na tela do corretor, nunca no PDF nem no e-mail) · Resumo para você (texto do
+Análise interna (IA, só na tela do corretor, nunca no PDF nem no e-mail) · Resumo para o cliente (texto do
 cliente, entra na proposta).
 
 **Captação e CRM** — Link de captação (único, público, para tráfego pago) · Página do lead ·

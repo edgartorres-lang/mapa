@@ -8,7 +8,12 @@ import { BarraSaida } from "@/components/saida/BarraSaida";
 export default async function PaginaProposta({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { r, mapa } = await carregarSaida(id);
-  const resumoParaVoce = mapa.resumoParaVoce ? mapa.resumoParaVoce.split("\n").filter(Boolean) : null;
+  // mapa.resumoParaVoce (nome de banco, não renomeado — só o rótulo visível virou "Resumo para o
+  // cliente") ainda não é escrito por nada — o webhook de IA que preencheria isso continua sem
+  // tela de configuração (ver AGENTS.md, "Integrações"). Até existir, cai no texto determinístico
+  // que a apresentação já usa (`construirApresentacao`, mesmos números, zero IA) — melhor que
+  // mostrar um aviso de etapa pro cliente ler no PDF.
+  const resumoParaOCliente = mapa.resumoParaVoce ? mapa.resumoParaVoce.split("\n").filter(Boolean) : r.resumoParaOCliente;
 
   return (
     <div className="pchain" style={{ minHeight: "100vh", padding: "26px 30px", fontFamily: "var(--font-interface)" }}>
@@ -67,18 +72,12 @@ export default async function PaginaProposta({ params }: { params: Promise<{ id:
           </div>
 
           <div style={{ marginTop: 26 }}>
-            <div style={{ font: "600 15px var(--font-titulo)", marginBottom: 4 }}>Resumo para você</div>
+            <div style={{ font: "600 15px var(--font-titulo)", marginBottom: 4 }}>Resumo para o cliente</div>
             <div style={{ font: "400 9.5px var(--font-interface)", color: "var(--texto-terciario)", marginBottom: 12 }}>Texto preparado a partir das suas respostas.</div>
             <div style={{ borderLeft: "2px solid var(--verde)", paddingLeft: 16, display: "flex", flexDirection: "column", gap: 12 }}>
-              {resumoParaVoce ? (
-                resumoParaVoce.map((p, i) => (
-                  <div key={i} style={{ font: "400 11px/1.8 var(--font-interface)", color: "var(--texto)" }}>{p}</div>
-                ))
-              ) : (
-                <div style={{ font: "400 11px/1.8 var(--font-interface)", color: "var(--texto-terciario)" }}>
-                  Texto ainda não gerado nesta etapa (Etapa 5).
-                </div>
-              )}
+              {resumoParaOCliente.map((p, i) => (
+                <div key={i} style={{ font: "400 11px/1.8 var(--font-interface)", color: "var(--texto)" }}>{p}</div>
+              ))}
             </div>
           </div>
 

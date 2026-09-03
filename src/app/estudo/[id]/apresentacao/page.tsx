@@ -2,9 +2,12 @@ import { carregarSaida } from "@/lib/carregar-saida";
 import { BarraSaida } from "@/components/saida/BarraSaida";
 
 /**
- * Seis slides 960×540 (equivalem a 1920×1080), impressos em A4 deitado. Porta fiel da seção
- * "APRESENTAÇÃO" em Mapa da Proteção 1a+1b - Unificado.dc.html (~linha 572-691). Placeholders de
- * logo/foto/QR seguem tracejados, como o README manda — substituir pela marca real depois.
+ * Dez slides 960×540 (equivalem a 1920×1080), impressos em A4 deitado. Porta fiel da seção
+ * "APRESENTAÇÃO" em "Wizard 1a - Protótipo funcional v3.dc.html" (~linha 567-755) — mudou de 6
+ * pra 10 telas em 2026-09-03 (Capa ganhou uma linha de contexto pessoal; Proteção em vida,
+ * Educação dos filhos, Além da morte e Resumo para o cliente são novas). Placeholders de
+ * logo/foto/QR seguem tracejados quando a marca não foi configurada — ver Ajustes → Perfil e
+ * marca.
  */
 export default async function PaginaApresentacao({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -12,7 +15,7 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
 
   return (
     <div className="pchain" style={{ minHeight: "100vh", padding: "26px 30px", fontFamily: "var(--font-interface)" }}>
-      <BarraSaida estudoId={id} modo="slides" rotuloBotao="Baixar PDF · A4 deitado" notaDireita="Seis telas em 960×540 — equivalem a 1920×1080" />
+      <BarraSaida estudoId={id} modo="slides" rotuloBotao="Baixar PDF · A4 deitado" notaDireita="Dez telas em 960×540 — equivalem a 1920×1080" />
 
       <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         {/* Slide 1 — capa */}
@@ -33,6 +36,7 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
             <div style={{ font: "600 62px/1.05 var(--font-titulo)", marginBottom: 22 }}>{r.nome}</div>
             <div style={{ width: 64, height: 4, background: "var(--verde)" }} />
             <div style={{ flex: 1 }} />
+            {r.subtitulo && <div style={{ font: "400 17px var(--font-interface)", color: "rgba(255,255,255,.85)", marginBottom: 6 }}>{r.subtitulo}</div>}
             <div style={{ font: "400 17px var(--font-interface)", color: "rgba(255,255,255,.72)" }}>
               {r.corretorNome} · {r.dataLonga}
             </div>
@@ -104,7 +108,7 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Slide 4 — o que cada parte resolve */}
+        {/* Slide 4 — o que cada parte resolve (panorama) */}
         <div className="slide16 paper" style={{ width: 960, height: 540, background: "var(--fundo)", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
           <div style={{ height: "100%", boxSizing: "border-box", padding: "48px 60px", display: "flex", flexDirection: "column" }}>
             <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 12 }}>O que cada parte resolve</div>
@@ -124,7 +128,101 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Slide 5 — a recomendação */}
+        {/* Slide 5 — proteção em vida (novo) */}
+        <div className="slide16 paper" style={{ width: 960, height: 540, background: "#fff", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
+          <div style={{ height: "100%", boxSizing: "border-box", padding: "52px 64px", display: "flex", flexDirection: "column" }}>
+            <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 14 }}>Proteção em vida</div>
+            <div style={{ font: "600 40px/1.15 var(--font-titulo)", color: "var(--marinho)", marginBottom: 30 }}>
+              Duas urgências diferentes,
+              <br />duas coberturas.
+            </div>
+            <div style={{ display: "flex", gap: 20, alignItems: "stretch", flex: 1, minHeight: 0 }}>
+              <div style={{ flex: 1, border: "2px solid var(--marinho)", borderRadius: 16, padding: "26px 28px", display: "flex", flexDirection: "column" }}>
+                <div style={{ font: "700 11.5px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".1em", color: "var(--texto-secundario)", marginBottom: 10 }}>Cobertura vitalícia</div>
+                <div style={{ font: "600 44px var(--font-titulo)", color: "var(--marinho)", marginBottom: 14 }}>{r.coberturas[0].valor}</div>
+                <div style={{ font: "400 15px/1.6 var(--font-interface)", color: "var(--texto-secundario)" }}>{r.coberturas[0].nota}</div>
+              </div>
+              <div style={{ flex: 1, border: "2px solid var(--azul)", borderRadius: 16, padding: "26px 28px", display: "flex", flexDirection: "column" }}>
+                <div style={{ font: "700 11.5px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".1em", color: "var(--texto-secundario)", marginBottom: 10 }}>Cobertura temporária</div>
+                <div style={{ font: "600 44px var(--font-titulo)", color: "var(--azul)", marginBottom: 14 }}>{r.coberturas[1].valor}</div>
+                <div style={{ font: "400 15px/1.6 var(--font-interface)", color: "var(--texto-secundario)" }}>{r.coberturas[1].nota}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Slide 6 — educação dos filhos (novo) */}
+        <div className="slide16 paper" style={{ width: 960, height: 540, background: "var(--fundo)", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
+          <div style={{ height: "100%", boxSizing: "border-box", padding: "52px 64px", display: "flex", flexDirection: "column" }}>
+            <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 14 }}>Educação dos filhos</div>
+            <div style={{ font: "600 40px/1.15 var(--font-titulo)", color: "var(--marinho)", marginBottom: 30 }}>
+              Os estudos, garantidos
+              <br />até a formatura.
+            </div>
+            <div style={{ background: "#fff", borderRadius: 16, padding: "30px 32px", display: "flex", alignItems: "baseline", gap: 14 }}>
+              <span style={{ font: "600 56px var(--font-titulo)", color: "var(--marinho)" }}>{r.coberturas[2].valor}</span>
+              <span style={{ font: "600 16px var(--font-interface)", color: "var(--texto-secundario)" }}>em pensão por morte</span>
+            </div>
+            <div style={{ font: "400 16px/1.6 var(--font-interface)", color: "var(--texto-secundario)", marginTop: 22, maxWidth: 720 }}>{r.coberturas[2].nota}</div>
+            <div style={{ flex: 1 }} />
+            <div style={{ display: "inline-flex", alignSelf: "flex-start", alignItems: "center", gap: 10, background: "#fff", border: "1px solid var(--borda)", borderRadius: 999, padding: "12px 20px" }}>
+              <span style={{ font: "700 14px var(--font-interface)", color: "var(--marinho)" }}>{r.categorias[2].valor}</span>
+              <span style={{ font: "400 13px var(--font-interface)", color: "var(--texto-secundario)" }}>de custo total até a formatura, como referência</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Slide 7 — além da morte (novo) */}
+        <div className="slide16 paper" style={{ width: 960, height: 540, background: "#fff", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
+          <div style={{ height: "100%", boxSizing: "border-box", padding: "48px 60px", display: "flex", flexDirection: "column" }}>
+            <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 12 }}>Além da morte</div>
+            <div style={{ font: "600 34px/1.2 var(--font-titulo)", color: "var(--marinho)", marginBottom: 24 }}>
+              Doença e acidente também
+              <br />deixam a família sem renda.
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, flex: 1, minHeight: 0 }}>
+              <div style={{ background: "var(--fundo)", borderRadius: 14, padding: "22px 24px", borderTop: "5px solid var(--marinho)" }}>
+                <div style={{ font: "700 15px var(--font-interface)", color: "var(--marinho)", marginBottom: 8 }}>Invalidez</div>
+                <div style={{ font: "600 24px var(--font-titulo)", color: "var(--texto)", marginBottom: 4 }}>{r.coberturas[3].valor}</div>
+                <div style={{ font: "400 13px var(--font-interface)", color: "var(--texto-secundario)", marginBottom: 8 }}>por acidente · {r.coberturas[4].valor} por doença</div>
+                <div style={{ font: "400 13px/1.5 var(--font-interface)", color: "var(--texto-secundario)" }}>{r.coberturas[3].nota}</div>
+              </div>
+              <div style={{ background: "var(--fundo)", borderRadius: 14, padding: "22px 24px", borderTop: "5px solid var(--azul)" }}>
+                <div style={{ font: "700 15px var(--font-interface)", color: "var(--marinho)", marginBottom: 8 }}>Renda vitalícia por invalidez</div>
+                <div style={{ font: "600 24px var(--font-titulo)", color: "var(--texto)", marginBottom: 8 }}>{r.coberturas[5].valor}</div>
+                <div style={{ font: "400 13px/1.5 var(--font-interface)", color: "var(--texto-secundario)" }}>{r.coberturas[5].nota}</div>
+              </div>
+              <div style={{ background: "var(--fundo)", borderRadius: 14, padding: "22px 24px", borderTop: "5px solid var(--verde)" }}>
+                <div style={{ font: "700 15px var(--font-interface)", color: "var(--marinho)", marginBottom: 8 }}>Diária por incapacidade (DIT)</div>
+                <div style={{ font: "600 24px var(--font-titulo)", color: "var(--texto)", marginBottom: 8 }}>{r.coberturas[6].valor}</div>
+                <div style={{ font: "400 13px/1.5 var(--font-interface)", color: "var(--texto-secundario)" }}>{r.coberturas[6].nota}</div>
+              </div>
+              <div style={{ background: "var(--fundo)", borderRadius: 14, padding: "22px 24px", borderTop: `5px solid ${r.categorias[3].cor}` }}>
+                <div style={{ font: "700 15px var(--font-interface)", color: "var(--marinho)", marginBottom: 8 }}>Doenças graves</div>
+                <div style={{ font: "600 24px var(--font-titulo)", color: "var(--texto)", marginBottom: 8 }}>{r.coberturas[7].valor}</div>
+                <div style={{ font: "400 13px/1.5 var(--font-interface)", color: "var(--texto-secundario)" }}>{r.coberturas[7].nota}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Slide 8 — resumo para o cliente (novo; sempre visível aqui, ao contrário da tela do
+            estudo, onde o mesmo rótulo fica atrás do botão "Gerar") */}
+        <div className="slide16 paper" style={{ width: 960, height: 540, background: "#fff", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
+          <div style={{ height: "100%", boxSizing: "border-box", padding: "52px 64px", display: "flex", flexDirection: "column" }}>
+            <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--verde)", marginBottom: 14 }}>Resumo para o cliente</div>
+            <div style={{ font: "600 34px/1.2 var(--font-titulo)", color: "var(--marinho)", marginBottom: 22 }}>Em poucas palavras, é isso.</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 13, overflow: "hidden" }}>
+              {r.resumoParaOCliente.map((par, i) => (
+                <div key={i} style={{ font: "400 13.5px/1.55 var(--font-interface)", color: "var(--texto)", borderLeft: "3px solid var(--verde)", paddingLeft: 16 }}>
+                  {par}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Slide 9 — a recomendação */}
         <div className="slide16 paper" style={{ width: 960, height: 540, background: "linear-gradient(135deg,#0F3D63,#1B72BE)", overflow: "hidden", borderRadius: 4 }}>
           <div style={{ height: "100%", boxSizing: "border-box", padding: "56px 64px", display: "flex", flexDirection: "column", color: "#fff" }}>
             <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--sucesso-fundo)", marginBottom: "auto" }}>A recomendação</div>
@@ -141,7 +239,7 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Slide 6 — próximo passo */}
+        {/* Slide 10 — próximo passo */}
         <div className="slide16 paper" style={{ width: 960, height: 540, background: "#fff", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
           <div style={{ height: "100%", boxSizing: "border-box", padding: "52px 64px", display: "flex", flexDirection: "column" }}>
             <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 12 }}>Próximo passo</div>

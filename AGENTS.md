@@ -191,6 +191,45 @@ na tela) tem que navegar pra rota certa primeiro — nunca chamar `window.print(
 `imprimirComo()`, em `src/lib/imprimir.ts`) numa tela que não é a dona do conteúdo que você quer
 imprimir. Só imprima o que está de fato renderizado na página atual.
 
+## Apresentação — 10 slides (2026-09-03)
+
+Fonte de verdade trocou: `Wizard 1a - Protótipo funcional v3.dc.html` (não
+`Mapa da Proteção 1a+1b - Unificado.dc.html`, que ficou pra trás nesse ponto — mesmo `calc()`,
+apresentação redesenhada). Cada vez que a apresentação precisar mudar de novo, releia esse arquivo
+antes de mexer — o Edgar já pediu isso uma vez explicitamente ("não confie no que já está
+implementado") depois de a tela ter mudado de 6 pra 10 telas sem eu saber.
+
+Ordem das 10 (`src/app/estudo/[id]/apresentacao/page.tsx`): Capa (ganhou uma linha de contexto
+pessoal sob o nome — `r.subtitulo`, já existia em `apresentacao.ts` mas não era renderizada aqui)
+· Ponto de partida · A conta · Panorama/"O que cada parte resolve" (4 categorias) · **Proteção em
+vida** (novo — vitalícia e temporária lado a lado) · **Educação dos filhos** (novo, slide próprio)
+· **Além da morte** (novo — invalidez, DIT e doenças graves, que antes só apareciam na lista
+"Coberturas calculadas" da tela do estudo, nunca na apresentação) · **Resumo para o cliente**
+(novo — ver abaixo) · A recomendação · Próximo passo (QR code + foto, já existia). Mesma paleta e
+componentes de cartão do resto do sistema — nenhuma cor nem fonte nova.
+
+**"Resumo para o cliente" na apresentação é sempre visível, não atrás de botão de gerar IA** —
+diferente da tela do estudo (`src/components/estudo/etapas/Resultado.tsx`, `Resultado`), que
+continua com o "Gerar textos" desabilitado (stub, depende do webhook `/webhook/gerar-texto` que
+ainda não tem tela de configuração — ver a seção "Integrações" mais abaixo). Isso é possível
+porque o texto do cliente **nunca foi gerado por IA de verdade, nem no protótipo**: é
+determinístico, montado só com os números já calculados (`textos(c).cliente` no protótipo,
+`resumoParaOCliente` em `src/lib/apresentacao.ts`, 5 frases, sem chamar webhook nenhum). A
+proposta A4 também passou a usar esse texto como reserva quando `Mapa.resumoParaVoce` (nunca
+escrito por nada hoje) estiver vazio — antes mostrava "Texto ainda não gerado nesta etapa (Etapa
+5)" pro **cliente ler no PDF**, o que é pior que mostrar um texto determinístico razoável.
+`analiseInterna`/"Análise interna" não entra em nada disso — continua nunca aparecendo em saída
+nenhuma, só na tela do corretor (não-negociável).
+
+**Rótulo renomeado, não o identificador**: "Resumo para você" virou "Resumo para o cliente" em
+todo texto visível (glossário, 2026-09-03) — telas, rótulo do anexo de e-mail, README/
+ESPECIFICACAO do handoff. `Mapa.resumoParaVoce` (coluna do banco), `resumoParaVoce` (variável) e
+qualquer outro identificador técnico **continuam com o nome antigo** — o Edgar pediu
+explicitamente pra não mexer nisso. Se precisar adicionar um campo novo pra esse texto no futuro,
+o nome técnico natural seria algo como `resumoParaOCliente` (já é o nome usado em
+`apresentacao.ts` pro campo calculado) — mas não renomeie o que já existe no banco só por
+consistência.
+
 ## Captação pública (Etapa 5) — formulário do lead, agendamento, webhooks
 
 - **Rotas**: `/captacao` (formulário público, `src/app/captacao/`) e `/painel/captacao` (link,

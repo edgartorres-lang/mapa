@@ -45,7 +45,7 @@ Exceções, propositalmente marcadas como placeholder nos arquivos:
   Google Agenda, WhatsApp, e-mail ou IA diretamente.
 - Evolution API para WhatsApp.
 - Google Agenda para os agendamentos.
-- IA (via n8n) para os textos "Resumo para você" e "Análise interna".
+- IA (via n8n) para os textos "Resumo para o cliente" e "Análise interna".
 
 Consequência de arquitetura: toda integração é `POST` para um webhook do n8n e leitura posterior
 de status. O front-end nunca guarda credencial de terceiro.
@@ -349,7 +349,7 @@ O resultado contém as três saídas em tamanho real e imprimíveis:
 - **Proposta**: 3 páginas de 794×1123 (A4 a 96dpi). `@page { size: A4 portrait }`.
 - **E-mail**: corpo de 600px + compositor com destinatário, assunto e o que incluir.
 
-Também: "Resumo para você" (texto do cliente, entra na proposta) e "Análise interna"
+Também: "Resumo para o cliente" (texto do cliente, entra na proposta) e "Análise interna"
 (argumentos de venda, fundo `#FCF3D9`) — **a análise interna nunca sai da tela do corretor**.
 
 ### 7. Celular do Corretor — `Celular do Corretor.dc.html`
@@ -551,7 +551,7 @@ Sete pontos que o desenvolvedor levantou como ambíguos, já respondidos pelo cl
    ou e-mail. Dispare `POST /webhook/esquecer` para cancelar **eventos futuros** na agenda.
    Histórico de WhatsApp na Evolution e eventos passados ficam **fora da V1** — declare essa
    limitação na política de privacidade em vez de prometer o que o sistema não faz.
-7. **Textos da IA travam com o mapa.** "Resumo para você" e "Análise interna" ficam gravados no
+7. **Textos da IA travam com o mapa.** "Resumo para o cliente" e "Análise interna" ficam gravados no
    snapshot. Com o estudo em aberto, regenerar à vontade. Depois de gerar, o texto é aquele — mesmo
    motivo dos números. Exceção: a análise interna pode ganhar um botão de regenerar que grava o
    resultado como **anotação nova**, sem tocar no mapa.

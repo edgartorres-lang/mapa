@@ -167,7 +167,7 @@ export function Resultado({
       <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "22px 24px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 12 }}>
           <div>
-            <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)" }}>Resumo para você</div>
+            <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)" }}>Resumo para o cliente</div>
             <div style={{ font: "400 11.5px var(--font-interface)", color: "var(--texto-terciario)", marginTop: 2 }}>
               Texto do cliente, escrito a partir dos números já calculados. Sai do webhook de IA — Etapa 5, ainda não conectada.
             </div>

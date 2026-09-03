@@ -35,6 +35,27 @@ export function construirApresentacao(dados: EstudoFormulario, c: CalcResultado,
 
   const rodapeLegal = corretor.razaoSocial || `${corretor.corretora ?? "Setor Norte Seguros"} · ${corretor.susep ?? ""}`;
 
+  // Resumo para o cliente (5 frases) — porta fiel de `textos(c).cliente` em
+  // "Wizard 1a - Protótipo funcional v3.dc.html" (~linha 1265). É texto determinístico, gerado
+  // só a partir dos números já calculados — nunca chamou IA nem webhook nenhum, no protótipo ou
+  // aqui. Fica sempre visível na apresentação (slide "Resumo para o cliente"), diferente da tela
+  // do estudo, onde o mesmo rótulo ainda fica atrás do botão "Gerar" (stub da Etapa 5/Ajustes,
+  // não mexido aqui — ver AGENTS.md).
+  const primeiroNomeCliente = primeiroNome(dados.nome) || "Você";
+  const vincTexto = ativos.map((a) => (a === "clt" ? "CLT" : a === "servidor" ? "servidor público" : "autônomo")).join(" e ");
+  const participacaoTexto = `${Math.round(c.participacao * 100)}%`;
+  const resumoParaOCliente = [
+    `${primeiroNomeCliente}, a sua renda de ${brl(c.rendaMensal)} por mês vem de ${vincTexto || "trabalho"} e representa ${participacaoTexto} da renda da casa, que hoje soma ${brl(c.rendaFamiliar)}. Essa participação é o que define o tamanho da proteção: o seguro cobre a fatia que depende de você, não o total da família.`,
+    `A parte vitalícia, de ${brl(c.vitalicia)}, existe porque patrimônio não vira dinheiro no dia seguinte. São ${brl(c.modSucessao)} de custo de transmissão sobre ${brl(c.patrimonioTotal)} em bens, mais um ano da sua renda para a família atravessar o inventário sem vender nada às pressas.`,
+    c.temDep
+      ? `A parte temporária, de ${brl(c.temporaria)}, mantém o padrão de vida por ${dados.prazoManutencao} anos${c.modObjetivos > 0 ? ` e inclui ${brl(c.modObjetivos)} dos projetos que você listou` : ""}. Dela já foram descontados ${brl(c.receitasLiquidaveis)} de patrimônio liquidável, FGTS, INSS, previdência e seguro atual.`
+      : "Sem dependentes financeiros informados, a manutenção de padrão de vida não entra neste estudo.",
+    c.custoEducacaoTotal > 0
+      ? `Os estudos somam ${brl(c.custoEducacaoTotal)} até o fim da formação, o equivalente a ${brl(c.mediaAteFormar)} por mês de média até ${filhos.length > 1 ? "os filhos se formarem" : "a formatura"}. Contratada como pensão por ${c.prazoPensao} anos e ajustada pela sua participação na renda, a mensalidade fica em ${brl(c.pensaoMensal)} — chega quando a mensalidade vence, sem depender de alguém administrar um valor grande num momento difícil.`
+      : "Nenhum custo educacional foi informado, então a pensão de educação não entra neste estudo.",
+    `Além da morte, o estudo dimensiona invalidez em ${brl(c.invalidezAcidente)} por acidente (${brl(c.invalidezDoenca)} por doença), doenças graves em ${brl(c.doencasGraves)} e ${brl(c.dit)} por mês de diária por incapacidade temporária. São eventos que interrompem a renda sem interromper as despesas.`,
+  ];
+
   return {
     nome: dados.nome || "Cliente sem nome",
     subtitulo: [
@@ -115,6 +136,8 @@ export function construirApresentacao(dados: EstudoFormulario, c: CalcResultado,
       { rotulo: "Custo educacional total", valor: brl(c.custoEducacaoTotal) },
       { rotulo: "Receitas liquidáveis abatidas", valor: brl(c.receitasLiquidaveis) },
     ],
+
+    resumoParaOCliente,
 
     dependentes: dependentesTexto,
     slide2Titulo: `${dependentesTexto.length || 1} ${dependentesTexto.length === 1 ? "pessoa vive dessa renda." : "pessoas vivem dessa renda."}`,

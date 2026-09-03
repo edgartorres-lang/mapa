@@ -10,7 +10,7 @@ const ANEXOS_DEF: { k: ChaveAnexo; rotulo: string }[] = [
   { k: "resumo", rotulo: "Resumo no corpo da mensagem" },
   { k: "a4", rotulo: "PDF A4 anexado" },
   { k: "slides", rotulo: "Apresentação 16:9 anexada" },
-  { k: "ia", rotulo: "Resumo para você escrito pela IA" },
+  { k: "ia", rotulo: "Resumo para o cliente escrito pela IA" },
 ];
 
 /**
