@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { carregarKpis, filaPrecisaDeVoce, agruparPorEstagio } from "@/lib/painel-dados";
 import { ESTAGIO_INFO, corDias, corDoEstagio, nomeDoEstagio, textoDias } from "@/lib/funil";
@@ -6,23 +7,22 @@ import { brl, brlCurto } from "@/lib/formato";
 import { ModalExclusao } from "@/components/painel/ModalExclusao";
 import { excluirHistoricoCompleto } from "@/app/painel/clientes/[id]/actions";
 
-/**
- * Porta de "Painel do Corretor.dc.html" (tela Dashboard). O cartão do link de captação (3
- * estatísticas) não entra — é Etapa 5, ainda não construída; um aviso simples fica no lugar.
- */
+/** Porta de "Painel do Corretor.dc.html" (tela Dashboard). */
 export default async function PaginaDashboard() {
   const corretor = await obterCorretorAtual();
-  const { leadsDoMes, capitalNoFunil, fechadosDoMes, parados120, resumo } = await carregarKpis(corretor.id);
+  const fatoresDb = await prisma.fatoresCalculo.findUniqueOrThrow({ where: { corretorId: corretor.id } });
+  const diasRetencao = fatoresDb.diasRetencao;
+  const { leadsDoMes, capitalNoFunil, fechadosDoMes, parados120, resumo } = await carregarKpis(corretor.id, diasRetencao);
   const fila = filaPrecisaDeVoce(resumo).slice(0, 8);
   const grupos = agruparPorEstagio(resumo);
   const totalFunil = Object.values(grupos).reduce((a, g) => a + g.length, 0);
-  const avisos120 = resumo.filter((r) => r.diasParado >= 120 && r.cliente.estagioFunil !== "fechado");
+  const avisos120 = resumo.filter((r) => r.diasParado >= diasRetencao && r.cliente.estagioFunil !== "fechado");
 
   const kpis = [
     { rotulo: "Leads do mês", valor: String(leadsDoMes) },
     { rotulo: "Capital no funil", valor: brlCurto(capitalNoFunil) },
     { rotulo: "Fechados no mês", valor: String(fechadosDoMes) },
-    { rotulo: "Parados 120+ dias", valor: String(parados120) },
+    { rotulo: `Parados ${diasRetencao}+ dias`, valor: String(parados120) },
   ];
 
   return (
@@ -42,7 +42,7 @@ export default async function PaginaDashboard() {
       {avisos120.length > 0 && (
         <div style={{ background: "var(--nota-fundo)", border: "1px solid var(--nota-borda)", borderRadius: 12, padding: "18px 20px", marginBottom: 20 }}>
           <div style={{ font: "700 12.5px var(--font-interface)", color: "var(--nota-texto)", marginBottom: 10 }}>
-            {avisos120.length} {avisos120.length === 1 ? "mapa" : "mapas"} sem movimento há mais de 120 dias
+            {avisos120.length} {avisos120.length === 1 ? "mapa" : "mapas"} sem movimento há mais de {diasRetencao} dias
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {avisos120.map((r) => (
@@ -62,7 +62,7 @@ export default async function PaginaDashboard() {
                     <ModalExclusao
                       rotuloBotao="Excluir mapa"
                       titulo={`Excluir o histórico de ${r.cliente.nome}?`}
-                      subtitulo={`Autorização da fila dos 120 dias — ${textoDias(r.diasParado)} sem movimento, mapa atual de ${brl(r.mapaAtual.capitalAProteger)}.`}
+                      subtitulo={`Autorização da fila dos ${diasRetencao} dias — ${textoDias(r.diasParado)} sem movimento, mapa atual de ${brl(r.mapaAtual.capitalAProteger)}.`}
                       vaiEmbora={[
                         `Todos os mapas gerados dela (${r.quantidadeMapas}) e os estudos que os geraram, com todas as respostas.`,
                         "As apresentações e propostas geradas a partir desses mapas.",

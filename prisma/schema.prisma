@@ -55,6 +55,16 @@ model Corretor {
   integracaoEmailAtiva    Boolean @default(false) @map("integracao_email_ativa")
   integracaoIaAtiva       Boolean @default(false) @map("integracao_ia_ativa")
 
+  // Preferências de agendamento — Ajustes → Horários sugeridos (Etapa 6). `pulaFimDeSemana` e
+  // `ofereceCampoAberto` mudam comportamento de verdade (ver src/lib/horarios-sugeridos.ts e
+  // FormularioLead.tsx). `aceitaHorarioOcupado` é só documentação por enquanto — o app nunca
+  // consultou a agenda antes de oferecer um horário (não existe checagem de conflito, com ou sem
+  // esta chave); fica gravado para quando existir integração real com o Google Agenda via n8n.
+  // Ver AGENTS.md, "Ajustes (Etapa 6)".
+  ofereceCampoAberto   Boolean @default(true) @map("oferece_campo_aberto")
+  aceitaHorarioOcupado Boolean @default(true) @map("aceita_horario_ocupado")
+  pulaFimDeSemana      Boolean @default(false) @map("pula_fim_de_semana")
+
   criadoEm     DateTime @default(now()) @map("criado_em")
   atualizadoEm DateTime @updatedAt @map("atualizado_em")
 

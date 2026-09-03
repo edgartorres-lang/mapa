@@ -23,3 +23,7 @@ export type LgpdStatus = (typeof LGPD_STATUS)[number];
 
 export const STATUS_ESTUDO = ["aberto", "gerado"] as const;
 export type StatusEstudo = (typeof STATUS_ESTUDO)[number];
+
+/** Canal do pedido de exclusão LGPD (ExclusaoLgpd.canal) — Ajustes → LGPD e retenção. */
+export const CANAIS_LGPD = ["whatsapp", "email", "verbal"] as const;
+export type CanalLgpd = (typeof CANAIS_LGPD)[number];

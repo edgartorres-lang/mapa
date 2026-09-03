@@ -131,7 +131,7 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
     const horarios = await prisma.horarioSugerido.findMany({ where: { corretorId: corretor.id }, orderBy: { ordem: "asc" } });
     const h = horarios[escolha.ordem];
     if (!h) throw new Error("Horário sugerido não encontrado.");
-    dataHora = calcularDataHorario(h);
+    dataHora = calcularDataHorario(h, new Date(), corretor.pulaFimDeSemana);
     origem = `horario${escolha.ordem + 1}`;
   } else {
     textoLivre = escolha.texto;

@@ -2,14 +2,26 @@ import type { HorarioSugerido } from "@prisma/client";
 
 const NOME_DIA_SEMANA = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
 
-/** Calcula a data/hora concreta de um horário sugerido a partir de "hoje". Porta da regra em
+/**
+ * Calcula a data/hora concreta de um horário sugerido a partir de "hoje". Porta da regra em
  * `Captação e Agendamento.dc.html` — tarde de amanhã, manhã e tarde de depois de amanhã (dois no
- * mesmo dia, de propósito, ver README "Agendamento"). `diaRelativo` vem de Ajustes → Horários
- * sugeridos (Etapa 6, ainda não editável — hoje só os 3 valores semeados em prisma/seed.ts). */
-export function calcularDataHorario(h: Pick<HorarioSugerido, "diaRelativo" | "hora">, hoje: Date = new Date()): Date {
+ * mesmo dia, de propósito, ver README "Agendamento"). `diaRelativo`/hora/duração são editáveis em
+ * Ajustes → Horários sugeridos desde a Etapa 6 (`src/app/painel/ajustes/actions.ts`).
+ *
+ * `pularFimDeSemana`: Corretor.pulaFimDeSemana (Ajustes → Horários sugeridos). Se a data cair em
+ * sábado ou domingo, empurra pra segunda-feira seguinte, no mesmo horário — regra real, não só
+ * documentada (ao contrário de `aceitaHorarioOcupado`, que não tem checagem de agenda pra aplicar
+ * ainda). Usado tanto na prévia (FormularioLead.tsx, client) quanto na gravação de verdade
+ * (confirmarAgendamento, server) — os dois precisam concordar na mesma data.
+ */
+export function calcularDataHorario(h: Pick<HorarioSugerido, "diaRelativo" | "hora">, hoje: Date = new Date(), pularFimDeSemana = false): Date {
   const dias = h.diaRelativo === "amanha" ? 1 : h.diaRelativo === "depois_de_amanha" ? 2 : h.diaRelativo === "em_tres_dias" ? 3 : 1;
   const [hora, minuto] = h.hora.split(":").map(Number);
   const data = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + dias, hora, minuto || 0, 0, 0);
+  if (pularFimDeSemana) {
+    if (data.getDay() === 6) data.setDate(data.getDate() + 2); // sábado → segunda
+    else if (data.getDay() === 0) data.setDate(data.getDate() + 1); // domingo → segunda
+  }
   return data;
 }
 

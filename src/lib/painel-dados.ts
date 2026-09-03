@@ -45,9 +45,15 @@ export async function carregarClientesComResumo(corretorId: string) {
 
 export type ClienteComResumo = Awaited<ReturnType<typeof carregarClientesComResumo>>[number];
 
-/** KPIs do dashboard. "Leads do mês" e "fechados" contam o mês corrente; "capital no funil" soma
- * o mapa atual de quem está em aberto no funil (nem fechado, nem perdido, nem fora do funil). */
-export async function carregarKpis(corretorId: string) {
+/**
+ * KPIs do dashboard. "Leads do mês" e "fechados" contam o mês corrente; "capital no funil" soma
+ * o mapa atual de quem está em aberto no funil (nem fechado, nem perdido, nem fora do funil).
+ *
+ * `diasRetencao`: limiar da fila de limpeza (Ajustes → LGPD e retenção, `FatoresCalculo.
+ * diasRetencao`, editável desde a Etapa 6). Default 120 só como rede de segurança — quem chama
+ * isto deveria sempre passar o valor de verdade do corretor; ver `PaginaDashboard`.
+ */
+export async function carregarKpis(corretorId: string, diasRetencao = 120) {
   const resumo = await carregarClientesComResumo(corretorId);
   const agora = new Date();
   const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
@@ -57,7 +63,7 @@ export async function carregarKpis(corretorId: string) {
   const capitalNoFunil = resumo
     .filter((r) => r.cliente.estagioFunil && !["fechado", "perdido"].includes(r.cliente.estagioFunil))
     .reduce((soma, r) => soma + (r.mapaAtual?.capitalAProteger ?? 0), 0);
-  const parados120 = resumo.filter((r) => r.diasParado >= 120 && r.cliente.estagioFunil !== "fechado").length;
+  const parados120 = resumo.filter((r) => r.diasParado >= diasRetencao && r.cliente.estagioFunil !== "fechado").length;
 
   return { leadsDoMes, fechadosDoMes, capitalNoFunil, parados120, resumo };
 }

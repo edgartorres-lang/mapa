@@ -13,7 +13,9 @@ import type { FatoresCalculo } from "./calc";
  * schema e na UI de Ajustes, mas hoje não mudam nenhum número. Avisar antes de a tela deixar
  * alguém achar que editá-los muda o resultado.
  */
-export function paraFatoresCalc(f: FatoresCalculoDb): FatoresCalculo {
+export function paraFatoresCalc(
+  f: Pick<FatoresCalculoDb, "fatorAutonomo" | "fatorPensaoServidor" | "anosInvalidez" | "fatorDoencasGraves" | "pctDit">,
+): FatoresCalculo {
   return {
     fatorAutonomo: f.fatorAutonomo,
     fatorPensaoServidor: f.fatorPensaoServidor,

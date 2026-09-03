@@ -14,7 +14,14 @@ export default async function PaginaCaptacao({ searchParams }: { searchParams: P
 
   return (
     <FormularioLead
-      corretor={{ nome: corretor.nome, corretora: corretor.corretora, susep: corretor.susep, whatsapp: corretor.whatsapp }}
+      corretor={{
+        nome: corretor.nome,
+        corretora: corretor.corretora,
+        susep: corretor.susep,
+        whatsapp: corretor.whatsapp,
+        ofereceCampoAberto: corretor.ofereceCampoAberto,
+        pulaFimDeSemana: corretor.pulaFimDeSemana,
+      }}
       horarios={horarios.map((h) => ({ diaRelativo: h.diaRelativo, hora: h.hora }))}
       utmCampanha={utmCampanha ?? null}
     />

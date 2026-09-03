@@ -38,6 +38,8 @@ interface CorretorPublico {
   corretora: string | null;
   susep: string | null;
   whatsapp: string | null;
+  ofereceCampoAberto: boolean;
+  pulaFimDeSemana: boolean;
 }
 interface HorarioPublico {
   diaRelativo: string;
@@ -192,7 +194,7 @@ export function FormularioLead({ corretor, horarios, utmCampanha }: { corretor: 
   }
 
   const slots = horarios.map((h) => {
-    const d = calcularDataHorario(h);
+    const d = calcularDataHorario(h, new Date(), corretor.pulaFimDeSemana);
     return formatarDiaHorario(d);
   });
 
@@ -247,6 +249,7 @@ export function FormularioLead({ corretor, horarios, utmCampanha }: { corretor: 
           <TelaAgendar
             nome={a.nome}
             slots={slots}
+            ofereceCampoAberto={corretor.ofereceCampoAberto}
             slotEscolhido={slotEscolhido}
             outra={outra}
             outraTexto={outraTexto}
@@ -961,6 +964,7 @@ function TelaRevisao({ a, onCorrigir, onEnviar, enviando }: { a: LeadRespostas; 
 function TelaAgendar({
   nome,
   slots,
+  ofereceCampoAberto,
   slotEscolhido,
   outra,
   outraTexto,
@@ -973,6 +977,7 @@ function TelaAgendar({
 }: {
   nome: string;
   slots: { dia: string; hora: string }[];
+  ofereceCampoAberto: boolean;
   slotEscolhido: number | null;
   outra: boolean;
   outraTexto: string;
@@ -1006,14 +1011,16 @@ function TelaAgendar({
               </button>
             );
           })}
-          <button
-            type="button"
-            onClick={onPedirOutra}
-            style={{ cursor: "pointer", borderRadius: 11, padding: 14, textAlign: "left", background: outra ? "var(--azul-claro-fundo)" : "#fff", border: `1.5px dashed ${outra ? "var(--azul)" : "var(--azul-claro-borda)"}`, color: outra ? "var(--marinho)" : "var(--azul)", font: "600 13.5px var(--font-interface)" }}
-          >
-            Nenhum desses — quero sugerir outro dia
-          </button>
-          {outra && (
+          {ofereceCampoAberto && (
+            <button
+              type="button"
+              onClick={onPedirOutra}
+              style={{ cursor: "pointer", borderRadius: 11, padding: 14, textAlign: "left", background: outra ? "var(--azul-claro-fundo)" : "#fff", border: `1.5px dashed ${outra ? "var(--azul)" : "var(--azul-claro-borda)"}`, color: outra ? "var(--marinho)" : "var(--azul)", font: "600 13.5px var(--font-interface)" }}
+            >
+              Nenhum desses — quero sugerir outro dia
+            </button>
+          )}
+          {outra && ofereceCampoAberto && (
             <input
               type="text"
               value={outraTexto}

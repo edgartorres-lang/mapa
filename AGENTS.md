@@ -199,12 +199,90 @@ imprimir. Só imprima o que está de fato renderizado na página atual.
   - `corretor.webhookAgendar`: ao confirmar horário fixo ou sugerido (não no canal WhatsApp, que
     não agenda nada) — `{ nome, contato, data, hora, duracao:45, sugestaoLivre }`. Nunca leva
     valor de cobertura (não-negociável).
-  - As três URLs ainda não têm tela pra configurar (Ajustes/Integrações é Etapa 6) — hoje ficam
-    `null` em todo `Corretor`, então todo disparo cai no branch "não configurado" e só loga.
+  - As três URLs ainda não têm tela pra configurar — a tela "Integrações" mora em
+    `Acesso e Identidade.dc.html` (tela 6), um protótipo separado de `Ajustes.dc.html`, e nunca
+    esteve dentro das 6 etapas combinadas com o Edgar (a Etapa 6 é só os 4 blocos do próprio
+    `Ajustes.dc.html`, construídos agora). Até essa tela existir, as seis URLs de webhook ficam
+    `null` em todo `Corretor`, então todo disparo cai no branch "não configurado" e só loga —
+    sinalizado ao Edgar ao fechar a Etapa 6.
 - **Canal "whatsapp" não cria `Agendamento`**: pedir retorno por WhatsApp registra o evento e
   dispara `webhookNotificar`, mas não tem hora nem compromisso — não há linha em `Agendamento`
   pra esse caso, só para os canais "horário fixo" e "sugerido" (`confirmarAgendamento` em
   `src/app/captacao/actions.ts`).
+
+## Ajustes (Etapa 6) — fatores de cálculo, horários, LGPD, acesso
+
+Porta dos 4 blocos de `Ajustes.dc.html` — `src/app/painel/ajustes/page.tsx` (uma rota só,
+`?aba=1..4`, sem JS pra trocar de aba) + `src/app/painel/ajustes/actions.ts` + componentes em
+`src/components/painel/ajustes/`.
+
+- **Fatores de cálculo (aba 1)**: cada campo do formulário na verdade vive numa de três camadas
+  bem diferentes — catalogadas em `src/lib/fatores-ajustes.ts` (`GRUPOS_FATORES`, campo `camada`),
+  não é decisão de UI, é o que `calc.ts` de fato faz:
+  - **"live"** (`fatorPensaoServidor`, `fatorAutonomo`, `anosInvalidez`, `pctDit`,
+    `fatorDoencasGraves`): `calc()` lê direto do corretor a cada render — muda um estudo em
+    aberto assim que a tela dele recarregar, sem duplicar nada.
+  - **"padrao"** (`pctCustoTransmissao`, `prazoManutencaoAnos`, `tetoMultiplicador`,
+    `prazoPensaoAnosPadrao`): via `padroesPorEstudo()`, só viram o valor inicial de estudos
+    **criados depois de salvar**. Estudos já abertos guardaram a própria cópia em `Estudo.dados`
+    no momento em que nasceram e não mudam sozinhos — o racional já permite ajustar caso a caso
+    dentro do estudo. Fácil de ler errado como "live" só de olhar a tela do protótipo; não é.
+  - **"inerte"** (`mesesVitalicia`, `idadeIndependencia`, `pctInvalidezDoenca`,
+    `pctRendaInvalidez`): existem no schema e na tela por fidelidade ao design, mas `calc.ts`
+    nunca leu esses valores — conferido de novo contra o `calc()` do protótipo mestre
+    (`Mapa da Proteção 1a+1b - Unificado.dc.html`, ~linha 1101, que só expõe `anosInvalidez`
+    entre esses cinco). Editar esses quatro campos não muda nenhum número hoje — a tela mostra
+    uma nota amarela em cada um, pra não deixar o Edgar (ou uma sessão futura) achar que mudou.
+    Já era um comportamento parcialmente sinalizado em `src/lib/fatores-calculo.ts` desde a
+    Etapa 5 (só `pctInvalidezDoenca`/`pctRendaInvalidez`); a Etapa 6 achou mais dois campos no
+    mesmo caso ao conferir contra o `calc()` de verdade.
+  - **"travado"** (`fatorClt`, `fatorServidor`): input desabilitado, sempre 1,00 — decisão de
+    design de propósito (README), não limitação.
+  - A "Simulação" ao lado escolhe **um** estudo em aberto de verdade pra mostrar o efeito antes
+    de salvar — prefere um que já tenha renda preenchida (`temRenda` em `AbaFatores`), senão
+    mostraria zero em tudo pra qualquer lead recém-chegado sem nada respondido ainda. Compara o
+    valor com os fatores em edição contra o valor com os fatores salvos, não contra um mapa
+    congelado (não tem por que existir um mapa gerado pra simular).
+- **Horários sugeridos (aba 2)**: os três slots (`HorarioSugerido`) e três chaves em `Corretor`.
+  `ofereceCampoAberto` e `pulaFimDeSemana` são reais — mudam `FormularioLead.tsx` (esconde/mostra
+  "Nenhum desses") e `calcularDataHorario()` (empurra sábado/domingo pra segunda,
+  `src/lib/horarios-sugeridos.ts`, testado em `horarios-sugeridos.test.ts`) tanto na prévia
+  (client) quanto na gravação de verdade (`confirmarAgendamento`, server) — os dois têm que usar
+  a mesma função com o mesmo flag, senão a prévia mente. `aceitaHorarioOcupado` é só documentação
+  por enquanto: fica gravado no banco, mas não há checagem de agenda nenhuma pra ligar/desligar —
+  o app nunca consultou o Google Agenda antes de oferecer um horário, com ou sem essa chave (ver
+  o cartão "Conflito não bloqueia", que já descrevia esse comportamento antes da Etapa 6).
+- **LGPD e retenção (aba 3)**:
+  - Consentimentos: lê `Cliente` direto, sem tabela própria. "exportar CSV" é uma Route Handler
+    (`src/app/painel/ajustes/exportar-consentimentos/route.ts`) — 4 colunas, sem biblioteca.
+  - `diasRetencao` mora em `FatoresCalculo` (não em `Corretor`) só porque a linha já existe
+    1:1 por corretor. `carregarKpis`/`AbaLgpd` agora recebem esse número em vez do `120`
+    hardcoded que existia desde a Etapa 3 — `avisos120` no dashboard (`src/app/painel/dashboard/
+    page.tsx`) continua com o nome antigo (não vale a pena renomear só por causa disso), mas o
+    valor comparado já vem de `FatoresCalculo.diasRetencao`.
+  - **Pedido de exclusão LGPD** (`registrarExclusaoLgpd`, `src/app/painel/ajustes/actions.ts`) é
+    a ação mais destrutiva do app inteiro: `prisma.cliente.delete` de verdade (cascade leva
+    estudos/mapas/agendamentos/eventos/notas), sobra só `ExclusaoLgpd` (4 campos, sem nome/
+    telefone/e-mail — decisão 6 do README). Antes de apagar, junta `googleEventId` dos
+    agendamentos futuros do cliente e manda no payload de `webhookEsquecer`, pro n8n cancelar na
+    agenda de verdade (o app nunca fala com o Google Agenda direto). Modal de confirmação em dois
+    passos, nome do cliente escrito por extenso — é fácil de mais pra ser um clique só.
+  - **Achado real durante o teste desta etapa**: o campo de dias de retenção só tinha
+    `onBlur` pra salvar (sem botão). No ambiente de teste (Browser pane), cliques e Tab reais não
+    disparavam o evento de blur do input de jeito nenhum (confirmado com `elementFromPoint` e um
+    listener nativo direto no elemento — não é reconciliação do React, o navegador simplesmente
+    não emitiu o evento nesse contexto). Não dava pra garantir que isso não aconteceria também
+    num navegador de verdade em alguma situação (username autocomplete, extensão, etc.), e todo
+    o resto da tela usa botão explícito — então adicionei um "Salvar" visível (mais Enter) em vez
+    de confiar só no blur. Guarde esse padrão: **campo que salva sozinho sempre precisa de uma
+    saída explícita também**, não só um efeito colateral de perder o foco.
+- **Acesso e senha (aba 4)**: **referência, não funcional** — os 3 passos de recuperação de senha
+  e as "Regras do acesso" são os mesmos textos estáticos do protótipo, sem formulário de verdade
+  por trás. Não tem login real no app hoje (`obterCorretorAtual()` em `src/lib/corretor-atual.ts`
+  segue sendo o substituto — só busca "o corretor", sem senha nem sessão). A tela de login/senha
+  de verdade vive em `Acesso e Identidade.dc.html`, que **nunca esteve nas 6 etapas** combinadas
+  com o Edgar — é trabalho novo, não uma etapa esquecida, e só deveria entrar em pauta quando (se)
+  o produto for abrir para mais de um corretor.
 
 ## Notas operacionais
 
