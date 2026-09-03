@@ -226,8 +226,10 @@ imprimir. Só imprima o que está de fato renderizado na página atual.
   - O formulário público não pergunta profissão, idade de aposentadoria nem sexo — ficam no
     padrão de `ESTUDO_VAZIO`.
   - Reserva do INSS (`res.inss`) não é perguntada (só FGTS/previdência/seguro) — fica 0.
-  - Bens de patrimônio (`patr`) sempre viram `tipo:"Outro"`, `liquidavel:false` — o formulário não
-    pergunta essa distinção.
+  - Bens de patrimônio (`patr`) sempre viram `tipo:"Outro"` (o formulário não pergunta o tipo do
+    bem). `liquidavel` é real desde 2026-09-03 — cada item tem um toggle "Consigo vender rápido,
+    numa emergência" (é a definição de bem liquidável, em linguagem de lead — ver o `help` da
+    pergunta em `PERGUNTAS_LEAD`).
   - Prazo em texto ("até concluir os estudos", "por tempo indeterminado") mapeia pra `0`
     (indeterminado em `calc.ts`) — é aproximação, não pergunta símbolo-a-símbolo.
 - **Webhooks disparados** (`src/lib/webhooks.ts`, `dispararWebhook` — best-effort, nunca bloqueia

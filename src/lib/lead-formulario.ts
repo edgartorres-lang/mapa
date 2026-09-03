@@ -4,9 +4,12 @@ import { digitosParaInteiro } from "./formato";
 
 /**
  * Formulário público do lead — porta de `Link do Cliente - Protótipo.dc.html`. Coleta menos do
- * que o estudo completo do corretor (sem profissão, sem pós-graduação, sem distinguir bem
- * liquidável, sem INSS separado — ver ESPECIFICACAO.md/README do handoff). O corretor completa o
- * resto na reunião. Isso é intencional (formulário de 16 perguntas, não 30), não um bug.
+ * que o estudo completo do corretor (sem profissão, sem pós-graduação, sem INSS separado — ver
+ * ESPECIFICACAO.md/README do handoff). O corretor completa o resto na reunião. Isso é intencional
+ * (formulário de 16 perguntas, não 30), não um bug. Bem liquidável passou a ser perguntado aqui
+ * (2026-09-03, a pedido do Edgar) — antes o formulário público não distinguia, e todo item de
+ * patrimônio virava "não liquidável" na conta, mesmo sendo, por exemplo, uma reserva em
+ * aplicação. Ver `mapearLeadParaEstudo`.
  */
 
 export const VINCULOS_LEAD = [
@@ -35,7 +38,7 @@ export interface LeadRespostas {
   estudos: { on: boolean | null; pre: string; fund: string; medio: string; sup: string };
   extras: { desc: string; valor: string; prazo: string }[];
   rendas: { desc: string; valor: string }[]; // terceiros permanentes
-  patr: { desc: string; valor: string }[]; // patrimônio
+  patr: { desc: string; valor: string; liquidavel: boolean }[]; // patrimônio
   res: { fgts: string; prev: string; seg: string };
   cenario: string;
   obs: string;
@@ -82,7 +85,13 @@ export const PERGUNTAS_LEAD: PerguntaLead[] = [
   { key: "estudos", grupo: "Família", label: "Vocês pagam escola ou faculdade?", help: "Se sim, informe o valor de um filho só. Se dois estiverem na mesma fase, eu multiplico aqui.", tipo: "phases", cond: (a) => (a.deps || []).length > 0 },
   { key: "extras", grupo: "Família", label: "Tem outras despesas de estudo que você quer incluir?", help: "Inglês, esporte, música, intercâmbio, cursinho. Opcional — só o que você quiser que entre na conta.", tipo: "extras", cond: (a) => (a.deps || []).length > 0 },
   { key: "rendas", grupo: "Renda", label: "Entra alguma renda todo mês sem depender do seu trabalho?", help: "Aluguel, dividendos, sociedade. Continua entrando mesmo se você parar.", tipo: "items" },
-  { key: "patr", grupo: "Patrimônio", label: "O que a família tem hoje de patrimônio?", help: "Imóveis, veículos, aplicações. Valor aproximado de cada um.", tipo: "items" },
+  {
+    key: "patr",
+    grupo: "Patrimônio",
+    label: "O que a família tem hoje de patrimônio?",
+    help: "Imóveis, veículos, aplicações. Valor aproximado de cada um. Marque também se é um bem liquidável — ou seja, algo que a família consegue vender rápido numa emergência financeira.",
+    tipo: "items",
+  },
   { key: "res", grupo: "Reservas", label: "Vocês já têm alguma reserva guardada?", help: "Isso reduz o que falta proteger — vale informar.", tipo: "group" },
   { key: "cenario", grupo: "Cenário", label: "Se você ficasse um ano sem poder trabalhar, quem sustentaria a casa?", help: "Escolha a opção mais próxima da sua realidade.", tipo: "choice", opts: ["Ninguém — a renda é toda minha", "Meu cônjuge, em parte", "Temos reservas para um tempo", "Não sei dizer"] },
   { key: "obs", grupo: "Para terminar", label: "Quer deixar alguma observação para o Edgar?", help: "Opcional. Pode seguir sem escrever nada.", tipo: "note" },
@@ -143,7 +152,7 @@ export function mapearLeadParaEstudo(a: LeadRespostas): EstudoFormulario {
     planoEdu: a.estudos?.on === true,
     edu: { pre: digitosParaInteiro(a.estudos?.pre), fund: digitosParaInteiro(a.estudos?.fund), medio: digitosParaInteiro(a.estudos?.medio), sup: digitosParaInteiro(a.estudos?.sup), pos: 0 },
     extras: (a.extras || []).filter((x) => x.desc || x.valor).map((x) => ({ nome: x.desc, valor: digitosParaInteiro(x.valor), prazo: prazoLeadParaNumero(x.prazo || "") })),
-    bens: (a.patr || []).filter((p) => p.desc || p.valor).map((p) => ({ desc: p.desc, tipo: "Outro", valor: digitosParaInteiro(p.valor), liquidavel: false })),
+    bens: (a.patr || []).filter((p) => p.desc || p.valor).map((p) => ({ desc: p.desc, tipo: "Outro", valor: digitosParaInteiro(p.valor), liquidavel: !!p.liquidavel })),
     fgts: digitosParaInteiro(a.res?.fgts),
     prevPrivada: digitosParaInteiro(a.res?.prev),
     seguroAtual: digitosParaInteiro(a.res?.seg),

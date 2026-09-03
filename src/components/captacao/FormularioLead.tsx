@@ -719,52 +719,98 @@ function CampoPergunta({
   }
 
   if (q.tipo === "items") {
-    const lista = a[q.key] as { desc: string; valor: string }[];
+    const ehPatrimonio = q.key === "patr";
+    const lista = a[q.key] as { desc: string; valor: string; liquidavel?: boolean }[];
     const phDesc = q.key === "rendas" ? "Ex: aluguel do apartamento" : "Ex: casa própria";
     const phValor = q.key === "rendas" ? "Valor por mês" : "Valor aproximado";
     return (
       <div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {lista.map((it, idx) => (
-            <div key={idx} style={{ display: "flex", gap: 8 }}>
-              <input
-                type="text"
-                value={it.desc}
-                onChange={(e) => {
-                  const l = lista.slice();
-                  l[idx] = { ...l[idx], desc: e.target.value };
-                  setCampo(q.key, l as LeadRespostas[typeof q.key]);
-                }}
-                placeholder={phDesc}
-                style={{ flex: 1, boxSizing: "border-box", padding: 12, border: "1.5px solid var(--borda)", borderRadius: 10, font: "500 14px var(--font-interface)" }}
-              />
-              <input
-                type="text"
-                inputMode="numeric"
-                value={it.valor}
-                onChange={(e) => {
-                  const l = lista.slice();
-                  l[idx] = { ...l[idx], valor: formatarDinheiro(e.target.value) };
-                  setCampo(q.key, l as LeadRespostas[typeof q.key]);
-                }}
-                placeholder={phValor}
-                style={{ width: 120, boxSizing: "border-box", padding: 12, border: "1.5px solid var(--borda)", borderRadius: 10, font: "600 14px var(--font-interface)", color: "var(--marinho)" }}
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const l = lista.slice();
-                  l.splice(idx, 1);
-                  setCampo(q.key, l as LeadRespostas[typeof q.key]);
-                }}
-                style={{ width: 38, border: "1.5px solid var(--borda)", borderRadius: 9, color: "var(--alerta-texto)", background: "#fff", cursor: "pointer" }}
-              >
-                ✕
-              </button>
+            <div key={idx} style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  type="text"
+                  value={it.desc}
+                  onChange={(e) => {
+                    const l = lista.slice();
+                    l[idx] = { ...l[idx], desc: e.target.value };
+                    setCampo(q.key, l as LeadRespostas[typeof q.key]);
+                  }}
+                  placeholder={phDesc}
+                  style={{ flex: 1, boxSizing: "border-box", padding: 12, border: "1.5px solid var(--borda)", borderRadius: 10, font: "500 14px var(--font-interface)" }}
+                />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={it.valor}
+                  onChange={(e) => {
+                    const l = lista.slice();
+                    l[idx] = { ...l[idx], valor: formatarDinheiro(e.target.value) };
+                    setCampo(q.key, l as LeadRespostas[typeof q.key]);
+                  }}
+                  placeholder={phValor}
+                  style={{ width: 120, boxSizing: "border-box", padding: 12, border: "1.5px solid var(--borda)", borderRadius: 10, font: "600 14px var(--font-interface)", color: "var(--marinho)" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const l = lista.slice();
+                    l.splice(idx, 1);
+                    setCampo(q.key, l as LeadRespostas[typeof q.key]);
+                  }}
+                  style={{ width: 38, border: "1.5px solid var(--borda)", borderRadius: 9, color: "var(--alerta-texto)", background: "#fff", cursor: "pointer" }}
+                >
+                  ✕
+                </button>
+              </div>
+              {ehPatrimonio && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const l = lista.slice();
+                    l[idx] = { ...l[idx], liquidavel: !l[idx].liquidavel };
+                    setCampo(q.key, l as LeadRespostas[typeof q.key]);
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    alignSelf: "flex-start",
+                    padding: "7px 12px",
+                    borderRadius: 999,
+                    cursor: "pointer",
+                    border: `1.5px solid ${it.liquidavel ? "var(--verde)" : "var(--borda)"}`,
+                    background: it.liquidavel ? "var(--sucesso-fundo)" : "#fff",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 15,
+                      height: 15,
+                      flex: "none",
+                      borderRadius: 4,
+                      display: "grid",
+                      placeItems: "center",
+                      fontSize: 9,
+                      color: "#fff",
+                      background: it.liquidavel ? "var(--verde)" : "transparent",
+                      border: `1.5px solid ${it.liquidavel ? "var(--verde)" : "var(--cinza-inativo)"}`,
+                    }}
+                  >
+                    {it.liquidavel ? "✓" : ""}
+                  </span>
+                  <span style={{ font: "500 11.5px var(--font-interface)", color: "var(--texto)" }}>Consigo vender rápido, numa emergência</span>
+                </button>
+              )}
             </div>
           ))}
         </div>
-        <button type="button" onClick={() => setCampo(q.key, lista.concat([{ desc: "", valor: "" }]) as LeadRespostas[typeof q.key])} style={{ ...estiloBotaoAdicionar, marginTop: 12 }}>
+        <button
+          type="button"
+          onClick={() => setCampo(q.key, lista.concat([ehPatrimonio ? { desc: "", valor: "", liquidavel: false } : { desc: "", valor: "" }]) as LeadRespostas[typeof q.key])}
+          style={{ ...estiloBotaoAdicionar, marginTop: 12 }}
+        >
           {q.key === "rendas" ? "+ adicionar renda" : "+ adicionar item"}
         </button>
       </div>
