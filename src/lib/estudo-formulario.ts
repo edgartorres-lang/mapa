@@ -59,6 +59,31 @@ export const ESTUDO_VAZIO: EstudoFormulario = {
   anexos: { resumo: true, a4: true, slides: false, ia: false },
 };
 
+/**
+ * Normaliza `Estudo.dados` (JSON cru do banco) pra um `EstudoFormulario` completo, preenchendo
+ * qualquer campo ausente com o padrão de `ESTUDO_VAZIO` — inclusive dentro de `vinculos`/`edu`/
+ * `anexos`, que são objetos aninhados.
+ *
+ * Rede de segurança, não o caminho normal: todo estudo criado pela aplicação (`criarEstudoNovo`,
+ * `enviarLead`) já nasce com o formato completo. Existe por causa de dados legados/semeados com
+ * `dados` incompleto ou `{}` (visto de verdade: um cliente de teste da Etapa 1 com `dados: {}`
+ * quebrava `calc()` — "Cannot read properties of undefined (reading 'clt')" — tanto ao abrir o
+ * estudo quanto, pior, ao **duplicar** um mapa gerado a partir dele, porque `duplicarEstudo`
+ * copiava o JSON cru sem validar o formato). Use em qualquer lugar que leia `estudo.dados` do
+ * banco antes de passar pra `calc()`/`EstudoShell`/`duplicarEstudo` — nunca faça o cast direto
+ * (`as unknown as EstudoFormulario`) de novo.
+ */
+export function paraEstudoFormulario(bruto: unknown): EstudoFormulario {
+  const d = (bruto && typeof bruto === "object" ? bruto : {}) as Partial<EstudoFormulario>;
+  return {
+    ...ESTUDO_VAZIO,
+    ...d,
+    vinculos: { ...ESTUDO_VAZIO.vinculos, ...(d.vinculos ?? {}) },
+    edu: { ...ESTUDO_VAZIO.edu, ...(d.edu ?? {}) },
+    anexos: { ...ESTUDO_VAZIO.anexos, ...(d.anexos ?? {}) },
+  };
+}
+
 export const ESTADOS_CIVIS = ["Solteiro(a)", "Casado(a)", "União estável", "Divorciado(a)", "Viúvo(a)"] as const;
 export const RELACOES_DEPENDENTE = ["Filho(a)", "Cônjuge", "Pai/Mãe", "Outro"] as const;
 export const TIPOS_BEM = ["Imóvel", "Veículo", "Investimento", "Empresa", "Outro"] as const;

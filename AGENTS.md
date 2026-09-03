@@ -81,6 +81,46 @@ A fila dos 120 dias em si (quem entra nela) é computada ao vivo em `src/lib/pai
 existe um job diário persistindo um flag "candidato à exclusão". O não-negociável ("nunca
 automática") está garantido pelo modal de confirmação, não por um cron que ainda não existe.
 
+## Três bugs reais do Edgar (2026-09-03) — navegação e dados incompletos
+
+Achados navegando o site pronto, não em teste dirigido — por isso vale registrar como classe de
+erro, não só o fix pontual.
+
+- **"+ Novo estudo" sempre criava um cliente em branco, mesmo com um cliente aberto na tela.** O
+  botão do menu lateral (`src/app/painel/layout.tsx`) é um Server Component sem acesso à URL da
+  página — não tinha como saber "de qual cliente" o corretor estava olhando. Virou
+  `BotaoNovoEstudo` (`src/components/painel/BotaoNovoEstudo.tsx`, Client Component só pra ler
+  `usePathname()`) chamando `abrirOuCriarEstudoDoCliente(clienteId)` quando o pathname bate com
+  `/painel/clientes/[id]`, com três casos (mesma lógica que já decidia quando mostrar
+  "Duplicar"): cliente já tem estudo aberto → só abre ele; cliente já tem Mapa gerado e nenhum
+  aberto → manda pra página do cliente, onde "Duplicar" é o caminho certo (não cria um estudo
+  solto por fora da linhagem `duplicadoDeEstudoId`); cliente sem nada → cria de verdade,
+  pré-preenchido com nome/contato/profissão/estado civil/sexo já conhecidos do cadastro. Fora da
+  página de um cliente, continua criando um cliente novo em branco (`criarEstudoNovo`, sem mudança).
+- **Sem jeito de voltar ao painel de dentro de um estudo.** `/estudo/[id]` (e as saídas dentro
+  dele) vive fora do layout `/painel/*` — não reaproveita a barra lateral, de propósito (o
+  wizard/saídas usam a tela inteira). Mas isso deixava a única saída sendo o botão Voltar do
+  navegador. `EstudoShell` (`src/components/estudo/EstudoShell.tsx`) agora recebe `clienteId` e
+  mostra "← Painel" no cabeçalho, linkando pra `/painel/clientes/[clienteId]` — dali a barra
+  lateral de sempre volta a existir. As saídas (apresentação/proposta/e-mail/memória) já tinham
+  "← Voltar ao resumo" pro estudo (`BarraSaida`), então a cadeia agora fecha: saída → estudo →
+  cliente → painel.
+- **Duplicar um estudo antigo quebrava com "Cannot read properties of undefined (reading
+  'clt')".** Causa raiz: um cliente de teste da Etapa 1 tinha `Estudo.dados` gravado como `{}`
+  (nunca passou por `criarEstudoNovo`/`enviarLead`, então nunca ganhou o formato completo de
+  `EstudoFormulario`). `duplicarEstudo` copiava esse JSON cru sem validar; `calc()` não tem
+  nenhuma defesa contra `EstudoDados` incompleto e quebra na hora ao tentar ler
+  `d.vinculos[algumVinculo]`. Corrigido na raiz, não remendado no `calc()` (que continua fiel ao
+  protótipo, sem defesa nenhuma — de propósito, ver a regra de não alterar `calc.ts` sem
+  reconferir): `paraEstudoFormulario()` em `src/lib/estudo-formulario.ts` normaliza qualquer
+  `Estudo.dados` cru pro formato completo (inclusive dentro de `vinculos`/`edu`/`anexos`,
+  objetos aninhados — um merge raso não bastava), testado em `estudo-formulario.test.ts`. Troquei
+  todo `estudo.dados as unknown as EstudoFormulario` (cast direto, sem validar) por essa função —
+  em `carregar-saida.ts`, `estudo/[id]/page.tsx`, `estudo/actions.ts` (`gerarMapa` e, o mais
+  importante, o `dados` gravado por `duplicarEstudo`) e `painel/ajustes/page.tsx`. **Regra pra não
+  repetir**: qualquer leitura nova de `estudo.dados` do banco passa por `paraEstudoFormulario()`,
+  nunca por um cast direto — o cast confia que o JSON está completo, e nem sempre está.
+
 ## Não-negociáveis
 
 - **Nunca existe botão de editar um Mapa gerado.** Em lugar nenhum da UI ou da API.

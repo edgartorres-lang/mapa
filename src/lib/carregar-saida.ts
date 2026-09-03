@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "./prisma";
 import type { CalcResultado } from "./calc";
-import type { EstudoFormulario } from "./estudo-formulario";
+import { paraEstudoFormulario } from "./estudo-formulario";
 import { construirApresentacao } from "./apresentacao";
 
 /**
@@ -20,7 +20,7 @@ export async function carregarSaida(estudoId: string) {
 
   const corretor = await prisma.corretor.findUniqueOrThrow({ where: { id: estudo.corretorId } });
 
-  const dados = estudo.dados as unknown as EstudoFormulario;
+  const dados = paraEstudoFormulario(estudo.dados);
   const c = estudo.mapa.derivados as unknown as CalcResultado;
   const r = construirApresentacao(dados, c, corretor, estudo.mapa.geradoEm);
 

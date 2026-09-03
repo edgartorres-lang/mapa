@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { calc, type FatoresCalculo } from "@/lib/calc";
 import { pendenciasPorEtapa, type EstudoFormulario } from "@/lib/estudo-formulario";
 import { salvarDados, gerarMapa } from "@/app/estudo/actions";
@@ -23,12 +24,14 @@ const OBRIGATORIAS = [0, 1, 3];
 
 export function EstudoShell({
   estudoId,
+  clienteId,
   dadosIniciais,
   fatores,
   statusInicial,
   derivadosCongelados,
 }: {
   estudoId: string;
+  clienteId: string;
   dadosIniciais: EstudoFormulario;
   fatores: FatoresCalculo;
   statusInicial: "aberto" | "gerado";
@@ -79,10 +82,18 @@ export function EstudoShell({
     <div style={{ minHeight: "100vh", fontFamily: "var(--font-interface)" }}>
       <div style={{ background: "var(--marinho)", position: "sticky", top: 0, zIndex: 5 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "15px 24px" }}>
-          <div>
-            <div style={{ font: "600 16px var(--font-titulo)", color: "#fff" }}>{dados.nome || "Novo estudo"}</div>
-            <div style={{ font: "400 11px var(--font-interface)", color: "rgba(255,255,255,.62)", marginTop: 2 }}>
-              {[dados.profissao, dados.estadoCivil].filter(Boolean).join(" · ") || "Preencha o perfil para começar"}
+          <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
+            <Link
+              href={`/painel/clientes/${clienteId}`}
+              style={{ flex: "none", font: "600 12px var(--font-interface)", color: "rgba(255,255,255,.85)", border: "1px solid rgba(255,255,255,.32)", padding: "8px 13px", borderRadius: 999, whiteSpace: "nowrap" }}
+            >
+              ← Painel
+            </Link>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ font: "600 16px var(--font-titulo)", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{dados.nome || "Novo estudo"}</div>
+              <div style={{ font: "400 11px var(--font-interface)", color: "rgba(255,255,255,.62)", marginTop: 2 }}>
+                {[dados.profissao, dados.estadoCivil].filter(Boolean).join(" · ") || "Preencha o perfil para começar"}
+              </div>
             </div>
           </div>
           <span

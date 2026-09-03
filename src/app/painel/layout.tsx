@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { prisma } from "@/lib/prisma";
-import { criarEstudoNovo } from "@/app/estudo/actions";
+import { BotaoNovoEstudo } from "@/components/painel/BotaoNovoEstudo";
 
 /**
  * Barra lateral fixa de 216px (README, "Painel do Corretor"). Seis itens — só Dashboard, Funil e
@@ -60,14 +60,7 @@ export default async function PainelLayout({ children }: { children: ReactNode }
           )}
         </div>
 
-        <form action={criarEstudoNovo}>
-          <button
-            type="submit"
-            style={{ width: "100%", font: "700 12.5px var(--font-interface)", color: "#fff", background: "var(--verde)", border: "none", padding: "11px", borderRadius: 999, cursor: "pointer", marginBottom: 14 }}
-          >
-            + Novo estudo
-          </button>
-        </form>
+        <BotaoNovoEstudo />
 
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderTop: "1px solid rgba(255,255,255,.14)", paddingTop: 14 }}>
           <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,.14)", display: "grid", placeItems: "center", font: "600 13px var(--font-titulo)", color: "#fff", flex: "none" }}>

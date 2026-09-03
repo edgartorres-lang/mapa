@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { paraFatoresCalc } from "@/lib/fatores-calculo";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
-import type { EstudoFormulario } from "@/lib/estudo-formulario";
+import { paraEstudoFormulario } from "@/lib/estudo-formulario";
 import type { CalcResultado } from "@/lib/calc";
 import { EstudoShell } from "@/components/estudo/EstudoShell";
 
@@ -17,7 +17,8 @@ export default async function PaginaEstudo({ params }: { params: Promise<{ id: s
   return (
     <EstudoShell
       estudoId={estudo.id}
-      dadosIniciais={estudo.dados as unknown as EstudoFormulario}
+      clienteId={estudo.clienteId}
+      dadosIniciais={paraEstudoFormulario(estudo.dados)}
       fatores={paraFatoresCalc(fatoresDb)}
       statusInicial={estudo.status as "aberto" | "gerado"}
       derivadosCongelados={estudo.mapa ? (estudo.mapa.derivados as unknown as CalcResultado) : null}

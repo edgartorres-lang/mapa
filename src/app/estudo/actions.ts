@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { calc } from "@/lib/calc";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { paraFatoresCalc, padroesPorEstudo } from "@/lib/fatores-calculo";
-import { ESTUDO_VAZIO, type EstudoFormulario } from "@/lib/estudo-formulario";
+import { ESTUDO_VAZIO, paraEstudoFormulario, type EstudoFormulario } from "@/lib/estudo-formulario";
 
 /** Botão "+ Novo estudo": cria o cliente e o estudo em aberto, e manda pro estudo. */
 export async function criarEstudoNovo() {
@@ -27,6 +27,58 @@ export async function criarEstudoNovo() {
     },
   });
 
+  redirect(`/estudo/${estudo.id}`);
+}
+
+/**
+ * Botão "+ Novo estudo" chamado de dentro da página de um cliente específico (`clienteId` vem do
+ * pathname, ver `BotaoNovoEstudo`) — corrige um bug real: o botão do menu lateral sempre criava
+ * um cliente novo em branco, mesmo com o corretor olhando pra um cliente já aberto na tela.
+ *
+ * Três casos, igual à lógica que "Duplicar" já usa pra decidir quando aparecer:
+ * 1. Cliente já tem estudo em aberto → só abre ele, não cria nada (evita dois estudos abertos ao
+ *    mesmo tempo pro mesmo cliente, mesma regra do botão Duplicar).
+ * 2. Cliente já tem Mapa gerado mas nenhum estudo aberto → o caminho certo é "Duplicar" (mantém
+ *    a linhagem via `duplicadoDeEstudoId`), não criar um estudo solto por fora dela — manda de
+ *    volta pra página do cliente, onde o botão de duplicar já está.
+ * 3. Cliente novo, sem estudo nem mapa nenhum → cria de verdade, pré-preenchido com o que já se
+ *    sabe do cadastro (nome/contato/profissão/estado civil/sexo).
+ */
+export async function abrirOuCriarEstudoDoCliente(clienteId: string) {
+  const corretor = await obterCorretorAtual();
+  const cliente = await prisma.cliente.findUniqueOrThrow({ where: { id: clienteId } });
+  if (cliente.corretorId !== corretor.id) throw new Error("Cliente não pertence a este corretor.");
+
+  const estudoAberto = await prisma.estudo.findFirst({ where: { clienteId, status: "aberto" } });
+  if (estudoAberto) redirect(`/estudo/${estudoAberto.id}`);
+
+  const temMapa = await prisma.mapa.count({ where: { clienteId } });
+  if (temMapa > 0) redirect(`/painel/clientes/${clienteId}`);
+
+  const fatores = await prisma.fatoresCalculo.findUniqueOrThrow({ where: { corretorId: corretor.id } });
+  const dadosIniciais: EstudoFormulario = {
+    ...ESTUDO_VAZIO,
+    ...padroesPorEstudo(fatores),
+    nome: cliente.nome === "Novo estudo" ? "" : cliente.nome,
+    whats: cliente.telefone ?? "",
+    email: cliente.email ?? "",
+    profissao: cliente.profissao ?? "",
+    estadoCivil: cliente.estadoCivil ?? ESTUDO_VAZIO.estadoCivil,
+    sexo: cliente.sexo === "M" || cliente.sexo === "F" ? cliente.sexo : ESTUDO_VAZIO.sexo,
+  };
+
+  const estudo = await prisma.estudo.create({
+    data: { clienteId, corretorId: corretor.id, status: "aberto", dados: dadosIniciais as object },
+  });
+
+  await prisma.$transaction([
+    prisma.cliente.update({ where: { id: clienteId }, data: { estagioFunil: "estudo", estagioAtualizadoEm: new Date() } }),
+    prisma.eventoHistorico.create({
+      data: { clienteId, corretorId: corretor.id, tipo: "sistema", texto: "Estudo iniciado pelo corretor." },
+    }),
+  ]);
+
+  revalidatePath(`/painel/clientes/${clienteId}`);
   redirect(`/estudo/${estudo.id}`);
 }
 
@@ -68,7 +120,7 @@ export async function gerarMapa(estudoId: string) {
 
   const corretor = await obterCorretorAtual();
   const fatoresDb = await prisma.fatoresCalculo.findUniqueOrThrow({ where: { corretorId: corretor.id } });
-  const dados = estudo.dados as unknown as EstudoFormulario;
+  const dados = paraEstudoFormulario(estudo.dados);
   const resultado = calc(dados, paraFatoresCalc(fatoresDb), new Date());
 
   const mapasAnteriores = await prisma.mapa.count({ where: { clienteId: estudo.clienteId } });
@@ -128,7 +180,11 @@ export async function duplicarEstudo(estudoId: string) {
       corretorId: estudo.corretorId,
       status: "aberto",
       duplicadoDeEstudoId: estudo.id,
-      dados: estudo.dados as object, // mesmas respostas; recalcula com os fatores atuais a partir daqui
+      // mesmas respostas; recalcula com os fatores atuais a partir daqui. Passa por
+      // paraEstudoFormulario (não copia o JSON cru) — um `dados` incompleto no estudo original
+      // (visto de verdade em cliente de teste antigo, `dados: {}`) faria o estudo duplicado
+      // nascer quebrado e derrubar calc() ao abrir. Ver o comentário em paraEstudoFormulario.
+      dados: paraEstudoFormulario(estudo.dados) as object,
     },
   });
 

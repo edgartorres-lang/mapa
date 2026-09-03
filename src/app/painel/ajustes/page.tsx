@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { carregarClientesComResumo } from "@/lib/painel-dados";
-import type { EstudoFormulario } from "@/lib/estudo-formulario";
+import { paraEstudoFormulario } from "@/lib/estudo-formulario";
 import { FatoresForm } from "@/components/painel/ajustes/FatoresForm";
 import { HorariosForm } from "@/components/painel/ajustes/HorariosForm";
 import { RetencaoInput, ExclusaoLgpdForm } from "@/components/painel/ajustes/LgpdInterativo";
@@ -108,7 +108,7 @@ async function AbaFatores({ corretorId }: { corretorId: string }) {
         pctDit: fatoresDb.pctDit,
         fatorDoencasGraves: fatoresDb.fatorDoencasGraves,
       }}
-      simulacao={estudoSimulacao ? { clienteNome: estudoSimulacao.cliente.nome, dados: estudoSimulacao.dados as unknown as EstudoFormulario } : null}
+      simulacao={estudoSimulacao ? { clienteNome: estudoSimulacao.cliente.nome, dados: paraEstudoFormulario(estudoSimulacao.dados) } : null}
       contagemEstudosAbertos={contagemEstudosAbertos}
       contagemMapas={contagemMapas}
     />
