@@ -19,7 +19,12 @@ export default async function PaginaProposta({ params }: { params: Promise<{ id:
         <div className="a4 paper" style={{ width: 794, height: 1123, background: "#fff", boxSizing: "border-box", padding: "60px 64px 48px", display: "flex", flexDirection: "column", color: "var(--texto)", border: "1px solid var(--borda)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingBottom: 14, borderBottom: "1px solid var(--texto)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 84, height: 24, border: "1px dashed var(--texto-terciario)", borderRadius: 3, display: "grid", placeItems: "center", font: "600 7px var(--font-interface)", color: "var(--texto-terciario)" }}>LOGO</div>
+              {r.logoEscuroUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- data URL local, sem imagem remota pra otimizar
+                <img src={r.logoEscuroUrl} alt={r.corretora} style={{ maxWidth: 84, maxHeight: 24, objectFit: "contain" }} />
+              ) : (
+                <div style={{ width: 84, height: 24, border: "1px dashed var(--texto-terciario)", borderRadius: 3, display: "grid", placeItems: "center", font: "600 7px var(--font-interface)", color: "var(--texto-terciario)" }}>LOGO</div>
+              )}
               <span style={{ font: "600 12px var(--font-interface)" }}>{r.corretora}</span>
             </div>
             <div style={{ font: "400 9.5px/1.5 var(--font-interface)", color: "var(--texto-secundario)", textAlign: "right" }}>

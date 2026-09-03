@@ -7,6 +7,69 @@ import { dispararWebhook } from "@/lib/webhooks";
 import { CANAIS_LGPD, type CanalLgpd } from "@/lib/enums";
 import type { FatoresCalculoEditavel } from "@/lib/fatores-ajustes";
 
+/** Tamanho máximo de um data URL de imagem (~1.5MB de arquivo, já contando o custo de ~33% do
+ * base64) — grande o bastante pra uma foto/logo razoável, pequeno o bastante pra não inchar a
+ * linha do corretor no banco. Ver a nota em prisma/schema.prisma sobre guardar imagem como
+ * data URL em vez de arquivo de verdade. */
+const TAMANHO_MAX_IMAGEM = 2_000_000;
+
+export interface PerfilCorretorEditavel {
+  nome: string;
+  cargo: string;
+  corretora: string;
+  susep: string;
+  whatsapp: string;
+  emailContato: string;
+  endereco: string;
+  razaoSocial: string;
+}
+
+/**
+ * Tab 5 — Perfil e marca (adicionada a pedido do Edgar, 2026-09-03; não fazia parte das 6 etapas
+ * originais — a tela de identidade do corretor nunca tinha sido construída). Os textos e as três
+ * imagens (foto, logo claro, logo escuro) são salvos juntos, num só botão — como as outras abas.
+ */
+export async function salvarPerfilCorretor(dados: PerfilCorretorEditavel) {
+  const corretor = await obterCorretorAtual();
+  if (!dados.nome.trim()) throw new Error("Nome não pode ficar em branco.");
+
+  await prisma.corretor.update({
+    where: { id: corretor.id },
+    data: {
+      nome: dados.nome.trim(),
+      cargo: dados.cargo.trim() || null,
+      corretora: dados.corretora.trim() || null,
+      susep: dados.susep.trim() || null,
+      whatsapp: dados.whatsapp.trim() || null,
+      emailContato: dados.emailContato.trim() || null,
+      endereco: dados.endereco.trim() || null,
+      razaoSocial: dados.razaoSocial.trim() || null,
+    },
+  });
+
+  revalidatePath("/painel/ajustes");
+  revalidatePath("/painel", "layout"); // barra lateral mostra nome/corretora
+  revalidatePath("/captacao");
+  revalidatePath("/estudo", "layout"); // saídas mostram nome/cargo/contato do corretor
+}
+
+/** Uma imagem por vez (foto, logo claro ou logo escuro) — `campo` já vem validado pelo
+ * componente (um dos três nomes reais da coluna), `dataUrl` é o que `FileReader.readAsDataURL`
+ * produziu no navegador. `null` limpa a imagem (botão "Remover"). */
+export async function salvarImagemCorretor(campo: "fotoUrl" | "logoClaroUrl" | "logoEscuroUrl", dataUrl: string | null) {
+  const corretor = await obterCorretorAtual();
+  if (dataUrl && (!dataUrl.startsWith("data:image/") || dataUrl.length > TAMANHO_MAX_IMAGEM)) {
+    throw new Error("Imagem inválida ou grande demais (máximo ~1,5MB).");
+  }
+
+  await prisma.corretor.update({ where: { id: corretor.id }, data: { [campo]: dataUrl } });
+
+  revalidatePath("/painel/ajustes");
+  revalidatePath("/painel", "layout");
+  revalidatePath("/captacao");
+  revalidatePath("/estudo", "layout");
+}
+
 /**
  * Tab 1 — Fatores de cálculo. Grava direto na linha `FatoresCalculo` do corretor. Os campos
  * "live" (ver src/lib/fatores-ajustes.ts) valem pro próximo cálculo de qualquer estudo em

@@ -25,9 +25,14 @@ export default async function PaginaEmail({ params }: { params: Promise<{ id: st
       <div style={{ display: "flex", gap: 20, flexWrap: "wrap", alignItems: "flex-start" }}>
         <div style={{ width: 600, background: "#EEF2F7", borderRadius: 12, overflow: "hidden", border: "1px solid var(--borda)" }}>
           <div style={{ background: "var(--marinho)", padding: "26px 32px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ width: 104, height: 30, border: "1px dashed rgba(255,255,255,.45)", borderRadius: 4, display: "grid", placeItems: "center", font: "600 7.5px var(--font-interface)", color: "rgba(255,255,255,.6)" }}>
-              LOGO
-            </div>
+            {r.logoClaroUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- data URL local, sem imagem remota pra otimizar
+              <img src={r.logoClaroUrl} alt={r.corretora} style={{ maxWidth: 104, maxHeight: 30, objectFit: "contain" }} />
+            ) : (
+              <div style={{ width: 104, height: 30, border: "1px dashed rgba(255,255,255,.45)", borderRadius: 4, display: "grid", placeItems: "center", font: "600 7.5px var(--font-interface)", color: "rgba(255,255,255,.6)" }}>
+                LOGO
+              </div>
+            )}
             <div style={{ font: "700 9.5px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".14em", color: "var(--verde)" }}>Mapa da proteção</div>
           </div>
           <div style={{ background: "#fff", padding: 32 }}>
@@ -84,9 +89,14 @@ export default async function PaginaEmail({ params }: { params: Promise<{ id: st
             </div>
 
             <div style={{ display: "flex", gap: 14, alignItems: "center", paddingTop: 20, borderTop: "1px solid var(--borda)" }}>
-              <div style={{ width: 52, height: 52, borderRadius: "50%", border: "1px dashed var(--texto-terciario)", display: "grid", placeItems: "center", font: "600 7px var(--font-interface)", color: "var(--texto-terciario)", flex: "none" }}>
-                FOTO
-              </div>
+              {r.fotoUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- data URL local, sem imagem remota pra otimizar
+                <img src={r.fotoUrl} alt={r.corretorNome} style={{ width: 52, height: 52, borderRadius: "50%", objectFit: "cover", flex: "none" }} />
+              ) : (
+                <div style={{ width: 52, height: 52, borderRadius: "50%", border: "1px dashed var(--texto-terciario)", display: "grid", placeItems: "center", font: "600 7px var(--font-interface)", color: "var(--texto-terciario)", flex: "none" }}>
+                  FOTO
+                </div>
+              )}
               <div>
                 <div style={{ font: "600 13.5px var(--font-interface)", color: "var(--marinho)" }}>{r.corretorNome}</div>
                 <div style={{ font: "400 11.5px/1.7 var(--font-interface)", color: "var(--texto-secundario)" }}>

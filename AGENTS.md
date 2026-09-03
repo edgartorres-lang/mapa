@@ -323,6 +323,25 @@ Porta dos 4 blocos de `Ajustes.dc.html` — `src/app/painel/ajustes/page.tsx` (u
   de verdade vive em `Acesso e Identidade.dc.html`, que **nunca esteve nas 6 etapas** combinadas
   com o Edgar — é trabalho novo, não uma etapa esquecida, e só deveria entrar em pauta quando (se)
   o produto for abrir para mais de um corretor.
+- **Perfil e marca (aba 5, adicionada 2026-09-03 a pedido do Edgar — não vem de Ajustes.dc.html
+  nem estava nas 6 etapas)**: nome/cargo/corretora/SUSEP/WhatsApp/e-mail/endereço/razão social
+  (texto, um "Salvar perfil" só) e três imagens (foto do corretor, logo claro pra fundo escuro,
+  logo escuro pra fundo claro — cada uma salva sozinha ao escolher o arquivo, sem precisar do
+  botão). `endereco` é campo novo em `Corretor` (não existia no protótipo original).
+  - **Imagem = data URL no banco, não arquivo.** `fotoUrl`/`logoClaroUrl`/`logoEscuroUrl`
+    guardam uma string `data:image/...;base64,...` direto na coluna (`FileReader.
+    readAsDataURL` no navegador, ~1,5MB de arquivo por imagem no máximo). Decisão de propósito
+    pra não montar upload-pra-disco/S3 só pra um corretor — ver a nota em `prisma/schema.prisma`
+    pra quando isso deixar de valer a pena (mais de um corretor, ou imagens maiores).
+  - **Sete lugares usam essas imagens**, cada um escolhendo claro ou escuro pelo fundo:
+    capa da apresentação e cabeçalho do e-mail (fundo escuro → `logoClaroUrl`), cabeçalho da
+    proposta A4 (fundo branco → `logoEscuroUrl`), tela inicial do link de captação (fundo escuro
+    → `logoClaroUrl`), barra lateral do painel (→ `fotoUrl`, cai pra inicial do nome se não
+    houver), última tela da apresentação e assinatura do e-mail (→ `fotoUrl`), e as duas telas de
+    contato do formulário do lead (→ `fotoUrl`). Sem imagem, cada lugar mantém a caixa tracejada
+    "LOGO"/"FOTO" de sempre — nada trava. `construirApresentacao()` (`src/lib/apresentacao.ts`)
+    é quem repassa as três URLs pro objeto `r` que as três saídas consomem; captação e painel
+    lêem `corretor.fotoUrl`/`logoClaroUrl` direto, sem passar por `r`.
 
 ## Notas operacionais
 
@@ -339,4 +358,13 @@ Porta dos 4 blocos de `Ajustes.dc.html` — `src/app/painel/ajustes/page.tsx` (u
 - Prisma está pinado em `7.10.0` **de propósito** — a tag `latest` do pacote aponta pra uma
   release candidate (`8.0.0-rc.12`) por enquanto. Não rode `npm i @prisma/client@latest` nem
   `prisma@latest` sem checar se o Prisma 8 já saiu estável.
+- **`npx tsc --noEmit` pode falhar com erro de sintaxe dentro de `.next/dev/types/validator.ts`**
+  (algo como "Unexpected keyword or identifier" numa linha que começa no meio de uma palavra,
+  tipo `ific extends AppPageConfig...`) enquanto o `next dev` está rodando e recompilando rotas ao
+  mesmo tempo — é o Turbopack reescrevendo esse arquivo gerado, não erro de código de verdade
+  (aconteceu de verdade em 2026-09-03). Não é preciso parar o servidor: normalmente já resolve
+  rodar `tsc` de novo, ou visitar uma rota no navegador (o que força a regeneração) antes de
+  tentar de novo. Só apague `.next` como último recurso, e nesse caso reinicie o `next dev` e
+  visite pelo menos uma página **antes** de rodar `tsc` de novo — sem isso faltam os tipos
+  globais (`LayoutProps` etc.) que o Next só gera depois de compilar alguma rota.
 

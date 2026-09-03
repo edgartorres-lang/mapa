@@ -30,7 +30,13 @@ export default async function PainelLayout({ children }: { children: ReactNode }
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "var(--font-interface)" }}>
       <div style={{ width: 216, flex: "none", background: "var(--marinho)", display: "flex", flexDirection: "column", boxSizing: "border-box", padding: "20px 14px" }}>
-        <div style={{ font: "600 15px var(--font-titulo)", color: "#fff", padding: "0 8px 20px" }}>Mapa da Proteção</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "0 8px 20px" }}>
+          {corretor.logoClaroUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- data URL local, sem imagem remota pra otimizar
+            <img src={corretor.logoClaroUrl} alt={corretor.corretora ?? corretor.nome} style={{ maxWidth: 28, maxHeight: 28, objectFit: "contain", flex: "none" }} />
+          )}
+          <div style={{ font: "600 15px var(--font-titulo)", color: "#fff" }}>Mapa da Proteção</div>
+        </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}>
           {itens.map((item) =>
@@ -63,9 +69,14 @@ export default async function PainelLayout({ children }: { children: ReactNode }
         <BotaoNovoEstudo />
 
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderTop: "1px solid rgba(255,255,255,.14)", paddingTop: 14 }}>
-          <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,.14)", display: "grid", placeItems: "center", font: "600 13px var(--font-titulo)", color: "#fff", flex: "none" }}>
-            {corretor.nome.charAt(0)}
-          </div>
+          {corretor.fotoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- data URL local, sem imagem remota pra otimizar
+            <img src={corretor.fotoUrl} alt={corretor.nome} style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", flex: "none" }} />
+          ) : (
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,.14)", display: "grid", placeItems: "center", font: "600 13px var(--font-titulo)", color: "#fff", flex: "none" }}>
+              {corretor.nome.charAt(0)}
+            </div>
+          )}
           <div style={{ minWidth: 0 }}>
             <div style={{ font: "600 12px var(--font-interface)", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{corretor.nome}</div>
             <div style={{ font: "400 10.5px var(--font-interface)", color: "rgba(255,255,255,.55)" }}>{corretor.corretora}</div>

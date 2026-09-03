@@ -40,6 +40,8 @@ interface CorretorPublico {
   whatsapp: string | null;
   ofereceCampoAberto: boolean;
   pulaFimDeSemana: boolean;
+  fotoUrl: string | null;
+  logoClaroUrl: string | null;
 }
 interface HorarioPublico {
   diaRelativo: string;
@@ -299,9 +301,14 @@ function Marca({ escuro = true }: { escuro?: boolean }) {
 function TelaNome({ nome, corretor, onNome, onContinuar }: { nome: string; corretor: CorretorPublico; onNome: (v: string) => void; onContinuar: () => void }) {
   return (
     <div style={{ flex: 1, background: "var(--marinho)", padding: "36px 26px 28px", display: "flex", flexDirection: "column", color: "#fff" }}>
-      <div style={{ width: 46, height: 46, borderRadius: 11, border: "1px dashed rgba(255,255,255,.45)", display: "grid", placeItems: "center", font: "600 8px var(--font-interface)", color: "rgba(255,255,255,.6)", flex: "none" }}>
-        LOGO
-      </div>
+      {corretor.logoClaroUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element -- data URL local, sem imagem remota pra otimizar
+        <img src={corretor.logoClaroUrl} alt={corretor.corretora ?? corretor.nome} style={{ maxWidth: 120, maxHeight: 46, objectFit: "contain" }} />
+      ) : (
+        <div style={{ width: 46, height: 46, borderRadius: 11, border: "1px dashed rgba(255,255,255,.45)", display: "grid", placeItems: "center", font: "600 8px var(--font-interface)", color: "rgba(255,255,255,.6)", flex: "none" }}>
+          LOGO
+        </div>
+      )}
       <div style={{ flex: 1, minHeight: 20 }} />
       <Marca />
       <div style={{ font: "600 30px/1.22 var(--font-titulo)", marginBottom: 12 }}>Antes de começar: como é o seu nome?</div>
@@ -323,9 +330,14 @@ function TelaNome({ nome, corretor, onNome, onContinuar }: { nome: string; corre
       </button>
       <div style={{ flex: 1, minHeight: 20 }} />
       <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,.16)" }}>
-        <div style={{ width: 42, height: 42, borderRadius: "50%", border: "1px dashed rgba(255,255,255,.45)", display: "grid", placeItems: "center", font: "600 7.5px var(--font-interface)", color: "rgba(255,255,255,.6)", flex: "none" }}>
-          FOTO
-        </div>
+        {corretor.fotoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- data URL local, sem imagem remota pra otimizar
+          <img src={corretor.fotoUrl} alt={corretor.nome} style={{ width: 42, height: 42, borderRadius: "50%", objectFit: "cover", flex: "none" }} />
+        ) : (
+          <div style={{ width: 42, height: 42, borderRadius: "50%", border: "1px dashed rgba(255,255,255,.45)", display: "grid", placeItems: "center", font: "600 7.5px var(--font-interface)", color: "rgba(255,255,255,.6)", flex: "none" }}>
+            FOTO
+          </div>
+        )}
         <div>
           <div style={{ font: "600 13px var(--font-interface)" }}>{corretor.nome}</div>
           <div style={{ font: "400 11.5px var(--font-interface)", color: "rgba(255,255,255,.6)" }}>
@@ -1086,9 +1098,14 @@ function TelaConfirmacao({
       </div>
       <div style={{ flex: 1 }} />
       <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 22, borderTop: "1px solid rgba(255,255,255,.16)" }}>
-        <div style={{ width: 42, height: 42, borderRadius: "50%", border: "1px dashed rgba(255,255,255,.45)", display: "grid", placeItems: "center", font: "600 7.5px var(--font-interface)", color: "rgba(255,255,255,.6)", flex: "none" }}>
-          FOTO
-        </div>
+        {corretor.fotoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- data URL local, sem imagem remota pra otimizar
+          <img src={corretor.fotoUrl} alt={corretor.nome} style={{ width: 42, height: 42, borderRadius: "50%", objectFit: "cover", flex: "none" }} />
+        ) : (
+          <div style={{ width: 42, height: 42, borderRadius: "50%", border: "1px dashed rgba(255,255,255,.45)", display: "grid", placeItems: "center", font: "600 7.5px var(--font-interface)", color: "rgba(255,255,255,.6)", flex: "none" }}>
+            FOTO
+          </div>
+        )}
         <div>
           <div style={{ font: "600 13px var(--font-interface)" }}>{corretor.nome}</div>
           <div style={{ font: "400 11.5px var(--font-interface)", color: "rgba(255,255,255,.6)" }}>

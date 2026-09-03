@@ -30,15 +30,25 @@ model Corretor {
   senhaHash String   @map("senha_hash")
 
   // Campos de "Acesso e Identidade" — aparecem nos documentos gerados (Acesso e Identidade.dc.html)
+  // e na aba "Perfil e marca" de Ajustes (adicionada a pedido do Edgar, 2026-09-03 — não estava
+  // nas 6 etapas originais). `endereco` não existia no protótipo; adicionado porque o Edgar pediu
+  // um lugar pra nome/endereço/telefone junto da marca.
   cargo         String? // ex.: "Consultor de proteção familiar"
   corretora     String? // nome fantasia
   susep         String?
   whatsapp      String?
   emailContato  String? @map("email_contato")
+  endereco      String? // endereço do escritório, rodapé dos documentos
   razaoSocial   String? @map("razao_social") // razão social + CNPJ, rodapé dos documentos
-  fotoUrl       String? @map("foto_url")
-  logoClaroUrl  String? @map("logo_claro_url") // logo para fundo escuro
-  logoEscuroUrl String? @map("logo_escuro_url") // logo para fundo claro
+  // `fotoUrl`/`logoClaroUrl`/`logoEscuroUrl` guardam um data URL (base64), não um link pra
+  // arquivo — mais simples que montar upload pra disco/S3 pra um único corretor, e portável
+  // entre SQLite (dev) e Postgres (prod) sem infra nova. Se o app abrir pra vários corretores um
+  // dia, ou as imagens ficarem grandes demais pra caber num TEXT do jeito confortável, vale
+  // trocar por armazenamento de arquivo de verdade — não antes disso. Ver
+  // src/app/painel/ajustes/actions.ts, salvarPerfilCorretor.
+  fotoUrl       String? @map("foto_url") // avatar do corretor — apresentação e e-mail
+  logoClaroUrl  String? @map("logo_claro_url") // logo pra fundo escuro (marinho): capa da apresentação, e-mail, captação, barra lateral
+  logoEscuroUrl String? @map("logo_escuro_url") // logo pra fundo claro (branco): proposta A4
   corDestaque   String  @default("#39CC00") @map("cor_destaque")
 
   // Integrações (n8n). Seis endereços de webhook (a "canalização", sempre ativa); só quatro têm

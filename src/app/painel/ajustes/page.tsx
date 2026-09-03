@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Corretor } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { carregarClientesComResumo } from "@/lib/painel-dados";
@@ -6,21 +7,24 @@ import { paraEstudoFormulario } from "@/lib/estudo-formulario";
 import { FatoresForm } from "@/components/painel/ajustes/FatoresForm";
 import { HorariosForm } from "@/components/painel/ajustes/HorariosForm";
 import { RetencaoInput, ExclusaoLgpdForm } from "@/components/painel/ajustes/LgpdInterativo";
+import { PerfilMarcaForm } from "@/components/painel/ajustes/PerfilMarcaForm";
 
 const ABAS = [
   { n: 1, nome: "Fatores de cálculo", sub: "o racional, editável", titulo: "Fatores de cálculo", sub2: "Os parâmetros do racional saem do código e ficam aqui. Estudos em aberto recalculam ao salvar; mapas gerados não mudam." },
   { n: 2, nome: "Horários sugeridos", sub: "o que o lead vê", titulo: "Horários sugeridos", sub2: "As três opções que a página do lead oferece, calculadas a partir do dia do preenchimento, e o campo aberto." },
   { n: 3, nome: "LGPD e retenção", sub: "consentimento e exclusão", titulo: "LGPD e retenção", sub2: "Onde o consentimento fica registrado, como um cliente sai do sistema, e a fila dos mapas parados." },
   { n: 4, nome: "Acesso e senha", sub: "login e recuperação", titulo: "Acesso e senha", sub2: "O caminho completo de recuperação de senha, e as regras do acesso enquanto há um corretor só." },
+  { n: 5, nome: "Perfil e marca", sub: "nome, contato, logo e foto", titulo: "Perfil e marca", sub2: "O que identifica você nos materiais — nome, endereço, telefone, sua foto e o logo da corretora." },
 ] as const;
 
 /**
- * Ajustes (Etapa 6) — porta de Ajustes.dc.html. Quatro abas via `?aba=1..4` (sem JS necessário
- * pra trocar de aba: são `<Link>`, cada aba recarrega os dados dela do zero).
+ * Ajustes (Etapa 6 + Perfil e marca, 2026-09-03) — porta de Ajustes.dc.html, mais uma quinta aba
+ * que não vem do protótipo original. Cinco abas via `?aba=1..5` (sem JS necessário pra trocar de
+ * aba: são `<Link>`, cada aba recarrega os dados dela do zero).
  */
 export default async function PaginaAjustes({ searchParams }: { searchParams: Promise<{ aba?: string }> }) {
   const { aba: abaStr } = await searchParams;
-  const aba = Number(abaStr) >= 1 && Number(abaStr) <= 4 ? Number(abaStr) : 1;
+  const aba = Number(abaStr) >= 1 && Number(abaStr) <= 5 ? Number(abaStr) : 1;
   const atual = ABAS[aba - 1];
 
   const corretor = await obterCorretorAtual();
@@ -67,6 +71,7 @@ export default async function PaginaAjustes({ searchParams }: { searchParams: Pr
         {aba === 2 && <AbaHorarios corretorId={corretor.id} corretor={corretor} />}
         {aba === 3 && <AbaLgpd corretorId={corretor.id} />}
         {aba === 4 && <AbaAcesso />}
+        {aba === 5 && <AbaPerfil corretor={corretor} />}
       </div>
     </div>
   );
@@ -307,5 +312,25 @@ function AbaAcesso() {
         </div>
       </div>
     </div>
+  );
+}
+
+function AbaPerfil({ corretor }: { corretor: Corretor }) {
+  return (
+    <PerfilMarcaForm
+      perfilInicial={{
+        nome: corretor.nome,
+        cargo: corretor.cargo ?? "",
+        corretora: corretor.corretora ?? "",
+        susep: corretor.susep ?? "",
+        whatsapp: corretor.whatsapp ?? "",
+        emailContato: corretor.emailContato ?? "",
+        endereco: corretor.endereco ?? "",
+        razaoSocial: corretor.razaoSocial ?? "",
+      }}
+      fotoInicial={corretor.fotoUrl}
+      logoClaroInicial={corretor.logoClaroUrl}
+      logoEscuroInicial={corretor.logoEscuroUrl}
+    />
   );
 }

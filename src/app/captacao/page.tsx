@@ -21,6 +21,8 @@ export default async function PaginaCaptacao({ searchParams }: { searchParams: P
         whatsapp: corretor.whatsapp,
         ofereceCampoAberto: corretor.ofereceCampoAberto,
         pulaFimDeSemana: corretor.pulaFimDeSemana,
+        fotoUrl: corretor.fotoUrl,
+        logoClaroUrl: corretor.logoClaroUrl,
       }}
       horarios={horarios.map((h) => ({ diaRelativo: h.diaRelativo, hora: h.hora }))}
       utmCampanha={utmCampanha ?? null}

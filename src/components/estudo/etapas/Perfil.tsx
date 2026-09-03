@@ -64,7 +64,7 @@ export function Perfil({
           </div>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 130px", gap: 14, alignItems: "end" }}>
-          <Campo rotulo="Sexo" nota="só para a flexão dos textos">
+          <Campo rotulo="Sexo">
             <GrupoPill
               opcoes={[
                 { valor: "F", rotulo: "Feminino" },

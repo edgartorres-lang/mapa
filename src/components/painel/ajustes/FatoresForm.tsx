@@ -159,10 +159,12 @@ export function FatoresForm({
 
         <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "20px 22px" }}>
           <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)", marginBottom: 3 }}>
-            {simulacao ? `Simulação · estudo de ${simulacao.clienteNome.split(" ")[0]}` : "Simulação"}
+            {simulacao ? "Efeito nos números — exemplo real" : "Efeito nos números"}
           </div>
           <div style={{ font: "400 11px/1.6 var(--font-interface)", color: "var(--texto-secundario)", marginBottom: 14 }}>
-            {simulacao ? "Um estudo em aberto, recalculado com os valores desta tela. Serve para você ver o efeito antes de salvar." : "Nenhum estudo em aberto agora — não há em que simular."}
+            {simulacao
+              ? `Pra você conferir o efeito antes de salvar, uso um estudo de verdade que já está em aberto — o de ${simulacao.clienteNome.split(" ")[0]} calhou de ser o escolhido, só porque já tem renda preenchida. Nada é enviado nem alterado; é só um cálculo de exemplo, ao vivo, enquanto você mexe nos campos ao lado.`
+              : "Nenhum estudo em aberto agora pra servir de exemplo — assim que houver um, o efeito de qualquer mudança aparece aqui antes de você salvar."}
           </div>
           {simulacao && cAtual && cSalvo && (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
