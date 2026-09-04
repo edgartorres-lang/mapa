@@ -11,8 +11,9 @@ import {
   type PerguntaLead,
 } from "@/lib/lead-formulario";
 import { idadeDe, mascaraData, mascaraTelefone } from "@/lib/formato";
-import { calcularDataHorario, formatarDiaHorario } from "@/lib/horarios-sugeridos";
+import { formatarDiaHorario } from "@/lib/horarios-sugeridos";
 import { enviarLead, confirmarAgendamento, type EscolhaAgendamento } from "@/app/captacao/actions";
+import type { SlotResolvido } from "@/lib/disponibilidade-agenda";
 
 const CHAVE_LOCAL = "mapa-captacao-v1";
 const FASES_LEAD = [
@@ -39,16 +40,18 @@ interface CorretorPublico {
   susep: string | null;
   whatsapp: string | null;
   ofereceCampoAberto: boolean;
-  pulaFimDeSemana: boolean;
   fotoUrl: string | null;
   logoClaroUrl: string | null;
 }
-interface HorarioPublico {
-  diaRelativo: string;
-  hora: string;
-}
 
-export function FormularioLead({ corretor, horarios, utmCampanha }: { corretor: CorretorPublico; horarios: HorarioPublico[]; utmCampanha: string | null }) {
+/**
+ * `slotsResolvidos` já vem checado contra a agenda de verdade (ou não, se a checagem estiver
+ * desligada) — ver `resolverHorariosDisponiveis` em src/lib/disponibilidade-agenda.ts, chamado
+ * no Server Component de `/captacao`. Por isso este componente só formata e exibe; não calcula
+ * data nenhuma sozinho. Pode vir com menos de 3 posições (ou vazio) se algum horário sugerido não
+ * achou candidato livre — `ofereceCampoAberto`/WhatsApp continuam como saída.
+ */
+export function FormularioLead({ corretor, slotsResolvidos, utmCampanha }: { corretor: CorretorPublico; slotsResolvidos: SlotResolvido[]; utmCampanha: string | null }) {
   const [tela, setTela] = useState<Tela>("nome");
   const [i, setI] = useState(0);
   const [a, setA] = useState<LeadRespostas>(LEAD_VAZIO);
@@ -195,10 +198,7 @@ export function FormularioLead({ corretor, horarios, utmCampanha }: { corretor: 
     }
   }
 
-  const slots = horarios.map((h) => {
-    const d = calcularDataHorario(h, new Date(), corretor.pulaFimDeSemana);
-    return formatarDiaHorario(d);
-  });
+  const slots = slotsResolvidos.map((s) => formatarDiaHorario(new Date(s.dataHoraISO)));
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--fundo)", display: "flex", justifyContent: "center", fontFamily: "var(--font-interface)" }}>
@@ -267,7 +267,10 @@ export function FormularioLead({ corretor, horarios, utmCampanha }: { corretor: 
             onOutraTexto={setOutraTexto}
             onConfirmar={() => {
               if (outra && outraTexto) handleConfirmar({ tipo: "sugerido", texto: outraTexto });
-              else if (!outra && slotEscolhido !== null) handleConfirmar({ tipo: "horario", ordem: slotEscolhido });
+              else if (!outra && slotEscolhido !== null) {
+                const s = slotsResolvidos[slotEscolhido];
+                if (s) handleConfirmar({ tipo: "horario", ordem: s.ordem, dataHoraISO: s.dataHoraISO });
+              }
             }}
             onWhatsapp={() => handleConfirmar({ tipo: "whatsapp" })}
           />

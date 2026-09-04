@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calcularDataHorario } from "./horarios-sugeridos";
+import { avancarDias, calcularDataHorario } from "./horarios-sugeridos";
 
 /**
  * "Pular fim de semana" (Ajustes → Horários sugeridos, Etapa 6): se a data calculada cair em
@@ -37,5 +37,33 @@ describe("calcularDataHorario — pularFimDeSemana", () => {
     const d = calcularDataHorario({ diaRelativo: "amanha", hora: "15:00" }, QUINTA, true);
     expect(d.getDay()).toBe(5); // sexta, sem ajuste
     expect(d.getDate()).toBe(4);
+  });
+});
+
+/**
+ * `avancarDias` gera os candidatos extras da checagem de agenda (Ajustes → Acesso e
+ * Integrações, "Aceitar horário já ocupado" desligado) — empurra um horário já calculado pra
+ * frente, mesma hora, reaplicando o pulo de fim de semana no resultado (não só na data base).
+ */
+describe("avancarDias", () => {
+  const QUINTA = new Date(2026, 8, 3); // quinta-feira, 03/09/2026
+  const base = calcularDataHorario({ diaRelativo: "amanha", hora: "15:00" }, QUINTA, false); // sexta 04/09
+
+  it("offset 0 devolve a mesma data", () => {
+    const d = avancarDias(base, 0, true);
+    expect(d.getTime()).toBe(base.getTime());
+  });
+
+  it("empurra N dias mantendo a hora, sem pular fim de semana", () => {
+    const d = avancarDias(base, 2, false); // sexta + 2 = domingo
+    expect(d.getDay()).toBe(0);
+    expect(d.getHours()).toBe(15);
+  });
+
+  it("reaplica o pulo de fim de semana no resultado, não só na base", () => {
+    const d = avancarDias(base, 2, true); // sexta + 2 = domingo → empurra pra segunda
+    expect(d.getDay()).toBe(1);
+    expect(d.getDate()).toBe(7); // 07/09/2026
+    expect(d.getHours()).toBe(15);
   });
 });

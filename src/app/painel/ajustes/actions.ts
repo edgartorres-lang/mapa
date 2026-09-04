@@ -111,9 +111,10 @@ export async function salvarHorariosSugeridos(slots: SlotEditavel[]) {
   revalidatePath("/captacao");
 }
 
-/** Tab 2 — as três chaves que mudam o que a página do lead oferece (`ofereceCampoAberto`,
- * `pulaFimDeSemana`) e a que ainda não tem efeito nenhum (`aceitaHorarioOcupado` — não existe
- * checagem de agenda pra ligar/desligar; ver AGENTS.md, "Ajustes (Etapa 6)"). */
+/** Tab 2 — as três chaves que mudam o que a página do lead oferece: `ofereceCampoAberto`,
+ * `pulaFimDeSemana` e `aceitaHorarioOcupado` (desligada, ativa a checagem real de agenda contra
+ * `webhookChecarAgenda` — ver src/lib/disponibilidade-agenda.ts e AGENTS.md, "Checagem de
+ * agenda"). */
 export async function salvarPreferenciasAgendamento(prefs: { ofereceCampoAberto: boolean; aceitaHorarioOcupado: boolean; pulaFimDeSemana: boolean }) {
   const corretor = await obterCorretorAtual();
   await prisma.corretor.update({ where: { id: corretor.id }, data: prefs });

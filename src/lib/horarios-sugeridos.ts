@@ -25,6 +25,23 @@ export function calcularDataHorario(h: Pick<HorarioSugerido, "diaRelativo" | "ho
   return data;
 }
 
+/**
+ * Empurra uma data já calculada `dias` dias pra frente, mantendo a hora — usado pra gerar
+ * candidatos extras quando o horário original está ocupado (ver src/lib/disponibilidade-agenda.ts).
+ * Reaplica a regra de pular fim de semana no resultado, não só na data original: empurrar de
+ * sexta pra segunda (2 dias) pode cair de novo em fim de semana se `dias` for maior.
+ */
+export function avancarDias(data: Date, dias: number, pularFimDeSemana = false): Date {
+  if (dias === 0) return data;
+  const d = new Date(data);
+  d.setDate(d.getDate() + dias);
+  if (pularFimDeSemana) {
+    if (d.getDay() === 6) d.setDate(d.getDate() + 2); // sábado → segunda
+    else if (d.getDay() === 0) d.setDate(d.getDate() + 1); // domingo → segunda
+  }
+  return d;
+}
+
 export function formatarDiaHorario(data: Date): { dia: string; hora: string } {
   const diaSemana = NOME_DIA_SEMANA[data.getDay()];
   const diaMes = data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });

@@ -459,6 +459,63 @@ Tela em `Ajustes → aba 4 (Acesso e Integrações)`, bloco "Integrações" — 
   verdade, e o bloqueio "está desligada" quando a integração correspondente está desligada.
   `npx tsc --noEmit`, `npx eslint .` e os 25 testes de `npm test` continuam limpos.
 
+## Checagem de agenda (2026-09-04, a pedido do Edgar — a etapa que ficou de fora da tela de Integrações de propósito)
+
+Checagem real de conflito de horário contra o Google Agenda, antes de sugerir horário ao lead.
+Decisões do Edgar: checar **antes** de mostrar (não só na confirmação); horário ocupado →
+**tenta outro automaticamente** (não cai direto no campo aberto); escopo só o **fluxo do lead**
+(agendamento manual do Edgar pela página do cliente continua sem checagem).
+
+- **Reaproveita `Corretor.aceitaHorarioOcupado`** (Ajustes → Horários sugeridos, existia desde a
+  Etapa 6, reservado exatamente pra isso): **desligado** = checa de verdade; **ligado** (padrão)
+  = não checa nada, mesmo comportamento de sempre. A checagem só roda se os três estiverem de
+  acordo: `aceitaHorarioOcupado` desligado + `integracaoAgendaAtiva` ligado +
+  `webhookChecarAgenda` configurado — os dois primeiros porque é a mesma integração "Google
+  Agenda" que já existia, o terceiro porque sem URL não tem quem responder.
+- **`webhookChecarAgenda`** (`Corretor`, novo campo) — 7º webhook em
+  `src/lib/integracoes-ajustes.ts` (`WEBHOOKS`), cartão "Google Agenda · disponibilidade" em
+  Ajustes → Acesso e Integrações, agrupado sob o mesmo `campoAtivo: "integracaoAgendaAtiva"` do
+  cartão "Google Agenda" (uma integração, dois webhooks: um cria o evento, outro consulta
+  disponibilidade).
+- **`src/lib/disponibilidade-agenda.ts`** (`resolverHorariosDisponiveis`) — o motor da checagem:
+  - Pra cada um dos até 3 `HorarioSugerido`, gera 5 candidatos (a data original + 4 tentativas de
+    "um dia a mais, mesma hora" via `avancarDias`, `src/lib/horarios-sugeridos.ts`) — constante
+    `TENTATIVAS_EXTRAS = 4`, não exposta em UI, só no código.
+  - Manda **todos os candidatos das 3 posições numa chamada só** (`POST /webhook/checar-agenda`,
+    payload `{candidatos: [{id, data, duracaoMin}]}`, `id` no formato `"<ordem>-<tentativa>"`) —
+    não uma chamada por tentativa, pra não ser tagarela com o n8n. Resposta esperada:
+    `{livres: string[]}`, os `id`s que estão livres.
+  - Pra cada posição, pega a **primeira tentativa livre** (a original, se estiver livre; senão a
+    de +1 dia; e assim por diante). Se nenhuma das 5 estiver livre, **a posição some da lista** —
+    não trava nada, não força um horário ocupado, não implode a tela; o lead ainda tem "proponha
+    um horário" (se `ofereceCampoAberto`) e o canal WhatsApp.
+  - **Best-effort igual a todo webhook do app**: sem URL, com a checagem desligada, ou se o n8n
+    não responder (erro, timeout, JSON sem `livres`) → cai pros 3 horários sem checar, mesmo
+    comportamento de sempre. "Conflito não bloqueia" continua valendo como rede de segurança
+    mesmo com a checagem ligada.
+- **Roda uma vez só, no load de `/captacao`** (Server Component, `src/app/captacao/page.tsx`) —
+  não a cada tela do formulário. Decisão de simplicidade: como o lead pode levar minutos
+  respondendo as perguntas antes de chegar na tela de agendar, um horário checado como livre no
+  load pode em teoria ocupar até lá — aceitável, documentado na própria página, e "conflito não
+  bloqueia" cobre esse caso do mesmo jeito que sempre cobriu.
+- **`EscolhaAgendamento` mudou de forma**: o caso `"horario"` agora carrega `dataHoraISO` (além de
+  `ordem`), não só o índice — `confirmarAgendamento` (`src/app/captacao/actions.ts`) usa esse
+  valor direto, **não recalcula** a partir de `HorarioSugerido` de novo. Precisa ser assim: o
+  resultado da checagem (qual tentativa ficou livre pra cada posição) só existe no momento em que
+  a página carregou; recalcular do zero na confirmação perderia esse resultado e voltaria a
+  oferecer o horário ocupado. `FormularioLead.tsx` não calcula mais data nenhuma sozinho — só
+  formata o que já veio resolvido do servidor (`slotsResolvidos` prop).
+- **Testado**: `src/lib/disponibilidade-agenda.test.ts` (7 casos — sem checar quando o toggle
+  está ligado, sem checar sem URL, todos livres, troca automática quando ocupado, posição some
+  quando nenhuma tentativa está livre, fallback em erro de rede, fallback em resposta malformada)
+  e `avancarDias` em `horarios-sugeridos.test.ts` (3 casos). Testado também ao vivo com o mock
+  local de n8n de sempre: o webhook recebe os candidatos certos, a tela mostra o horário trocado
+  (ex.: segunda ocupada → mostra terça), confirmar esse horário grava a data trocada em
+  `Agendamento` e manda essa mesma data pro `webhookAgendar` — não a original. `npx tsc --noEmit`,
+  `npx eslint .` e os 35 testes de `npm test` (25 + 10 novos) seguem limpos.
+- **Fora de escopo, de propósito**: agendamento manual do Edgar (fora do fluxo do lead) continua
+  sem checagem — só a tela pública de captação foi coberta, por pedido explícito do Edgar.
+
 ## Notas operacionais
 
 - **Depois de qualquer mudança em `prisma/schema.prisma`, reinicie o `next dev`** — não basta

@@ -14,7 +14,7 @@ const ABAS = [
   { n: 1, nome: "Fatores de cálculo", sub: "o racional, editável", titulo: "Fatores de cálculo", sub2: "Os parâmetros do racional saem do código e ficam aqui. Estudos em aberto recalculam ao salvar; mapas gerados não mudam." },
   { n: 2, nome: "Horários sugeridos", sub: "o que o lead vê", titulo: "Horários sugeridos", sub2: "As três opções que a página do lead oferece, calculadas a partir do dia do preenchimento, e o campo aberto." },
   { n: 3, nome: "LGPD e retenção", sub: "consentimento e exclusão", titulo: "LGPD e retenção", sub2: "Onde o consentimento fica registrado, como um cliente sai do sistema, e a fila dos mapas parados." },
-  { n: 4, nome: "Acesso e Integrações", sub: "login e webhooks do n8n", titulo: "Acesso e Integrações", sub2: "O caminho de recuperação de senha, e os 6 endereços que ligam a ferramenta ao n8n — agenda, WhatsApp, e-mail, IA, lead e exclusão." },
+  { n: 4, nome: "Acesso e Integrações", sub: "login e webhooks do n8n", titulo: "Acesso e Integrações", sub2: "O caminho de recuperação de senha, e os 7 endereços que ligam a ferramenta ao n8n — agenda, disponibilidade, WhatsApp, e-mail, IA, lead e exclusão." },
   { n: 5, nome: "Perfil e marca", sub: "nome, contato, logo e foto", titulo: "Perfil e marca", sub2: "O que identifica você nos materiais — nome, endereço, telefone, sua foto e o logo da corretora." },
 ] as const;
 
@@ -316,11 +316,12 @@ function AbaAcesso({ corretor }: { corretor: Corretor }) {
       <div style={{ width: "100%", marginTop: 8, paddingTop: 28, borderTop: "1px solid var(--borda)" }}>
         <div style={{ font: "600 20px var(--font-titulo)", color: "var(--marinho)", marginBottom: 4 }}>Integrações</div>
         <div style={{ font: "400 13px/1.6 var(--font-interface)", color: "var(--texto-secundario)", marginBottom: 20, maxWidth: 660 }}>
-          Os 6 endereços de webhook que ligam a ferramenta ao n8n — agenda, WhatsApp/Evolution, e-mail, IA, lead e exclusão LGPD. Sem eles, cada disparo cai no branch &quot;não configurado&quot; e só loga (ver AGENTS.md).
+          Os 7 endereços de webhook que ligam a ferramenta ao n8n — agenda (mais disponibilidade), WhatsApp/Evolution, e-mail, IA, lead e exclusão LGPD. Sem eles, cada disparo cai no branch &quot;não configurado&quot; e só loga (ver AGENTS.md).
         </div>
         <IntegracoesForm
           urlsIniciais={{
             webhookAgendar: corretor.webhookAgendar,
+            webhookChecarAgenda: corretor.webhookChecarAgenda,
             webhookNotificar: corretor.webhookNotificar,
             webhookEnviarMapa: corretor.webhookEnviarMapa,
             webhookGerarTexto: corretor.webhookGerarTexto,

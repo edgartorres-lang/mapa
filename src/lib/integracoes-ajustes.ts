@@ -1,16 +1,19 @@
 /**
- * Catálogo dos 6 webhooks do n8n — Ajustes → Acesso e Integrações. Porta de `Acesso e
+ * Catálogo dos 7 webhooks do n8n — Ajustes → Acesso e Integrações. Porta de `Acesso e
  * Identidade.dc.html`, tela 6 (`INT`, ~linha 501, mais a lista de referência "Webhooks a criar no
  * n8n", ~linha 612). O protótipo só desenhava campo de URL pros 4 com toggle (agenda, WhatsApp,
  * e-mail, IA) — `lead` e `esquecer` apareciam só na lista de referência, sem input. O Edgar pediu
  * (2026-09-04) pra também terem campo de URL, só que sem toggle — eles disparam sozinhos quando o
  * evento acontece, não são "serviço que se liga e desliga". `campoAtivo: null` marca esse caso.
+ * `webhookChecarAgenda` (também 2026-09-04, junto da checagem real de conflito) não vem do
+ * protótipo — é campo novo, agrupado com `webhookAgendar` sob o mesmo `campoAtivo` (mesma
+ * integração "Google Agenda", dois webhooks: um cria o evento, outro consulta disponibilidade).
  */
 
-export type CampoWebhookUrl = "webhookAgendar" | "webhookNotificar" | "webhookEnviarMapa" | "webhookGerarTexto" | "webhookLead" | "webhookEsquecer";
+export type CampoWebhookUrl = "webhookAgendar" | "webhookChecarAgenda" | "webhookNotificar" | "webhookEnviarMapa" | "webhookGerarTexto" | "webhookLead" | "webhookEsquecer";
 export type CampoIntegracaoAtiva = "integracaoAgendaAtiva" | "integracaoWhatsappAtiva" | "integracaoEmailAtiva" | "integracaoIaAtiva";
 
-export const CAMPOS_WEBHOOK_URL: readonly CampoWebhookUrl[] = ["webhookAgendar", "webhookNotificar", "webhookEnviarMapa", "webhookGerarTexto", "webhookLead", "webhookEsquecer"];
+export const CAMPOS_WEBHOOK_URL: readonly CampoWebhookUrl[] = ["webhookAgendar", "webhookChecarAgenda", "webhookNotificar", "webhookEnviarMapa", "webhookGerarTexto", "webhookLead", "webhookEsquecer"];
 export const CAMPOS_INTEGRACAO_ATIVA: readonly CampoIntegracaoAtiva[] = ["integracaoAgendaAtiva", "integracaoWhatsappAtiva", "integracaoEmailAtiva", "integracaoIaAtiva"];
 
 export interface DefinicaoWebhook {
@@ -40,6 +43,18 @@ export const WEBHOOKS: DefinicaoWebhook[] = [
     rota: "POST /webhook/agendar",
     quando: "Lead escolhe horário ou propõe um no campo aberto.",
     payload: "nome, contato, data, hora, duração",
+  },
+  {
+    chave: "webhookChecarAgenda",
+    campoAtivo: "integracaoAgendaAtiva",
+    nome: "Google Agenda · disponibilidade",
+    desc: "Consulta os horários livres antes de sugerir ao lead. Só é chamado com \"Aceitar horário já ocupado\" desligado (Ajustes → Horários sugeridos).",
+    rotuloCampo: "Webhook de disponibilidade",
+    placeholder: "https://n8n.seudominio.com/webhook/checar-agenda",
+    nota: "Recebe uma lista de horários candidatos e devolve quais estão livres no seu Google Agenda.",
+    rota: "POST /webhook/checar-agenda",
+    quando: 'Lead chega na tela de agendar, só se "Aceitar horário já ocupado" estiver desligado.',
+    payload: "lista de candidatos (id, data, duração) → devolve os ids livres",
   },
   {
     chave: "webhookNotificar",

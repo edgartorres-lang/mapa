@@ -51,11 +51,14 @@ model Corretor {
   logoEscuroUrl String? @map("logo_escuro_url") // logo pra fundo claro (branco): proposta A4
   corDestaque   String  @default("#39CC00") @map("cor_destaque")
 
-  // Integrações (n8n). Seis endereços de webhook (a "canalização", sempre ativa); só quatro têm
-  // toggle na tela de Integrações — lead e esquecer disparam sozinhos quando o evento acontece,
-  // sem chave de ligar/desligar (Acesso e Identidade.dc.html, tela 6, atualizado 2026-09-01).
+  // Integrações (n8n). Sete endereços de webhook (a "canalização", sempre ativa); lead e
+  // esquecer disparam sozinhos quando o evento acontece, sem chave de ligar/desligar (Acesso e
+  // Identidade.dc.html, tela 6, atualizado 2026-09-01). `webhookChecarAgenda` é o mais novo
+  // (2026-09-04) — consulta de disponibilidade antes de sugerir horário ao lead, ver
+  // `aceitaHorarioOcupado` abaixo e AGENTS.md, "Checagem de agenda".
   webhookLead             String? @map("webhook_lead")
   webhookAgendar          String? @map("webhook_agendar")
+  webhookChecarAgenda     String? @map("webhook_checar_agenda")
   webhookNotificar        String? @map("webhook_notificar")
   webhookEnviarMapa       String? @map("webhook_enviar_mapa")
   webhookGerarTexto       String? @map("webhook_gerar_texto")
@@ -67,10 +70,10 @@ model Corretor {
 
   // Preferências de agendamento — Ajustes → Horários sugeridos (Etapa 6). `pulaFimDeSemana` e
   // `ofereceCampoAberto` mudam comportamento de verdade (ver src/lib/horarios-sugeridos.ts e
-  // FormularioLead.tsx). `aceitaHorarioOcupado` é só documentação por enquanto — o app nunca
-  // consultou a agenda antes de oferecer um horário (não existe checagem de conflito, com ou sem
-  // esta chave); fica gravado para quando existir integração real com o Google Agenda via n8n.
-  // Ver AGENTS.md, "Ajustes (Etapa 6)".
+  // FormularioLead.tsx). `aceitaHorarioOcupado` virou real em 2026-09-04: desligada, o app
+  // consulta `webhookChecarAgenda` antes de mostrar horário ao lead e troca qualquer um ocupado
+  // por outro livre (ver src/lib/disponibilidade-agenda.ts); ligada (padrão), continua sem
+  // checar nada, como sempre foi. Ver AGENTS.md, "Checagem de agenda".
   ofereceCampoAberto   Boolean @default(true) @map("oferece_campo_aberto")
   aceitaHorarioOcupado Boolean @default(true) @map("aceita_horario_ocupado")
   pulaFimDeSemana      Boolean @default(false) @map("pula_fim_de_semana")

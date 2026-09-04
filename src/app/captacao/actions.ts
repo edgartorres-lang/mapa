@@ -3,7 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { mapearLeadParaEstudo, type LeadRespostas } from "@/lib/lead-formulario";
-import { calcularDataHorario } from "@/lib/horarios-sugeridos";
 import { dispararWebhook } from "@/lib/webhooks";
 import { padroesPorEstudo } from "@/lib/fatores-calculo";
 
@@ -105,14 +104,21 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
 }
 
 export type EscolhaAgendamento =
-  | { tipo: "horario"; ordem: number }
+  | { tipo: "horario"; ordem: number; dataHoraISO: string }
   | { tipo: "sugerido"; texto: string }
   | { tipo: "whatsapp" };
 
 /**
- * Última tela do formulário: agenda um dos 3 horários, ou o campo aberto, ou pede retorno por
- * WhatsApp (sem compromisso de horário — não cria Agendamento, só avisa o corretor). "Não
- * consulta a agenda antes — horário ocupado é aceito e o corretor remarca" (README).
+ * Última tela do formulário: agenda um dos horários já resolvidos (ver
+ * `resolverHorariosDisponiveis`, chamado no load de `/captacao`), ou o campo aberto, ou pede
+ * retorno por WhatsApp (sem compromisso de horário — não cria Agendamento, só avisa o corretor).
+ *
+ * `dataHoraISO` vem pronto do cliente — é o mesmo valor que apareceu na tela, já resolvido contra
+ * a agenda de verdade quando a checagem está ligada (`Corretor.aceitaHorarioOcupado` desligado).
+ * Não recalcula a partir de `HorarioSugerido` de novo aqui: o resultado da checagem (qual
+ * candidato — dia original ou um dos seguintes — ficou livre) só existe no momento em que a
+ * página carregou, e se perderia se recomputássemos do zero. Ainda assim "conflito não bloqueia"
+ * continua valendo — o corretor vê e remarca se precisar, como sempre.
  */
 export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAgendamento) {
   const cliente = await prisma.cliente.findUniqueOrThrow({ where: { id: clienteId } });
@@ -133,10 +139,8 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
   let origem: string;
 
   if (escolha.tipo === "horario") {
-    const horarios = await prisma.horarioSugerido.findMany({ where: { corretorId: corretor.id }, orderBy: { ordem: "asc" } });
-    const h = horarios[escolha.ordem];
-    if (!h) throw new Error("Horário sugerido não encontrado.");
-    dataHora = calcularDataHorario(h, new Date(), corretor.pulaFimDeSemana);
+    dataHora = new Date(escolha.dataHoraISO);
+    if (Number.isNaN(dataHora.getTime())) throw new Error("Horário inválido.");
     origem = `horario${escolha.ordem + 1}`;
   } else {
     textoLivre = escolha.texto;

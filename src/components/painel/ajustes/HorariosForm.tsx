@@ -137,7 +137,7 @@ export function HorariosForm({
             <Toggle titulo="Oferecer o campo aberto" nota="O lead escreve o dia e a hora que preferir. Vai para a agenda como está." on={ofereceCampoAberto} onClick={() => alternarPreferencia("ofereceCampoAberto")} />
             <Toggle
               titulo="Aceitar horário já ocupado"
-              nota="Sem consultar a agenda antes. Você vê o conflito e remarca. Hoje isto é sempre assim — o app ainda não fala com o Google Agenda pra checar; a chave fica pronta pra quando falar."
+              nota='Ligado (padrão): sem consultar a agenda antes — você vê o conflito depois e remarca. Desligado: o app consulta o Google Agenda antes de sugerir horário ao lead (webhook "Google Agenda · disponibilidade", em Acesso e Integrações) e troca qualquer horário ocupado por outro livre automaticamente.'
               on={aceitaHorarioOcupado}
               onClick={() => alternarPreferencia("aceitaHorarioOcupado")}
             />
@@ -169,7 +169,9 @@ export function HorariosForm({
         <div style={{ background: "var(--nota-fundo)", border: "1px solid var(--nota-borda)", borderRadius: 12, padding: "18px 20px" }}>
           <div style={{ font: "600 13.5px var(--font-interface)", color: "var(--nota-texto)", marginBottom: 7 }}>Conflito não bloqueia</div>
           <div style={{ font: "400 11.5px/1.7 var(--font-interface)", color: "var(--nota-texto)" }}>
-            A ferramenta não consulta a sua agenda antes de oferecer o horário. Se cair em cima de um compromisso, o evento entra igual e você remarca. Um lead perdido na tela custa mais que um remarcamento.
+            {aceitaHorarioOcupado
+              ? "A ferramenta não consulta a sua agenda antes de oferecer o horário. Se cair em cima de um compromisso, o evento entra igual e você remarca. Um lead perdido na tela custa mais que um remarcamento."
+              : 'Com "Aceitar horário já ocupado" desligado, a ferramenta consulta o Google Agenda antes e troca um horário ocupado por outro automaticamente — mas a checagem só roda uma vez, quando o lead abre o link. Se ele demorar pra chegar na tela de agendar, ainda pode cair em cima de um compromisso novo; você vê e remarca do mesmo jeito.'}
           </div>
         </div>
       </div>

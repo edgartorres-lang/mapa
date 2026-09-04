@@ -36,7 +36,7 @@ export function IntegracoesForm({ urlsIniciais, ativosIniciais }: { urlsIniciais
         <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "22px 24px" }}>
           <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)", marginBottom: 3 }}>Webhooks a criar no n8n</div>
           <div style={{ font: "400 11px/1.6 var(--font-interface)", color: "var(--texto-secundario)", marginBottom: 14 }}>
-            Um por evento. Os quatro primeiros cartões ao lado são serviços que você liga e desliga; estes seis endereços são a canalização, sempre ativa. <strong style={{ color: "var(--marinho)" }}>Lead</strong> e{" "}
+            Um por evento. Os cartões com chave ao lado são serviços que você liga e desliga; estes sete endereços são a canalização, sempre ativa. <strong style={{ color: "var(--marinho)" }}>Lead</strong> e{" "}
             <strong style={{ color: "var(--marinho)" }}>esquecer</strong> não têm chave própria: disparam sozinhos quando o evento acontece.
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
