@@ -13,16 +13,15 @@ WORKDIR /app
 # de compilador. Só existe nesta etapa (não vai pra imagem final).
 RUN apt-get update && apt-get install -y --no-install-recommends python3 build-essential && rm -rf /var/lib/apt/lists/*
 # Só os manifests primeiro — o Docker reaproveita esta camada entre builds enquanto eles não
-# mudarem, mesmo editando código depois. `--omit=dev` não dá aqui: `prisma generate` (chamado
-# pelo hook `postinstall`) e o `next build` do próximo estágio precisam do `prisma` de
-# devDependencies.
+# mudarem, mesmo editando código depois. `--omit=dev` não dá aqui: `next build` do próximo
+# estágio precisa do `prisma` de devDependencies.
 COPY package.json package-lock.json ./
-# DATABASE_URL de mentira só pra o hook `postinstall` (roda `prisma generate`) não falhar —
-# `prisma.config.ts` exige a variável estar definida pra carregar o config, mesmo generate não
-# abrindo conexão nenhuma com banco de verdade. O valor de verdade entra em runtime, pelo
-# EasyPanel (ver DEPLOY.md) — este aqui nunca é usado pra conectar em nada.
-ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
-RUN npm ci
+# `--ignore-scripts`: sem isso, `npm ci` dispara o hook `postinstall` (`prisma generate`) — que
+# quebra o build aqui, porque nesta etapa só copiamos os dois arquivos acima, `prisma/schema.prisma`
+# ainda não existe neste estágio (erro real visto testando no EasyPanel: "Could not find Prisma
+# Schema"). O generate de verdade roda embaixo, no estágio `builder`, depois do `COPY . .` trazer
+# o schema junto — não precisa (nem pode) rodar aqui.
+RUN npm ci --ignore-scripts
 
 FROM node:22-slim AS builder
 WORKDIR /app

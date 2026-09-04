@@ -562,10 +562,21 @@ no EasyPanel — passo a passo completo, escrito pro Edgar seguir, em `DEPLOY.md
   de verdade local (sem dev server rodando ao mesmo tempo — rodar os dois juntos corrompe
   `.next/`, mesmo problema documentado abaixo em "Notas operacionais") confirmando que
   `.next/standalone/node_modules/@prisma/adapter-pg` e `/pg` existem depois da correção.
-  **Não testado**: o `Dockerfile` em si nunca rodou de verdade (sem Docker disponível neste
-  ambiente) — a lógica de cada estágio foi validada rodando os comandos equivalentes fora do
-  container (`npm ci` já rodava, `prisma generate` com a URL falsa, `next build`), mas o
-  primeiro `docker build` de verdade só vai acontecer no EasyPanel.
+- **Bug real, achado só no primeiro `docker build` de verdade no EasyPanel (2026-09-04),
+  não pego pelos testes locais** (que rodavam cada comando solto, dentro do repo inteiro — nunca
+  simulei o contexto restrito de cada estágio do Dockerfile): o estágio `deps` copia só
+  `package.json`/`package-lock.json` de propósito (cache de camada), mas `RUN npm ci` disparava o
+  hook `postinstall` (`prisma generate`), que precisa de `prisma/schema.prisma` — inexistente
+  ainda nesse estágio. Build quebrava com `Error: Could not find Prisma Schema`. Corrigido com
+  `npm ci --ignore-scripts` nesse estágio — o `prisma generate` de verdade já roda depois, no
+  estágio `builder`, num `RUN` próprio, depois do `COPY . .` trazer o schema junto. Confirmado
+  rodando `npm ci --ignore-scripts` isolado (só os dois manifests numa pasta vazia) antes de
+  reenviar a correção pro Edgar tentar de novo.
+- **Primeiro `docker build` de verdade só aconteceu no EasyPanel** (sem Docker disponível neste
+  ambiente local) — foi o que revelou o bug acima. A lição: testar cada comando solto, dentro do
+  repo inteiro, não substitui simular o contexto de arquivos restrito de cada estágio — próxima
+  vez que mexer no Dockerfile, valide isso também (`cp` só os arquivos daquele `COPY` específico
+  pra uma pasta vazia e rode o comando ali, não no repo).
 
 ## Notas operacionais
 
