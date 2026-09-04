@@ -280,12 +280,9 @@ consistência.
   - `corretor.webhookAgendar`: ao confirmar horário fixo ou sugerido (não no canal WhatsApp, que
     não agenda nada) — `{ nome, contato, data, hora, duracao:45, sugestaoLivre }`. Nunca leva
     valor de cobertura (não-negociável).
-  - As três URLs ainda não têm tela pra configurar — a tela "Integrações" mora em
-    `Acesso e Identidade.dc.html` (tela 6), um protótipo separado de `Ajustes.dc.html`, e nunca
-    esteve dentro das 6 etapas combinadas com o Edgar (a Etapa 6 é só os 4 blocos do próprio
-    `Ajustes.dc.html`, construídos agora). Até essa tela existir, as seis URLs de webhook ficam
-    `null` em todo `Corretor`, então todo disparo cai no branch "não configurado" e só loga —
-    sinalizado ao Edgar ao fechar a Etapa 6.
+  - As seis URLs agora têm tela pra configurar — `Ajustes → aba 4 (Acesso e Integrações)`, ver
+    a seção "Integrações" abaixo. Até serem configuradas, ficam `null` em `Corretor` e todo
+    disparo cai no branch "não configurado", só loga.
 - **Canal "whatsapp" não cria `Agendamento`**: pedir retorno por WhatsApp registra o evento e
   dispara `webhookNotificar`, mas não tem hora nem compromisso — não há linha em `Agendamento`
   pra esse caso, só para os canais "horário fixo" e "sugerido" (`confirmarAgendamento` em
@@ -357,13 +354,17 @@ Porta dos 4 blocos de `Ajustes.dc.html` — `src/app/painel/ajustes/page.tsx` (u
     o resto da tela usa botão explícito — então adicionei um "Salvar" visível (mais Enter) em vez
     de confiar só no blur. Guarde esse padrão: **campo que salva sozinho sempre precisa de uma
     saída explícita também**, não só um efeito colateral de perder o foco.
-- **Acesso e senha (aba 4)**: **referência, não funcional** — os 3 passos de recuperação de senha
-  e as "Regras do acesso" são os mesmos textos estáticos do protótipo, sem formulário de verdade
-  por trás. Não tem login real no app hoje (`obterCorretorAtual()` em `src/lib/corretor-atual.ts`
-  segue sendo o substituto — só busca "o corretor", sem senha nem sessão). A tela de login/senha
-  de verdade vive em `Acesso e Identidade.dc.html`, que **nunca esteve nas 6 etapas** combinadas
-  com o Edgar — é trabalho novo, não uma etapa esquecida, e só deveria entrar em pauta quando (se)
-  o produto for abrir para mais de um corretor.
+- **Acesso e Integrações (aba 4, renomeada de "Acesso e senha" em 2026-09-03/04 a pedido do
+  Edgar)**: dois blocos na mesma aba.
+  - **Recuperação de senha** (parte de cima, sem mudança): **referência, não funcional** — os 3
+    passos e as "Regras do acesso" são os mesmos textos estáticos do protótipo, sem formulário de
+    verdade por trás. Não tem login real no app hoje (`obterCorretorAtual()` em
+    `src/lib/corretor-atual.ts` segue sendo o substituto — só busca "o corretor", sem senha nem
+    sessão). A tela de login/senha de verdade vive em `Acesso e Identidade.dc.html`, que **nunca
+    esteve nas 6 etapas** combinadas com o Edgar — é trabalho novo, não uma etapa esquecida, e só
+    deveria entrar em pauta quando (se) o produto for abrir para mais de um corretor.
+  - **Integrações** (bloco novo, ver seção própria abaixo) — os 6 webhooks do n8n, funcional de
+    verdade: URL por webhook, testar, ligar/desligar, salvar.
 - **Perfil e marca (aba 5, adicionada 2026-09-03 a pedido do Edgar — não vem de Ajustes.dc.html
   nem estava nas 6 etapas)**: nome/cargo/corretora/SUSEP/WhatsApp/e-mail/endereço/razão social
   (texto, um "Salvar perfil" só) e três imagens (foto do corretor, logo claro pra fundo escuro,
@@ -383,6 +384,80 @@ Porta dos 4 blocos de `Ajustes.dc.html` — `src/app/painel/ajustes/page.tsx` (u
     "LOGO"/"FOTO" de sempre — nada trava. `construirApresentacao()` (`src/lib/apresentacao.ts`)
     é quem repassa as três URLs pro objeto `r` que as três saídas consomem; captação e painel
     lêem `corretor.fotoUrl`/`logoClaroUrl` direto, sem passar por `r`.
+
+## Integrações com o n8n (2026-09-03/04, a pedido do Edgar — não vem de nenhuma etapa combinada)
+
+Tela em `Ajustes → aba 4 (Acesso e Integrações)`, bloco "Integrações" — base de design
+`Acesso e Identidade.dc.html`. Catálogo dos 6 webhooks em `src/lib/integracoes-ajustes.ts`
+(`WEBHOOKS`, com nome/descrição/rótulo/placeholder/nota copiados do protótipo, mais
+`rota`/`quando`/`payload` pro painel de referência "Webhooks a criar no n8n"). Componente
+`src/components/painel/ajustes/IntegracoesForm.tsx`, ações em
+`src/app/painel/ajustes/actions.ts` (`salvarWebhookUrl`, `alternarIntegracao`,
+`testarWebhookAction`).
+
+- **Um campo de URL por webhook**, salvo em `Corretor` (6 colunas já existiam desde a Etapa 5:
+  `webhookAgendar`, `webhookNotificar`, `webhookEnviarMapa`, `webhookGerarTexto`, `webhookLead`,
+  `webhookEsquecer` — não precisou schema novo). Salvamento por **botão explícito** (não blur —
+  mesma lição do campo de retenção da aba 3, ver acima).
+- **Botão "Testar"** por webhook: dispara `testarWebhook()` (`src/lib/webhooks.ts`) — POST com
+  `{tipo:"teste", origem, quando}`, timeout de 8s, mostra "✓ Respondeu 200 em Xms" ou "✗ …" sem
+  travar o app. Testa o valor **digitado no campo**, não precisa salvar antes.
+- **Indicador de status** por linha: "Configurado"/"Não configurado", derivado só de a URL salva
+  estar vazia ou não (não depende do resultado do teste).
+- **`webhookLead` e `webhookEsquecer` não têm chave liga/desliga** — disparam sozinhos quando o
+  evento acontece, só precisam da URL (`campoAtivo: null` em `WEBHOOKS`, `IntegracoesForm` não
+  renderiza o toggle nesse caso). Os outros 4 têm `campoAtivo` apontando pra uma das 4 flags
+  booleanas já existentes em `Corretor` (`integracaoAgendaAtiva`, `integracaoWhatsappAtiva`,
+  `integracaoEmailAtiva`, `integracaoIaAtiva`).
+- **Os 4 pontos best-effort/stub agora chamam o webhook de verdade**:
+  - **`enviarMapaPorEmail`** (`src/app/estudo/actions.ts`) → dispara `webhookEnviarMapa` via
+    `dispararWebhookComResposta`. Usado pelo botão "Enviar agora" em
+    `src/components/saida/EmailCompositor.tsx`, que agora tem estado real
+    (enviando/enviado/erro) em vez do antigo `setEnviado(true)` local. Bloqueado se
+    `integracaoEmailAtiva` for falso (mensagem: "A integração de e-mail está desligada em
+    Ajustes → Acesso e Integrações.").
+  - **`gerarTextosEstudo`** (`src/app/estudo/actions.ts`) → dispara `webhookGerarTexto` via
+    `dispararWebhookComResposta`, contrato de resposta `{cliente: string[], interna: string[]}`.
+    Usado pelo botão "Gerar textos"/"Gerar de novo" em
+    `src/components/estudo/etapas/Resultado.tsx` (etapa 5) — atualiza `resumoParaVoce`/
+    `analiseInterna` do `Estudo` e o state local sem recarregar a página. Só funciona com
+    `estudo.status === "aberto"` (o texto trava junto com o resto quando vira Mapa) e com
+    `integracaoIaAtiva` ligado.
+  - **`registrarExclusaoLgpd`** (`src/app/painel/ajustes/actions.ts`) — já disparava
+    `webhookEsquecer` desde a Etapa 6; sem mudança de código, só passou a ter URL de verdade pra
+    chamar depois que esta tela existe.
+  - **`enviarLead`** (`src/app/captacao/actions.ts`) — já disparava `webhookLead` dinamicamente
+    desde a Etapa 5 (não era placeholder hardcoded); mesma situação do `esquecer`, só ganhou URL
+    de verdade.
+- **Toggle-gating novo em `src/app/captacao/actions.ts`**: as três chamadas de
+  `webhookNotificar` (lead novo/repetido, horário escolhido, pedido de WhatsApp) e a de
+  `webhookAgendar` (confirmar horário) agora ficam dentro de
+  `if (corretor.integracaoWhatsappAtiva)` / `if (corretor.integracaoAgendaAtiva)` — antes
+  disparavam sempre que a URL existisse, sem checar a flag. `webhookLead` continua disparando
+  sempre (comentário no código explica por quê — é canalização, não serviço liga/desliga).
+- **`gerarMapa` agora congela `resumoParaVoce`/`analiseInterna`**: o modelo `Mapa` sempre teve
+  essas duas colunas (cópia travada, separada da cópia regenerável em `Estudo`), mas
+  `gerarMapa()` nunca as preenchia — bug antigo, corrigido junto com esta etapa. Se o corretor
+  gerou texto antes de fechar o mapa, o texto vai junto e trava; se não gerou, `Mapa` fica com
+  `null` nesses dois campos (mesmo comportamento de antes).
+- **Duas funções novas em `src/lib/webhooks.ts`**, além do `dispararWebhook` fire-and-forget de
+  sempre:
+  - `dispararWebhookComResposta<T>(url, payload, timeoutMs=15000)` — para os dois casos que
+    precisam da resposta do n8n (`enviar-mapa` e `gerar-texto`). Retorna
+    `{ok:true, dados}` ou `{ok:false, erro}` (nunca lança), com mensagem em português already
+    pronta pra mostrar na tela ("Webhook não configurado…", "O webhook respondeu 500.", "Não
+    consegui falar com o webhook…").
+  - `testarWebhook(url)` — para o botão "Testar", timeout mais curto (8s), sempre retorna
+    `{sucesso, detalhe}`.
+- **Checagem real de agenda (conflito de horário) segue não implementada de propósito** — é a
+  próxima etapa depois desta, por pedido explícito do Edgar. `aceitaHorarioOcupado` continua só
+  documentação (ver aba 2 acima).
+- **Testado em 2026-09-03/04** com um mock de n8n local (script descartável, não faz parte do
+  repo) nos 6 endpoints: salvar as 6 URLs, testar sucesso e falha (500), ligar/desligar os 4
+  toggles, `Gerar textos` populando as duas seções sem reload, `Gerar Mapa da Proteção`
+  congelando o texto gerado no `Mapa`, `Enviar agora` disparando `webhookEnviarMapa` de
+  verdade, e o bloqueio "está desligada" quando a integração correspondente está desligada.
+  `npx tsc --noEmit`, `npx eslint .` e os 25 testes de `npm test` continuam limpos.
 
 ## Notas operacionais
 

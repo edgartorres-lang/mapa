@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Apresentacao } from "@/lib/apresentacao";
+import { enviarMapaPorEmail } from "@/app/estudo/actions";
 
 type ChaveAnexo = "resumo" | "a4" | "slides" | "ia";
 
@@ -14,8 +15,9 @@ const ANEXOS_DEF: { k: ChaveAnexo; rotulo: string }[] = [
 ];
 
 /**
- * O envio real depende do webhook `/webhook/enviar-mapa` (n8n) — Etapa 5, ainda não conectada.
- * "Enviar agora" aqui é um stub: mostra o que seria enviado, não envia nada de verdade.
+ * O envio real dispara `webhookEnviarMapa` (n8n) — configurado em Ajustes → Acesso e
+ * Integrações. Best-effort: sem URL configurada, com a integração desligada, ou se o n8n não
+ * responder, mostra o erro em vez de travar — nunca finge que enviou.
  *
  * "Baixar A4" leva pra tela da proposta em vez de imprimir esta própria tela: a proposta de
  * 3 páginas não existe no DOM aqui (é outra rota) — diferente do protótipo original, que tinha
@@ -25,7 +27,21 @@ export function EmailCompositor({ estudoId, r }: { estudoId: string; r: Apresent
   const [destinatario, setDestinatario] = useState("");
   const [assunto, setAssunto] = useState(r.assuntoPadrao);
   const [anexos, setAnexos] = useState({ resumo: true, a4: true, slides: false, ia: false });
+  const [enviando, setEnviando] = useState(false);
   const [enviado, setEnviado] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  async function enviar() {
+    setEnviando(true);
+    setErro(null);
+    try {
+      const resultado = await enviarMapaPorEmail(estudoId, destinatario, assunto, anexos);
+      if (resultado.sucesso) setEnviado(true);
+      else setErro(resultado.erro);
+    } finally {
+      setEnviando(false);
+    }
+  }
 
   return (
     <div style={{ width: 400, background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, overflow: "hidden" }}>
@@ -92,12 +108,11 @@ export function EmailCompositor({ estudoId, r }: { estudoId: string; r: Apresent
         <div style={{ display: "flex", gap: 9 }}>
           <button
             type="button"
-            onClick={() => setEnviado(true)}
-            disabled={!destinatario}
-            title="Depende do webhook /webhook/enviar-mapa (n8n), construído na Etapa 5"
-            style={{ flex: 1, font: "700 13px var(--font-interface)", color: "#fff", background: destinatario ? "var(--azul)" : "var(--cinza-inativo)", border: "none", padding: 13, borderRadius: 999, cursor: destinatario ? "pointer" : "not-allowed" }}
+            onClick={enviar}
+            disabled={!destinatario || enviando}
+            style={{ flex: 1, font: "700 13px var(--font-interface)", color: "#fff", background: destinatario && !enviando ? "var(--azul)" : "var(--cinza-inativo)", border: "none", padding: 13, borderRadius: 999, cursor: destinatario && !enviando ? "pointer" : "not-allowed" }}
           >
-            Enviar agora
+            {enviando ? "Enviando…" : "Enviar agora"}
           </button>
           <Link
             href={`/estudo/${estudoId}/proposta`}
@@ -106,9 +121,12 @@ export function EmailCompositor({ estudoId, r }: { estudoId: string; r: Apresent
             Baixar A4
           </Link>
         </div>
+        {erro && (
+          <div style={{ background: "var(--alerta-fundo)", border: "1px solid var(--alerta-borda)", borderRadius: 9, padding: "11px 13px", font: "500 12px/1.6 var(--font-interface)", color: "var(--alerta-texto)" }}>{erro}</div>
+        )}
         {enviado && (
           <div style={{ background: "var(--sucesso-fundo)", border: "1px solid var(--sucesso-borda)", borderRadius: 9, padding: "11px 13px", font: "500 12px/1.6 var(--font-interface)", color: "var(--verde-escuro)" }}>
-            Este botão ainda não envia de verdade — depende do webhook <code>/webhook/enviar-mapa</code> (n8n), da Etapa 5. Quando conectado, isto dispara o envio real pro corretor revisar antes de sair.
+            Enviado — o n8n recebeu o pedido e cuida do envio de verdade.
           </div>
         )}
       </div>

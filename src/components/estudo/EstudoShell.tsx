@@ -29,6 +29,8 @@ export function EstudoShell({
   fatores,
   statusInicial,
   derivadosCongelados,
+  resumoParaVoceInicial,
+  analiseInternaInicial,
 }: {
   estudoId: string;
   clienteId: string;
@@ -36,6 +38,8 @@ export function EstudoShell({
   fatores: FatoresCalculo;
   statusInicial: "aberto" | "gerado";
   derivadosCongelados: ReturnType<typeof calc> | null;
+  resumoParaVoceInicial: string | null;
+  analiseInternaInicial: string | null;
 }) {
   const [dados, setDados] = useState(dadosIniciais);
   const [step, setStep] = useState(0);
@@ -136,6 +140,8 @@ export function EstudoShell({
               motivosBloqueio={motivosBloqueio}
               gerando={gerando}
               onGerar={() => startGerar(() => gerarMapa(estudoId))}
+              resumoParaVoceInicial={resumoParaVoceInicial}
+              analiseInternaInicial={analiseInternaInicial}
             />
           )}
 

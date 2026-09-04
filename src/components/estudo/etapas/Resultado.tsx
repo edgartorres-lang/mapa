@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import type { EstudoFormulario } from "@/lib/estudo-formulario";
 import type { CalcResultado } from "@/lib/calc";
 import { brl, brlCurto } from "@/lib/formato";
 import { ModalGerar } from "@/components/estudo/ModalGerar";
+import { gerarTextosEstudo } from "@/app/estudo/actions";
 
 const CORES_CATEGORIA = ["#0F3D63", "#1B72BE", "#39CC00", "#D9A400"];
 
@@ -17,6 +19,8 @@ export function Resultado({
   motivosBloqueio,
   onGerar,
   gerando,
+  resumoParaVoceInicial,
+  analiseInternaInicial,
 }: {
   dados: EstudoFormulario;
   c: CalcResultado;
@@ -26,7 +30,29 @@ export function Resultado({
   motivosBloqueio: string[];
   onGerar: () => void;
   gerando: boolean;
+  resumoParaVoceInicial: string | null;
+  analiseInternaInicial: string | null;
 }) {
+  const [resumoParaVoce, setResumoParaVoce] = useState(resumoParaVoceInicial);
+  const [analiseInterna, setAnaliseInterna] = useState(analiseInternaInicial);
+  const [gerandoTextos, setGerandoTextos] = useState(false);
+  const [erroTextos, setErroTextos] = useState<string | null>(null);
+
+  async function gerarTextos() {
+    setGerandoTextos(true);
+    setErroTextos(null);
+    try {
+      const r = await gerarTextosEstudo(estudoId);
+      if (r.sucesso) {
+        setResumoParaVoce(r.cliente.join("\n"));
+        setAnaliseInterna(r.interna.join("\n"));
+      } else {
+        setErroTextos(r.erro);
+      }
+    } finally {
+      setGerandoTextos(false);
+    }
+  }
   const maxCat = Math.max(c.vitalicia, c.temporaria, c.custoEducacaoTotal, Math.max(c.invalidezAcidente, c.doencasGraves), 1);
   const excedente = c.capitalAProteger < 0;
 
@@ -169,26 +195,47 @@ export function Resultado({
           <div>
             <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)" }}>Resumo para o cliente</div>
             <div style={{ font: "400 11.5px var(--font-interface)", color: "var(--texto-terciario)", marginTop: 2 }}>
-              Texto do cliente, escrito a partir dos números já calculados. Sai do webhook de IA — Etapa 5, ainda não conectada.
+              Texto do cliente, escrito a partir dos números já calculados, pelo webhook de IA. Pode gerar de novo à vontade enquanto o estudo está aberto.
             </div>
           </div>
-          <button
-            type="button"
-            disabled
-            title="Depende do webhook /webhook/gerar-texto (n8n), construído na Etapa 5"
-            style={{ font: "700 12.5px var(--font-interface)", color: "#fff", background: "var(--cinza-inativo)", border: "none", padding: "10px 18px", borderRadius: 999, cursor: "not-allowed", whiteSpace: "nowrap" }}
-          >
-            Gerar textos
-          </button>
+          {status === "aberto" && (
+            <button
+              type="button"
+              onClick={gerarTextos}
+              disabled={gerandoTextos}
+              style={{ font: "700 12.5px var(--font-interface)", color: "#fff", background: gerandoTextos ? "var(--cinza-inativo)" : "var(--azul)", border: "none", padding: "10px 18px", borderRadius: 999, cursor: gerandoTextos ? "default" : "pointer", whiteSpace: "nowrap" }}
+            >
+              {gerandoTextos ? "Gerando…" : resumoParaVoce ? "Gerar de novo" : "Gerar textos"}
+            </button>
+          )}
         </div>
-        <div style={{ border: "1.5px dashed var(--borda)", borderRadius: 9, padding: "14px 16px", font: "400 12px/1.7 var(--font-interface)", color: "var(--texto-terciario)" }}>
-          Texto ainda não gerado nesta etapa.
-        </div>
+        {erroTextos && (
+          <div style={{ marginBottom: 12, background: "var(--alerta-fundo)", border: "1px solid var(--alerta-borda)", borderRadius: 9, padding: "12px 14px", font: "400 12px/1.6 var(--font-interface)", color: "var(--alerta-texto)" }}>{erroTextos}</div>
+        )}
+        {resumoParaVoce ? (
+          <div style={{ borderLeft: "3px solid var(--verde)", paddingLeft: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+            {resumoParaVoce.split("\n").filter(Boolean).map((p, i) => (
+              <div key={i} style={{ font: "400 12.5px/1.85 var(--font-interface)", color: "var(--texto)" }}>{p}</div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ border: "1.5px dashed var(--borda)", borderRadius: 9, padding: "14px 16px", font: "400 12px/1.7 var(--font-interface)", color: "var(--texto-terciario)" }}>
+            Texto ainda não gerado neste estudo.
+          </div>
+        )}
         <div style={{ marginTop: 16, background: "var(--nota-fundo)", border: "1px solid var(--nota-borda)", borderRadius: 10, padding: "16px 18px" }}>
           <div style={{ font: "700 9.5px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".1em", color: "var(--nota-texto)", marginBottom: 8 }}>
             Análise interna · nunca entra no PDF nem no e-mail
           </div>
-          <div style={{ font: "400 12px/1.7 var(--font-interface)", color: "var(--texto-terciario)" }}>Texto ainda não gerado nesta etapa.</div>
+          {analiseInterna ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {analiseInterna.split("\n").filter(Boolean).map((p, i) => (
+                <div key={i} style={{ font: "400 12px/1.7 var(--font-interface)", color: "var(--texto)" }}>{p}</div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ font: "400 12px/1.7 var(--font-interface)", color: "var(--texto-terciario)" }}>Texto ainda não gerado neste estudo.</div>
+          )}
         </div>
       </div>
 
@@ -210,7 +257,7 @@ export function Resultado({
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 10 }}>
             <Link href={`/estudo/${estudoId}/apresentacao`} style={{ border: "1.5px solid var(--borda)", borderRadius: 12, padding: "15px 16px", display: "block" }}>
               <div style={{ font: "700 13px var(--font-interface)", color: "var(--marinho)" }}>Apresentação</div>
-              <div style={{ font: "400 11.5px/1.55 var(--font-interface)", color: "var(--texto-secundario)", marginTop: 3 }}>16:9 para a reunião. Seis telas.</div>
+              <div style={{ font: "400 11.5px/1.55 var(--font-interface)", color: "var(--texto-secundario)", marginTop: 3 }}>16:9 para a reunião. Dez telas.</div>
             </Link>
             <Link href={`/estudo/${estudoId}/proposta`} style={{ border: "1.5px solid var(--borda)", borderRadius: 12, padding: "15px 16px", display: "block" }}>
               <div style={{ font: "700 13px var(--font-interface)", color: "var(--marinho)" }}>Proposta</div>

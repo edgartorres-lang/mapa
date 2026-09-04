@@ -90,13 +90,16 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
     ...(notaTexto ? [prisma.notaCrm.create({ data: { clienteId: cliente.id, corretorId: corretor.id, texto: notaTexto } })] : []),
   ]);
 
+  // webhookLead dispara sempre, sem chave (não tem toggle na tela de Integrações — igual esquecer).
   await dispararWebhook(corretor.webhookLead, { nome: dados.nome, telefone, email, campanha: utmCampanha });
-  await dispararWebhook(corretor.webhookNotificar, {
-    tipo: leadRepetido ? "lead_repetido" : "lead_novo",
-    nome: dados.nome,
-    profissao: dados.profissao || null,
-    origem: origemTexto,
-  });
+  if (corretor.integracaoWhatsappAtiva) {
+    await dispararWebhook(corretor.webhookNotificar, {
+      tipo: leadRepetido ? "lead_repetido" : "lead_novo",
+      nome: dados.nome,
+      profissao: dados.profissao || null,
+      origem: origemTexto,
+    });
+  }
 
   return { clienteId: cliente.id, estudoId: estudo.id, leadRepetido, corretorNome: corretor.nome };
 }
@@ -119,7 +122,9 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
     await prisma.eventoHistorico.create({
       data: { clienteId, corretorId: corretor.id, tipo: "sistema", texto: "Pediu para ser chamado no WhatsApp em vez de agendar um horário." },
     });
-    await dispararWebhook(corretor.webhookNotificar, { tipo: "pediu_whatsapp", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem });
+    if (corretor.integracaoWhatsappAtiva) {
+      await dispararWebhook(corretor.webhookNotificar, { tipo: "pediu_whatsapp", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem });
+    }
     return { canal: "whatsapp" as const };
   }
 
@@ -151,15 +156,19 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
   ]);
 
   // Evento da agenda leva só nome e contato — nenhum valor do estudo (não-negociável).
-  await dispararWebhook(corretor.webhookAgendar, {
-    nome: cliente.nome,
-    contato: cliente.telefone || cliente.email,
-    data: dataHora ? dataHora.toISOString() : null,
-    hora: dataHora ? dataHora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : null,
-    duracao: 45,
-    sugestaoLivre: textoLivre,
-  });
-  await dispararWebhook(corretor.webhookNotificar, { tipo: "horario_escolhido", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem });
+  if (corretor.integracaoAgendaAtiva) {
+    await dispararWebhook(corretor.webhookAgendar, {
+      nome: cliente.nome,
+      contato: cliente.telefone || cliente.email,
+      data: dataHora ? dataHora.toISOString() : null,
+      hora: dataHora ? dataHora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : null,
+      duracao: 45,
+      sugestaoLivre: textoLivre,
+    });
+  }
+  if (corretor.integracaoWhatsappAtiva) {
+    await dispararWebhook(corretor.webhookNotificar, { tipo: "horario_escolhido", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem });
+  }
 
   return {
     canal: (escolha.tipo === "horario" ? "agenda" : "sugerido") as "agenda" | "sugerido",

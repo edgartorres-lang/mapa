@@ -22,6 +22,8 @@ export default async function PaginaEstudo({ params }: { params: Promise<{ id: s
       fatores={paraFatoresCalc(fatoresDb)}
       statusInicial={estudo.status as "aberto" | "gerado"}
       derivadosCongelados={estudo.mapa ? (estudo.mapa.derivados as unknown as CalcResultado) : null}
+      resumoParaVoceInicial={estudo.resumoParaVoce}
+      analiseInternaInicial={estudo.analiseInterna}
     />
   );
 }

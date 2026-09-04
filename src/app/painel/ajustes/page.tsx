@@ -8,12 +8,13 @@ import { FatoresForm } from "@/components/painel/ajustes/FatoresForm";
 import { HorariosForm } from "@/components/painel/ajustes/HorariosForm";
 import { RetencaoInput, ExclusaoLgpdForm } from "@/components/painel/ajustes/LgpdInterativo";
 import { PerfilMarcaForm } from "@/components/painel/ajustes/PerfilMarcaForm";
+import { IntegracoesForm } from "@/components/painel/ajustes/IntegracoesForm";
 
 const ABAS = [
   { n: 1, nome: "Fatores de cálculo", sub: "o racional, editável", titulo: "Fatores de cálculo", sub2: "Os parâmetros do racional saem do código e ficam aqui. Estudos em aberto recalculam ao salvar; mapas gerados não mudam." },
   { n: 2, nome: "Horários sugeridos", sub: "o que o lead vê", titulo: "Horários sugeridos", sub2: "As três opções que a página do lead oferece, calculadas a partir do dia do preenchimento, e o campo aberto." },
   { n: 3, nome: "LGPD e retenção", sub: "consentimento e exclusão", titulo: "LGPD e retenção", sub2: "Onde o consentimento fica registrado, como um cliente sai do sistema, e a fila dos mapas parados." },
-  { n: 4, nome: "Acesso e senha", sub: "login e recuperação", titulo: "Acesso e senha", sub2: "O caminho completo de recuperação de senha, e as regras do acesso enquanto há um corretor só." },
+  { n: 4, nome: "Acesso e Integrações", sub: "login e webhooks do n8n", titulo: "Acesso e Integrações", sub2: "O caminho de recuperação de senha, e os 6 endereços que ligam a ferramenta ao n8n — agenda, WhatsApp, e-mail, IA, lead e exclusão." },
   { n: 5, nome: "Perfil e marca", sub: "nome, contato, logo e foto", titulo: "Perfil e marca", sub2: "O que identifica você nos materiais — nome, endereço, telefone, sua foto e o logo da corretora." },
 ] as const;
 
@@ -70,7 +71,7 @@ export default async function PaginaAjustes({ searchParams }: { searchParams: Pr
         {aba === 1 && <AbaFatores corretorId={corretor.id} />}
         {aba === 2 && <AbaHorarios corretorId={corretor.id} corretor={corretor} />}
         {aba === 3 && <AbaLgpd corretorId={corretor.id} />}
-        {aba === 4 && <AbaAcesso />}
+        {aba === 4 && <AbaAcesso corretor={corretor} />}
         {aba === 5 && <AbaPerfil corretor={corretor} />}
       </div>
     </div>
@@ -254,7 +255,7 @@ async function AbaLgpd({ corretorId }: { corretorId: string }) {
   );
 }
 
-function AbaAcesso() {
+function AbaAcesso({ corretor }: { corretor: Corretor }) {
   const telasSenha = [
     { etapa: "Passo 1", icone: "?", iconeBg: "var(--azul-claro-fundo)", iconeCor: "var(--azul)", titulo: "Esqueceu a senha?", texto: "Informe o e-mail da sua conta. Enviamos um link para você criar uma senha nova.", campos: [{ rotulo: "E-mail", placeholder: "edgar@setornorteseguros.com.br" }], nota: null, botao: "Enviar o link", botaoBg: "var(--azul)", link: "Voltar para o login" },
     { etapa: "Passo 2", icone: "✉", iconeBg: "var(--sucesso-fundo)", iconeCor: "var(--verde-escuro)", titulo: "Link enviado", texto: "Enviamos para edgar@setornorteseguros.com.br. O link vale por 30 minutos e serve uma vez só.", campos: [], nota: "Não chegou? Confira o spam. Você pode pedir outro link em 60 segundos.", botao: "Reenviar em 60s", botaoBg: "var(--cinza-inativo)", link: "Trocar o e-mail" },
@@ -310,6 +311,29 @@ function AbaAcesso() {
         <div style={{ background: "var(--nota-fundo)", border: "1px solid var(--nota-borda)", borderRadius: 12, padding: "18px 20px", font: "400 11.5px/1.7 var(--font-interface)", color: "var(--nota-texto)" }}>
           Esta tela é referência — mostra como a recuperação de senha vai funcionar quando existir login de verdade. Hoje há um corretor só, sem senha nem sessão (ver AGENTS.md, &quot;Acesso e Identidade&quot; e o TODO em src/lib/corretor-atual.ts). Quando abrir para outros corretores, aqui também ganha o convite por e-mail e a lista de quem tem acesso.
         </div>
+      </div>
+
+      <div style={{ width: "100%", marginTop: 8, paddingTop: 28, borderTop: "1px solid var(--borda)" }}>
+        <div style={{ font: "600 20px var(--font-titulo)", color: "var(--marinho)", marginBottom: 4 }}>Integrações</div>
+        <div style={{ font: "400 13px/1.6 var(--font-interface)", color: "var(--texto-secundario)", marginBottom: 20, maxWidth: 660 }}>
+          Os 6 endereços de webhook que ligam a ferramenta ao n8n — agenda, WhatsApp/Evolution, e-mail, IA, lead e exclusão LGPD. Sem eles, cada disparo cai no branch &quot;não configurado&quot; e só loga (ver AGENTS.md).
+        </div>
+        <IntegracoesForm
+          urlsIniciais={{
+            webhookAgendar: corretor.webhookAgendar,
+            webhookNotificar: corretor.webhookNotificar,
+            webhookEnviarMapa: corretor.webhookEnviarMapa,
+            webhookGerarTexto: corretor.webhookGerarTexto,
+            webhookLead: corretor.webhookLead,
+            webhookEsquecer: corretor.webhookEsquecer,
+          }}
+          ativosIniciais={{
+            integracaoAgendaAtiva: corretor.integracaoAgendaAtiva,
+            integracaoWhatsappAtiva: corretor.integracaoWhatsappAtiva,
+            integracaoEmailAtiva: corretor.integracaoEmailAtiva,
+            integracaoIaAtiva: corretor.integracaoIaAtiva,
+          }}
+        />
       </div>
     </div>
   );

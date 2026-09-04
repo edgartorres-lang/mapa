@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
-import { dispararWebhook } from "@/lib/webhooks";
+import { dispararWebhook, testarWebhook } from "@/lib/webhooks";
 import { CANAIS_LGPD, type CanalLgpd } from "@/lib/enums";
 import type { FatoresCalculoEditavel } from "@/lib/fatores-ajustes";
+import { CAMPOS_WEBHOOK_URL, CAMPOS_INTEGRACAO_ATIVA, type CampoWebhookUrl, type CampoIntegracaoAtiva } from "@/lib/integracoes-ajustes";
 
 /** Tamanho máximo de um data URL de imagem (~1.5MB de arquivo, já contando o custo de ~33% do
  * base64) — grande o bastante pra uma foto/logo razoável, pequeno o bastante pra não inchar a
@@ -165,4 +166,35 @@ export async function registrarExclusaoLgpd(clienteId: string, canal: CanalLgpd)
   revalidatePath("/painel/clientes");
   revalidatePath("/painel/funil");
   revalidatePath("/painel/dashboard");
+}
+
+/**
+ * Tab "Acesso e Integrações" — os 6 endereços de webhook (Ajustes → Acesso e Identidade, tela 6
+ * do handoff). Cada URL salva sozinha (mesmo padrão de `salvarImagemCorretor`) — não tem "Salvar"
+ * geral pra tela inteira. `campo` é validado contra `CAMPOS_WEBHOOK_URL` porque vem de um
+ * componente client, não confie cegamente numa string arbitrária indexando `prisma.corretor`.
+ */
+export async function salvarWebhookUrl(campo: CampoWebhookUrl, url: string) {
+  if (!CAMPOS_WEBHOOK_URL.includes(campo)) throw new Error("Campo de webhook inválido.");
+  const corretor = await obterCorretorAtual();
+  const limpo = url.trim();
+  if (limpo && !/^https?:\/\//.test(limpo)) throw new Error("A URL precisa começar com http:// ou https://.");
+
+  await prisma.corretor.update({ where: { id: corretor.id }, data: { [campo]: limpo || null } });
+  revalidatePath("/painel/ajustes");
+}
+
+/** Os 4 serviços com chave de ligar/desligar (agenda, WhatsApp, e-mail, IA) — `lead` e `esquecer`
+ * não têm equivalente aqui, disparam sempre que a URL existir. */
+export async function alternarIntegracao(campo: CampoIntegracaoAtiva, ativo: boolean) {
+  if (!CAMPOS_INTEGRACAO_ATIVA.includes(campo)) throw new Error("Campo de integração inválido.");
+  const corretor = await obterCorretorAtual();
+  await prisma.corretor.update({ where: { id: corretor.id }, data: { [campo]: ativo } });
+  revalidatePath("/painel/ajustes");
+}
+
+/** Botão "Testar" — não lê nem grava nada no banco, só confirma que a URL (já salva ou ainda
+ * sendo digitada, tanto faz) responde a um POST. */
+export async function testarWebhookAction(url: string) {
+  return testarWebhook(url);
 }
