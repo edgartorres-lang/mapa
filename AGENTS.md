@@ -516,6 +516,57 @@ Decisões do Edgar: checar **antes** de mostrar (não só na confirmação); hor
 - **Fora de escopo, de propósito**: agendamento manual do Edgar (fora do fluxo do lead) continua
   sem checagem — só a tela pública de captação foi coberta, por pedido explícito do Edgar.
 
+## Deploy (2026-09-04) — Dockerfile pronto pro EasyPanel
+
+O projeto nunca tinha saído da máquina local até aqui. Preparação do lado do código, pra publicar
+no EasyPanel — passo a passo completo, escrito pro Edgar seguir, em `DEPLOY.md` (raiz do repo).
+
+- **`Dockerfile`** (novo, raiz do repo) — build em 3 estágios (`deps` → `builder` → `runner`),
+  pensado pra `output: "standalone"` do Next.js. Only builda com `Dockerfile` no EasyPanel, não
+  Nixpacks — decisão de propósito, pra não depender de heurística automática funcionar certo com
+  Prisma + driver adapters.
+- **`next.config.ts`**: `output: "standalone"` + `serverExternalPackages`. A segunda parte não é
+  opcional — **achado real testando o build de produção antes de escrever o Dockerfile**: sem
+  ela, `next build` termina sem erro nenhum, mas `.next/standalone/node_modules/@prisma/` fica
+  **sem** `adapter-pg` (o pacote `pg` usa `require()` dinâmico internamente — tenta carregar
+  `pg-native`, opcional — e o rastreador de arquivos do `output: standalone`, baseado em análise
+  estática, não segue esse tipo de `require` e perde o pacote inteiro da cópia final). O app
+  subiria normalmente e só quebraria no primeiro request que tentasse falar com o Postgres —
+  silencioso até acontecer em produção de verdade. Confirmado rodando `next build` local, comparando
+  o conteúdo de `.next/standalone/node_modules/@prisma/` antes e depois de adicionar a config.
+  Padrão documentado do próprio Next.js pra esse tipo de pacote (native/dynamic-require heavy).
+- **`package.json`**: `"postinstall": "prisma generate"` — sem isso, um `npm ci` do zero (como
+  o Dockerfile faz) deixa `@prisma/client` sem gerar, e o build de TypeScript quebra.
+- **`prisma generate` exige `DATABASE_URL` definida, mesmo sem conectar em nada** — confirmado
+  testando sem `.env` nenhum (`PrismaConfigEnvError: Cannot resolve environment variable`). Por
+  isso o Dockerfile define uma `DATABASE_URL` falsa (`postgresql://build:build@localhost:5432/build`)
+  só nas etapas `deps`/`builder`, puramente pra `prisma.config.ts` carregar e escolher o schema
+  `postgresql` canônico (não o `sqlite` gerado pro dev local) — nunca conecta em lugar nenhum
+  de verdade. O `DATABASE_URL` real entra por variável de ambiente do EasyPanel, em runtime.
+- **`output: "standalone"` não copia `public/` nem `.next/static/`** (comportamento documentado
+  do Next.js, confirmado aqui rodando o build) — o Dockerfile copia os dois explicitamente no
+  estágio `runner`; esquecer isso faz o site subir com todo CSS/JS/imagem em 404.
+- **Sem migração formal do Prisma ainda** (`prisma/migrations/` não existe — nunca rodou
+  `prisma migrate dev` contra um Postgres de verdade, só `db push` contra SQLite local). O
+  primeiro deploy em produção também usa `db push` — aceitável pra uma base nova, sem dado
+  nenhum. `DEPLOY.md` documenta isso como pendência pra reconsiderar depois que já houver cliente
+  de verdade no Postgres.
+- **`prisma/seed.ts` precisa rodar uma vez em produção** depois do `db push` — cria a linha do
+  `Corretor` (Edgar), `FatoresCalculo` e os 3 `HorarioSugerido` padrão. Sem isso,
+  `obterCorretorAtual()` (`src/lib/corretor-atual.ts`) lança erro em toda página, porque o app
+  inteiro assume que existe exatamente um corretor (V1, sem login — ver "Acesso e senha" acima).
+- **Webhooks do n8n não são variável de ambiente** — ficam em `Corretor` no banco, configurados
+  pela própria tela `Ajustes → Acesso e Integrações` depois do app estar no ar. `DATABASE_URL` é
+  a única variável de ambiente que o app precisa em produção.
+- Verificado: `npx tsc --noEmit`, `npx eslint .`, os 35 testes de `npm test`, e um `next build`
+  de verdade local (sem dev server rodando ao mesmo tempo — rodar os dois juntos corrompe
+  `.next/`, mesmo problema documentado abaixo em "Notas operacionais") confirmando que
+  `.next/standalone/node_modules/@prisma/adapter-pg` e `/pg` existem depois da correção.
+  **Não testado**: o `Dockerfile` em si nunca rodou de verdade (sem Docker disponível neste
+  ambiente) — a lógica de cada estágio foi validada rodando os comandos equivalentes fora do
+  container (`npm ci` já rodava, `prisma generate` com a URL falsa, `next build`), mas o
+  primeiro `docker build` de verdade só vai acontecer no EasyPanel.
+
 ## Notas operacionais
 
 - **Depois de qualquer mudança em `prisma/schema.prisma`, reinicie o `next dev`** — não basta

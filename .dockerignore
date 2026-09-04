@@ -1,0 +1,12 @@
+# Não copiar pra dentro da imagem — reduz o contexto de build e evita levar segredo nenhum.
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+prisma/dev.db
+prisma/dev.db-journal
+prisma/schema.generated.prisma
+coverage
+*.log
