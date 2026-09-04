@@ -278,7 +278,6 @@ export function FormularioLead({ corretor, slotsResolvidos, utmCampanha }: { cor
 
         {tela === "ok" && (
           <TelaConfirmacao
-            nome={a.nome}
             email={a.contato.email}
             corretor={corretor}
             canal={canalFinal}
@@ -1108,14 +1107,12 @@ function TelaAgendar({
 }
 
 function TelaConfirmacao({
-  nome,
   email,
   corretor,
   canal,
   dataFinal,
   outraTexto,
 }: {
-  nome: string;
   email: string;
   corretor: CorretorPublico;
   canal: "agenda" | "sugerido" | "whatsapp" | null;
@@ -1138,13 +1135,10 @@ function TelaConfirmacao({
       <div style={{ font: "600 29px/1.22 var(--font-titulo)", marginBottom: 14 }}>Combinado!</div>
       <div style={{ font: "400 14px/1.75 var(--font-interface)", color: "rgba(255,255,255,.78)", marginBottom: 18 }}>{texto}</div>
       {email && (
-        <div style={{ background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 14, padding: "16px 18px", font: "400 12.5px/1.7 var(--font-interface)", color: "rgba(255,255,255,.75)", marginBottom: 12 }}>
+        <div style={{ background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 14, padding: "16px 18px", font: "400 12.5px/1.7 var(--font-interface)", color: "rgba(255,255,255,.75)" }}>
           Enviei um e-mail de agradecimento para <strong style={{ color: "#fff" }}>{email}</strong> com a confirmação e os contatos.
         </div>
       )}
-      <div style={{ background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 14, padding: "16px 18px", font: "400 12.5px/1.7 var(--font-interface)", color: "rgba(255,255,255,.75)" }}>
-        Nenhum valor foi calculado ou mostrado aqui — {nome ? nome.split(" ")[0] : "você"} vai ver tudo pessoalmente com {corretor.nome.split(" ")[0]}.
-      </div>
       <div style={{ flex: 1 }} />
       <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 22, borderTop: "1px solid rgba(255,255,255,.16)" }}>
         {corretor.fotoUrl ? (
