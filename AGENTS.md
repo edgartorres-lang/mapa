@@ -577,6 +577,34 @@ no EasyPanel — passo a passo completo, escrito pro Edgar seguir, em `DEPLOY.md
   repo inteiro, não substitui simular o contexto de arquivos restrito de cada estágio — próxima
   vez que mexer no Dockerfile, valide isso também (`cp` só os arquivos daquele `COPY` específico
   pra uma pasta vazia e rode o comando ali, não no repo).
+- **Incidente real (2026-09-04): a segunda tentativa de build derrubou o VPS inteiro**, não só o
+  container do app. O VPS do Edgar (Hostgator, 1 vCPU, **2 GB de RAM**, sem swap) já roda n8n +
+  Evolution API + Postgres da Evolution + Redis + o `mapa-db` do próprio Mapa da Proteção — sobra
+  pouca RAM. O build original também instalava `build-essential`/`python3` (defensivo, achando
+  que `better-sqlite3` talvez precisasse compilar — não precisava, o log confirmou que usou
+  binário pronto via `prebuild-install`) e rodava `next build` sem limite de memória algum. O
+  pico de memória do build competindo com os outros serviços fez o Docker entrar num loop de
+  reiniciar container (visível no console da VPS como interfaces de rede `veth`/`docker_gwbridge`
+  sendo criadas e destruídas sem parar), até o **VPS inteiro parar de responder** — EasyPanel e
+  n8n ficaram fora do ar juntos (o site principal do Edgar não, por estar hospedado em outro
+  lugar). Recuperado com um reset da VM pelo console do provedor (Hostgator tem um botão
+  "Send CtrlAltDel" na tela do console web).
+  - **Correção**: tirei o `apt-get install build-essential python3` (não era necessário — só
+    deixava a etapa `deps` mais pesada à toa) e adicionei
+    `ENV NODE_OPTIONS="--max-old-space-size=1024"` antes do `RUN npm run build` (o processo mais
+    pesado do build inteiro — TypeScript + empacotamento). Com o teto, o pior caso vira o build
+    falhar com "JavaScript heap out of memory" (erro visível, recuperável, só o container do
+    build morre) em vez de sufocar o host inteiro de novo. Validado rodando
+    `NODE_OPTIONS="--max-old-space-size=1024" npm run build` local antes de reenviar — passou
+    (mais lento: ~110s de compilação + 45s de TypeScript, contra ~30s sem o limite, mas terminou).
+  - **Recomendei ao Edgar adicionar um arquivo de swap (2 GB) na VPS** como reforço adicional,
+    fora do controle deste repositório (comando de sistema, não algo que o Dockerfile resolve) —
+    pendente de confirmação se foi configurado. Ver a conversa da sessão de 2026-09-04 pro
+    passo a passo exato (`fallocate` + `mkswap` + `swapon` + entrada em `/etc/fstab`).
+  - **Lição pra qualquer build futuro contra este VPS**: 2 GB de RAM divididos entre vários
+    serviços é pouco pra qualquer build de Next.js/TypeScript. Sempre que mexer no Dockerfile de
+    novo, considerar o limite de memória do host antes de testar em produção — não só localmente,
+    onde não tem essa restrição.
 
 ## Notas operacionais
 

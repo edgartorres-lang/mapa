@@ -6,12 +6,6 @@
 
 FROM node:22-slim AS deps
 WORKDIR /app
-# `better-sqlite3` (só usado em dev, contra o SQLite local — nunca em produção, que fala com
-# Postgres) é um módulo nativo. Ele baixa um binário pronto pra a maioria das plataformas comuns
-# e normalmente não precisa compilar nada — mas isto aqui garante que, se precisar compilar
-# porque não achou um binário pronto pra esta imagem específica, o `npm ci` não quebra por falta
-# de compilador. Só existe nesta etapa (não vai pra imagem final).
-RUN apt-get update && apt-get install -y --no-install-recommends python3 build-essential && rm -rf /var/lib/apt/lists/*
 # Só os manifests primeiro — o Docker reaproveita esta camada entre builds enquanto eles não
 # mudarem, mesmo editando código depois. `--omit=dev` não dá aqui: `next build` do próximo
 # estágio precisa do `prisma` de devDependencies.
@@ -31,6 +25,14 @@ COPY . .
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npx prisma generate
+# Trava o limite de memória do Node durante o build — o VPS do Edgar tem só 2 GB de RAM,
+# dividido com n8n, Evolution API e dois Postgres já rodando. Sem isso, um pico de memória do
+# `next build` (TypeScript + empacotamento — o processo mais pesado do build inteiro) já travou
+# o servidor inteiro uma vez (2026-09-04), não só o build: o Docker ficou reiniciando container
+# em loop até o VPS parar de responder, precisou reiniciar a VM pelo console do provedor. Com o
+# teto aqui, o pior caso vira o build falhar com "JavaScript heap out of memory" (erro visível,
+# recuperável) em vez de sufocar o host inteiro.
+ENV NODE_OPTIONS="--max-old-space-size=1024"
 RUN npm run build
 
 FROM node:22-slim AS runner
