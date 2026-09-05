@@ -20,9 +20,67 @@ jobs:
     permissions:
       contents: read
       packages: write # necessário pra publicar no ghcr.io com o token automático do próprio job
+    # Postgres de mentira, só pra existir alguém ouvindo em localhost:5432 durante o build. O
+    # Dockerfile usa uma DATABASE_URL de mentira (postgresql://build:build@localhost:5432/build)
+    # só pra `prisma generate` funcionar sem precisar de banco de verdade — mas o `next build`
+    # (etapa "Collecting page data") executa o código de cada página pra decidir se ela é
+    # estática ou dinâmica, e páginas que usam Prisma direto (ex.: /painel/ajustes) chegam a
+    # tentar uma conexão de verdade nesse meio-tempo. Sem um Postgres de verdade escutando,
+    # a conexão é recusada e o build inteiro quebra (erro real visto na primeira tentativa aqui,
+    # 2026-09-05: "Export encountered an error on /painel/ajustes/page"). Localmente isso nunca
+    # apareceu por acaso: o `.env` local sempre aponta pro SQLite de dev, que existe de verdade.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: build
+          POSTGRES_PASSWORD: build
+          POSTGRES_DB: build
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U build"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
     steps:
       - name: Baixar o código
         uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # `npm ci` roda o hook `postinstall` (`prisma generate`) — precisa de DATABASE_URL
+      # definida (mesma exigência do Dockerfile, ver AGENTS.md). Aqui já é a URL de verdade do
+      # Postgres de cima (não uma string de mentira): o Prisma Client gerado aqui é só pra rodar
+      # `db push` no passo seguinte, dentro do próprio job — não é o que vai pra dentro da
+      # imagem (esse é gerado de novo, do zero, dentro do Dockerfile).
+      - name: Instalar dependências
+        run: npm ci
+        env:
+          DATABASE_URL: postgresql://build:build@localhost:5432/build
+
+      # Cria as tabelas no Postgres de mentira antes do `docker build` rodar — sem isso, mesmo
+      # com alguém escutando em localhost:5432, uma consulta do Prisma durante o
+      # "Collecting page data" do `next build` (ex.: /painel/ajustes chamando
+      # `prisma.corretor.findFirst()`) falharia com "a tabela não existe" em vez de "conexão
+      # recusada" — o mesmo build quebrado, só com outro erro.
+      - name: Criar as tabelas no Postgres de mentira
+        run: npx prisma db push
+        env:
+          DATABASE_URL: postgresql://build:build@localhost:5432/build
+
+      # `obterCorretorAtual()` (src/lib/corretor-atual.ts) lança erro se não existir nenhum
+      # Corretor — e é chamada por praticamente toda página de /painel/*. Tabelas vazias não
+      # bastam: sem isto, o build quebra do mesmo jeito, só que com "Nenhum corretor cadastrado"
+      # em vez de erro de conexão. Este seed nunca chega na imagem final nem em produção — só
+      # existe pra esse Postgres descartável do build ter uma linha pra ler.
+      - name: Semear um corretor de mentira
+        run: npm run db:seed
+        env:
+          DATABASE_URL: postgresql://build:build@localhost:5432/build
 
       - name: Entrar no GitHub Container Registry
         uses: docker/login-action@v3
@@ -36,6 +94,11 @@ jobs:
         with:
           context: .
           push: true
+          # `network: host` é o que deixa os comandos `RUN` do Dockerfile (rodando dentro do
+          # processo de build) enxergarem o Postgres de cima, publicado em localhost:5432 do
+          # próprio runner — sem isso, "localhost" dentro do build aponta pro próprio container
+          # de build, não pro runner, e o Postgres de cima fica inalcançável do mesmo jeito.
+          network: host
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
