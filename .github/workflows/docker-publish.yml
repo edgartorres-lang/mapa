@@ -1,0 +1,41 @@
+name: Build e publica a imagem Docker
+
+# Constrói a imagem nos servidores do GitHub (bem mais memória/CPU do que o VPS do Edgar tem) e
+# publica no GitHub Container Registry. O EasyPanel só baixa a imagem já pronta — nunca mais
+# compila nada dentro do VPS. Ver DEPLOY.md e AGENTS.md ("Deploy") pro porquê disso existir:
+# duas tentativas de build direto no VPS (2 GB de RAM, compartilhado com n8n/Evolution API/
+# Postgres) derrubaram o servidor inteiro (2026-09-04).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {} # permite rodar manualmente pela aba Actions, se precisar
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # necessário pra publicar no ghcr.io com o token automático do próprio job
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Entrar no GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Construir e publicar
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}

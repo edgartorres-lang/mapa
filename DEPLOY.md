@@ -7,6 +7,13 @@ pra mim, aqui na conversa, pra eu terminar a parte técnica daqui.
 O repositório já está pronto do lado do código (Dockerfile, configuração de build) — o que falta
 é só a parte que só você consegue fazer: criar as coisas dentro da sua conta do EasyPanel.
 
+**Atualizado em 2026-09-05, depois de duas quedas reais do VPS**: as duas primeiras tentativas de
+build direto no EasyPanel derrubaram o servidor inteiro (n8n e tudo mais junto) — o VPS tem só
+2 GB de RAM, e não sobra o suficiente pra compilar o app ao mesmo tempo que roda n8n, Evolution
+API e os bancos. Por isso o Passo 3 abaixo mudou: em vez do EasyPanel **compilar** o app, ele só
+**baixa uma imagem já pronta**, construída nos servidores do GitHub (de graça, com bem mais
+memória). O VPS nunca mais roda `npm install`/`next build` — só recebe o resultado e executa.
+
 ---
 
 ## Antes de começar
@@ -57,13 +64,22 @@ ligado.
 
 ## Passo 3 — Criar o serviço do app (Mapa da Proteção)
 
-1. No mesmo projeto, clique em **"+ Service"** de novo, agora escolhendo **"App"** (ou "From
-   Source"/"Git").
-2. Conecte a conta do GitHub, se ainda não tiver conectado, e escolha o repositório
-   **`edgartorres-lang/mapa`**, branch **`main`**.
-3. No método de build, escolha **"Dockerfile"** (o repositório já tem um `Dockerfile` pronto na
-   raiz — o EasyPanel deve detectar sozinho, mas confirme que a opção selecionada é essa, não
-   "Nixpacks").
+Antes de criar o serviço, precisa existir uma imagem pronta pra ele baixar — isso acontece
+sozinho: toda vez que eu mando uma atualização de código pro GitHub, um robô (GitHub Actions) já
+constrói a imagem automaticamente e guarda ela lá. **Eu te aviso quando a primeira imagem estiver
+pronta** antes de você seguir este passo.
+
+Quando eu confirmar:
+
+1. No mesmo projeto, clique em **"+ Service"** de novo. Procure a opção **"App"** — mas, ao
+   escolher a fonte, selecione **"Image"** (ou "Docker Image"/"From Registry" — o nome exato
+   varia; é a opção que pede o **endereço de uma imagem já pronta**, não "GitHub"/"From Source").
+2. No campo de imagem, cole:
+   ```
+   ghcr.io/edgartorres-lang/mapa:latest
+   ```
+3. Se pedir usuário/senha do registro (registry): não precisa — o pacote é público. Se o campo
+   for obrigatório e não deixar pular, me avisa.
 4. Na aba de **variáveis de ambiente** (Environment), adicione só uma:
    - `DATABASE_URL` = a mesma connection string do Postgres do passo 1 (mas usando o **nome
      interno do serviço** como host, ex.: `mapa-db`, não um endereço público — o EasyPanel
@@ -73,9 +89,13 @@ ligado.
      por corretor, e se configuram depois de o app estar no ar, direto pela tela
      **Ajustes → Acesso e Integrações** (passo 6 abaixo). Não precisa (nem dá) pra preencher
      aqui.
-5. Na aba de **porta** (Port/Networking), confirme que a porta exposta é **3000** (é o que o
-   Dockerfile usa).
+5. Na aba de **porta** (Port/Networking), confirme que a porta exposta é **3000**.
 6. Ainda não clique em Deploy — falta o domínio (próximo passo), pra já subir certo de primeira.
+
+**Daqui em diante, sempre que eu fizer uma mudança de código**: o robô do GitHub builda uma
+imagem nova sozinho (mesma tag `latest`), e pra você receber a atualização é só entrar nesse
+serviço do app no EasyPanel e clicar em **"Deploy"** de novo (ele baixa a imagem mais recente) —
+nunca mais compila nada na sua VPS.
 
 ---
 
@@ -96,8 +116,8 @@ ligado.
 ## Passo 5 — Deploy
 
 1. Clique em **Deploy** no serviço do app.
-2. Acompanhe o log de build — a primeira vez demora um pouco mais (uns 3–5 minutos), porque
-   instala tudo do zero.
+2. Como agora é só baixar uma imagem pronta (não compilar), deve ser rápido — menos de um
+   minuto, sem pico de memória nenhum na sua VPS.
 3. Quando terminar, acesse `https://mapa.setornorteseguros.com.br` — deve abrir o painel do
    corretor, já com o seu cadastro (feito no passo 2).
 
@@ -115,8 +135,20 @@ chave).
 
 ## O que já está pronto do lado do código (pra referência, não precisa fazer nada aqui)
 
-- `Dockerfile` — build em duas etapas: instala e builda numa imagem, a imagem final só leva o
-  necessário pra rodar (`output: "standalone"` do Next.js).
+- `.github/workflows/docker-publish.yml` — o "robô" do GitHub: toda vez que entra código novo em
+  `main`, ele builda a imagem Docker (usando os servidores do próprio GitHub, não a sua VPS) e
+  publica em `ghcr.io/edgartorres-lang/mapa` — é o pacote que o EasyPanel baixa no Passo 3.
+  Acompanha em <https://github.com/edgartorres-lang/mapa/actions> (bolinha verde = build ok,
+  vermelha = falhou — me avisa se ver vermelha).
+- **Depois do primeiro build automático**: o pacote pode nascer **privado** por padrão, mesmo o
+  repositório sendo público — se o EasyPanel não conseguir baixar a imagem (erro de acesso
+  negado), entre em <https://github.com/edgartorres-lang?tab=packages>, abra o pacote `mapa`,
+  vá em "Package settings" e mude a visibilidade pra **"Public"**.
+- `Dockerfile` — build em três etapas: instala, builda e monta a imagem final, que só leva o
+  necessário pra rodar (`output: "standalone"` do Next.js). Já ajustado (2026-09-04/05) pra usar
+  menos memória durante o build (`NODE_OPTIONS` com teto), depois de duas quedas reais do VPS —
+  mas isso já não importa mais depois desta mudança, porque quem builda agora é o GitHub, não a
+  VPS. Deixei o teto de memória mesmo assim, sem custo nenhum.
 - `next.config.ts` — `serverExternalPackages` evita um bug real que eu encontrei testando o build
   de produção aqui: sem essa configuração, faltava o pacote `@prisma/adapter-pg` inteiro dentro
   do build final, e o app só quebraria ao tentar falar com o Postgres de verdade — silencioso até
