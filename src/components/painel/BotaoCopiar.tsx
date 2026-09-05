@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 
-export function BotaoCopiar({ texto }: { texto: string }) {
+/** `pequeno`: variante compacta (texto simples, sem pílula) — usada nas linhas de campanha, onde
+ * o botão cheio ficaria grande demais ao lado das estatísticas de cada linha. */
+export function BotaoCopiar({ texto, pequeno }: { texto: string; pequeno?: boolean }) {
   const [copiado, setCopiado] = useState(false);
 
   async function copiar() {
@@ -13,6 +15,18 @@ export function BotaoCopiar({ texto }: { texto: string }) {
     } catch {
       // clipboard indisponível (permissão negada, contexto não seguro) — sem crash, só não copia.
     }
+  }
+
+  if (pequeno) {
+    return (
+      <button
+        type="button"
+        onClick={copiar}
+        style={{ font: "700 11px var(--font-interface)", color: copiado ? "var(--verde-escuro)" : "var(--azul)", background: "none", border: "none", padding: 0, cursor: "pointer", whiteSpace: "nowrap" }}
+      >
+        {copiado ? "Copiado ✓" : "Copiar link"}
+      </button>
+    );
   }
 
   return (

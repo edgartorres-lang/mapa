@@ -1,3 +1,4 @@
+import QRCode from "qrcode";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { prisma } from "@/lib/prisma";
 import { dataDiasAtras } from "@/lib/funil";
@@ -21,6 +22,12 @@ export default async function PaginaCaptacaoCorretor() {
 
   const linkBase = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const linkPublico = `${linkBase}/captacao`;
+  // Gerado de verdade a cada carregamento da tela (não salvo em lugar nenhum) — leve o
+  // suficiente pra não precisar de cache. Aponta pro mesmo endereço público de sempre, sem UTM
+  // (o QR é pra material impresso, que não tem como saber de qual campanha veio). Fundo branco
+  // opaco de propósito — o cartão em volta é azul-marinho escuro, um QR com fundo transparente
+  // ficaria ilegível em cima dele.
+  const qrCodeSvg = await QRCode.toString(linkPublico, { type: "svg", margin: 1, color: { dark: "#0F3D63", light: "#FFFFFF" } });
 
   const statsCampanha = campanhas.map((c) => {
     const leadsDaCampanha = clientesRecentes.filter((cl) => cl.utmCampanha === c.utmCampanha);
@@ -66,7 +73,8 @@ export default async function PaginaCaptacaoCorretor() {
               <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", border: "1px solid var(--borda)", borderRadius: 9 }}>
                 <div>
                   <div style={{ font: "600 12.5px var(--font-interface)", color: "var(--texto)" }}>{c.nome}</div>
-                  <div style={{ font: "400 11px var(--font-interface)", color: "var(--texto-terciario)" }}>?utm_campaign={c.utmCampanha}</div>
+                  <div style={{ font: "400 11px var(--font-interface)", color: "var(--texto-terciario)", marginBottom: 4 }}>?utm_campaign={c.utmCampanha}</div>
+                  <BotaoCopiar texto={`${linkPublico}?utm_campaign=${c.utmCampanha}`} pequeno />
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ font: "700 13px var(--font-interface)", color: "var(--marinho)" }}>{c.leads} leads</div>
@@ -90,9 +98,11 @@ export default async function PaginaCaptacaoCorretor() {
 
         <div style={{ background: "var(--marinho)", borderRadius: 12, padding: "20px 22px", color: "#fff" }}>
           <div style={{ font: "700 10px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".1em", color: "rgba(255,255,255,.6)", marginBottom: 12 }}>QR code</div>
-          <div style={{ width: 140, height: 140, border: "1px dashed rgba(255,255,255,.45)", borderRadius: 10, display: "grid", placeItems: "center", font: "600 9px var(--font-interface)", color: "rgba(255,255,255,.6)", margin: "0 auto" }}>
-            QR CODE
-          </div>
+          <div
+            style={{ width: 140, height: 140, borderRadius: 10, background: "#fff", padding: 8, boxSizing: "border-box", margin: "0 auto" }}
+            // eslint-disable-next-line react/no-danger -- SVG gerado por nós (biblioteca `qrcode`), não é entrada de usuário.
+            dangerouslySetInnerHTML={{ __html: qrCodeSvg }}
+          />
           <div style={{ font: "400 11.5px/1.6 var(--font-interface)", color: "rgba(255,255,255,.7)", marginTop: 14, textAlign: "center" }}>Para material impresso — aponta pro mesmo endereço.</div>
         </div>
       </div>

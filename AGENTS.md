@@ -637,6 +637,26 @@ imagem, domínio com SSL.
   não tinha endereço público pro n8n responder de volta, se algum webhook precisasse).
 - Serviço `git` (a tentativa anterior, via Dockerfile direto no EasyPanel, nunca funcionou —
   travava o VPS) ficou parado no EasyPanel; pode ser apagado, não é usado mais.
+- **Porta real do serviço `app` no EasyPanel é 80** (o EasyPanel injeta seu próprio `PORT`,
+  sobrepondo `ENV PORT=3000` do Dockerfile) — o domínio aponta pra lá, não pra 3000. A entrada
+  auto-gerada pelo EasyPanel (`agenteseguros-app.yqmh....easypanel.host`) confirmou isso primeiro.
+- **Dois bugs reais achados no mesmo dia do primeiro acesso de verdade do Edgar** (2026-09-05),
+  os dois em `/painel/captacao`:
+  1. QR code e "copiar link de campanha" nunca tinham sido construídos — a caixa de QR era só um
+     placeholder com o texto "QR CODE" escrito, e as linhas de campanha só mostravam o
+     `?utm_campaign=...` como texto, sem jeito de copiar o link completo. Corrigido: QR de
+     verdade gerado em `src/app/painel/captacao/page.tsx` via pacote `qrcode` (SVG, fundo branco
+     opaco — o cartão em volta é azul-marinho escuro, um QR transparente ficaria ilegível ali) e
+     um botão "Copiar link" por campanha (`BotaoCopiar` ganhou a prop `pequeno` pra variante
+     compacta, sem virar uma pílula grande do tamanho da linha).
+  2. **`enviarLead`/`confirmarAgendamento` (`src/app/captacao/actions.ts`) nunca chamavam
+     `revalidatePath`** — diferente de todo outro ponto do app que mexe em Cliente/Estudo/
+     Agendamento (padrão estabelecido em `src/app/painel/clientes/[id]/actions.ts`). Lead novo
+     pelo link público não aparecia no dashboard/funil/clientes/captação até alguma ação sem
+     relação nenhuma (ex.: criar uma campanha em `/painel/captacao`) revalidar essas rotas de
+     raspão. Corrigido adicionando as mesmas revalidações que os outros pontos já fazem
+     (`/painel/dashboard`, `/painel/funil`, `/painel/clientes`, `/painel/captacao`, e
+     `/painel/clientes/${clienteId}`).
 
 ## Notas operacionais
 

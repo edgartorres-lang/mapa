@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { mapearLeadParaEstudo, type LeadRespostas } from "@/lib/lead-formulario";
@@ -100,6 +101,17 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
     });
   }
 
+  // Bug real achado em produção (2026-09-05): nenhuma das duas ações deste arquivo revalidava
+  // nada — diferente de todo outro ponto do app que mexe em Cliente/Estudo/Agendamento (ver
+  // src/app/painel/clientes/[id]/actions.ts). Lead novo pelo link público não aparecia no
+  // dashboard/funil/clientes até alguma ação sem relação nenhuma (ex.: criar uma campanha)
+  // revalidar essas rotas de raspão.
+  revalidatePath("/painel/dashboard");
+  revalidatePath("/painel/funil");
+  revalidatePath("/painel/clientes");
+  revalidatePath("/painel/captacao");
+  revalidatePath(`/painel/clientes/${cliente.id}`);
+
   return { clienteId: cliente.id, estudoId: estudo.id, leadRepetido, corretorNome: corretor.nome };
 }
 
@@ -131,6 +143,7 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
     if (corretor.integracaoWhatsappAtiva) {
       await dispararWebhook(corretor.webhookNotificar, { tipo: "pediu_whatsapp", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem });
     }
+    revalidatePath(`/painel/clientes/${clienteId}`);
     return { canal: "whatsapp" as const };
   }
 
@@ -173,6 +186,11 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
   if (corretor.integracaoWhatsappAtiva) {
     await dispararWebhook(corretor.webhookNotificar, { tipo: "horario_escolhido", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem });
   }
+
+  revalidatePath("/painel/dashboard");
+  revalidatePath("/painel/funil");
+  revalidatePath("/painel/captacao");
+  revalidatePath(`/painel/clientes/${clienteId}`);
 
   return {
     canal: (escolha.tipo === "horario" ? "agenda" : "sugerido") as "agenda" | "sugerido",
