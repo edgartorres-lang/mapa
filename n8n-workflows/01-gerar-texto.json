@@ -1,0 +1,85 @@
+{
+  "name": "Mapa da Proteção - Gerar Texto (IA)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gerar-texto",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1a1a1a1-0001-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "mapa-gerar-texto"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"claude-sonnet-5\", max_tokens: 1500, system: `Você escreve dois textos curtos para um Mapa da Proteção — estudo de necessidade de seguro de vida de uma corretora brasileira (Setor Norte Seguros, Amapá). Português do Brasil, tom acolhedor e direto, sem jargão técnico de seguros. Nunca invente número nenhum — use só os que vierem no JSON de entrada.\\n\\nVocê recebe: perfil da pessoa segurada, lista de dependentes, e os números já calculados (renda, participação na renda da casa, coberturas sugeridas, custo educacional, invalidez, doenças graves).\\n\\nVocê devolve dois textos:\\n\\n1. \\\"cliente\\\" — 4 a 6 frases curtas, cada uma um parágrafo separado, explicando o resultado do estudo PARA O CLIENTE. Fale diretamente com a pessoa, pelo primeiro nome, em tom de conversa — como se o corretor estivesse explicando pessoalmente, não lendo um relatório. Cubra, na ordem que fizer sentido: de onde vem a conta (renda e participação na renda da casa); por que existe a parte vitalícia (patrimônio e sucessão); por que existe a parte temporária (manter o padrão de vida, só se houver dependentes); a educação dos filhos (só se houver plano educacional); o que cobre além da morte (invalidez, doenças graves, diária por incapacidade), quando fizer sentido pro perfil. Nunca mencione comissão, prêmio de seguro ou valor de venda — só os números do próprio estudo.\\n\\n2. \\\"interna\\\" — 2 a 4 frases curtas, argumentos de venda PARA O CORRETOR usar na conversa — nunca aparecem pro cliente. Aponte o que é mais urgente ou mais vulnerável nesse perfil específico (ex.: patrimônio alto sem proteção nenhuma, dependente pequeno, participação de renda muito concentrada numa pessoa só, ausência de reserva), uma objeção provável e como responder a ela, e uma oportunidade pra próxima conversa (ex.: sugerir revisão em X anos, produto complementar). Seja direto e prático, como uma anotação de vendas experiente escreveria pra si mesma — não precisa ser educado ou gentil aqui, é você conversando com você.\\n\\nResponda em JSON puro, sem markdown, sem crases, sem texto nenhum fora do JSON, exatamente neste formato:\\n{\\\"cliente\\\": [\\\"frase 1\\\", \\\"frase 2\\\", \\\"...\\\"], \\\"interna\\\": [\\\"frase 1\\\", \\\"frase 2\\\", \\\"...\\\"]}`, messages: [ { role: \"user\", content: \"Perfil: \" + JSON.stringify($json.perfil) + \"\\nDependentes: \" + JSON.stringify($json.dependentes) + \"\\nNúmeros calculados: \" + JSON.stringify($json.numeros) } ] }) }}",
+        "options": {}
+      },
+      "id": "a1a1a1a1-0002-4000-8000-000000000002",
+      "name": "Chamar Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pega o texto que a Claude devolveu e tenta ler como JSON. Se vier com ```json ... ``` em volta\n// (acontece às vezes, mesmo pedindo pra não vir), tira as crases antes de tentar de novo.\nconst resposta = $input.first().json;\nlet texto = resposta.content?.[0]?.text ?? '';\ntexto = texto.trim().replace(/^```json\\s*/i, '').replace(/```\\s*$/i, '').trim();\n\nlet dados;\ntry {\n  dados = JSON.parse(texto);\n} catch (erro) {\n  // Não travar o Mapa por causa de um JSON mal formado -- devolve vazio, o Mapa mostra\n  // \"webhook respondeu, mas sem os parágrafos esperados\" e o corretor tenta de novo.\n  dados = { cliente: [], interna: [] };\n}\n\nreturn [{\n  json: {\n    cliente: Array.isArray(dados.cliente) ? dados.cliente : [],\n    interna: Array.isArray(dados.interna) ? dados.interna : [],\n  },\n}];"
+      },
+      "id": "a1a1a1a1-0003-4000-8000-000000000003",
+      "name": "Organizar resposta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "a1a1a1a1-0004-4000-8000-000000000004",
+      "name": "Responder ao Mapa",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Chamar Claude", "type": "main", "index": 0 }]]
+    },
+    "Chamar Claude": {
+      "main": [[{ "node": "Organizar resposta", "type": "main", "index": 0 }]]
+    },
+    "Organizar resposta": {
+      "main": [[{ "node": "Responder ao Mapa", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}
