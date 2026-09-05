@@ -24,6 +24,15 @@ COPY --from=deps /app/package.json /app/package-lock.json ./
 COPY . .
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 ENV NEXT_TELEMETRY_DISABLED=1
+# `NEXT_PUBLIC_*` é inlinado na hora do `next build` — diferente de uma env var comum, definir
+# ela só em runtime (EasyPanel) não muda nada depois de já buildada. Usada em
+# src/app/painel/captacao/page.tsx pra montar o link público de captação; sem isso aqui, o link
+# mostrado pro Edgar ficava congelado em "http://localhost:3000" (bug real, achado em produção
+# 2026-09-05 — o link "Copiar" na tela de captação apontava pra localhost). `ARG` recebe do
+# workflow do GitHub (`docker/build-push-action`, `build-args`); se o domínio de produção mudar
+# um dia, o valor muda lá, não aqui.
+ARG NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 RUN npx prisma generate
 # Trava o limite de memória do Node durante o build — o VPS do Edgar tem só 2 GB de RAM,
 # dividido com n8n, Evolution API e dois Postgres já rodando. Sem isso, um pico de memória do

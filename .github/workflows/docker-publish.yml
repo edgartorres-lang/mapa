@@ -99,6 +99,11 @@ jobs:
           # próprio runner — sem isso, "localhost" dentro do build aponta pro próprio container
           # de build, não pro runner, e o Postgres de cima fica inalcançável do mesmo jeito.
           network: host
+          # `NEXT_PUBLIC_APP_URL` é inlinado dentro do `next build` (ver Dockerfile) — mudar o
+          # domínio de produção exige mudar aqui e gerar uma imagem nova, não dá pra ajustar só
+          # em runtime no EasyPanel.
+          build-args: |
+            NEXT_PUBLIC_APP_URL=https://mapa.setornorteseguros.com.br
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}

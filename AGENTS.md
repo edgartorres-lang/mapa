@@ -606,6 +606,38 @@ no EasyPanel — passo a passo completo, escrito pro Edgar seguir, em `DEPLOY.md
     novo, considerar o limite de memória do host antes de testar em produção — não só localmente,
     onde não tem essa restrição.
 
+## No ar (2026-09-05) — `mapa.setornorteseguros.com.br`
+
+Primeiro deploy real, completo, funcionando: Postgres no EasyPanel (`mapa-db`, projeto
+`agenteseguros`, junto com n8n/Evolution API já existentes do Edgar), imagem publicada via
+GitHub Actions em `ghcr.io/edgartorres-lang/mapa` (ver seção "Deploy" acima — o build saiu do
+VPS de vez depois de duas quedas reais do servidor), serviço `app` no EasyPanel puxando essa
+imagem, domínio com SSL.
+
+- **Porta real do container é 80, não 3000.** O Dockerfile expõe 3000, mas o EasyPanel injeta
+  seu próprio `PORT` (não documentado, descoberto só olhando o log de runtime:
+  `- Local: http://localhost:80`) que sobrepõe o `ENV PORT=3000` do Dockerfile — o domínio no
+  EasyPanel aponta pra porta 80, não 3000. Se subir um serviço novo do zero de novo, checar o log
+  antes de fechar o domínio, não assumir que a porta do Dockerfile é a que vale.
+- **Bug real achado em produção, corrigido no mesmo dia**: o link público de captação
+  (`/painel/captacao`, `src/app/painel/captacao/page.tsx`) usa
+  `process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"` — como é `NEXT_PUBLIC_*`, o
+  Next.js **inlina o valor dentro do `next build`**, não lê em runtime feito uma env var comum.
+  A imagem original foi buildada sem essa variável definida, então todo lead que clicasse no link
+  copiado da tela cairia em `http://localhost:3000/captacao` — inacessível de fora. Corrigido
+  passando `NEXT_PUBLIC_APP_URL=https://mapa.setornorteseguros.com.br` como `build-args` no
+  workflow do GitHub Actions (`.github/workflows/docker-publish.yml`) + `ARG`/`ENV` no
+  `Dockerfile` antes do `RUN npm run build`. **Se o domínio de produção mudar um dia, precisa
+  mudar esse `build-args` e gerar uma imagem nova — não dá pra ajustar só com uma variável de
+  ambiente no EasyPanel depois de já buildada.** Confirmado localmente (grep no HTML gerado:
+  0 ocorrências de `localhost:3000`, 3 de `mapa.setornorteseguros.com.br`) antes de reenviar.
+- `webhook_checar_agenda`, os outros 6 webhooks e as integrações continuam pendentes de
+  configuração real pelo Edgar (Ajustes → Acesso e Integrações), agora que o app está acessível
+  de fora — antes disso, testar "Testar" webhook contra n8n de verdade não fazia sentido (o app
+  não tinha endereço público pro n8n responder de volta, se algum webhook precisasse).
+- Serviço `git` (a tentativa anterior, via Dockerfile direto no EasyPanel, nunca funcionou —
+  travava o VPS) ficou parado no EasyPanel; pode ser apagado, não é usado mais.
+
 ## Notas operacionais
 
 - **Depois de qualquer mudança em `prisma/schema.prisma`, reinicie o `next dev`** — não basta
