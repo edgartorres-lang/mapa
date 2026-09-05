@@ -8,6 +8,12 @@ name: Build e publica a imagem Docker
 on:
   push:
     branches: [main]
+    # Documentação/workflows do n8n não afetam a imagem do app — sem isto, todo commit em
+    # n8n-workflows/ ou nos próprios .md do repo disparava um build e publicava uma imagem nova
+    # à toa, gastando minuto de GitHub Actions sem mudar nada de verdade.
+    paths-ignore:
+      - "n8n-workflows/**"
+      - "**/*.md"
   workflow_dispatch: {} # permite rodar manualmente pela aba Actions, se precisar
 
 env:
