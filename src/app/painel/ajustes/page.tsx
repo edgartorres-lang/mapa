@@ -209,13 +209,13 @@ async function AbaLgpd({ corretorId }: { corretorId: string }) {
             <div style={{ border: "1px solid var(--texto)", background: "#fff", borderRadius: 10, padding: "15px 17px" }}>
               <div style={{ font: "700 10px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".08em", color: "var(--texto)", marginBottom: 9 }}>Excluir o cliente</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {["Sai tudo: cadastro, estudos, mapas e histórico.", "Fica só o registro do pedido, com data — a prova de que você atendeu.", "Não tem volta e não passa pela fila dos 120 dias."].map((t) => (
+                {["Sai tudo: cadastro, estudos, mapas e histórico.", "Fica só o registro do pedido, com data — a prova de que você atendeu.", `Não tem volta e não passa pela fila dos ${fatoresDb.diasRetencao} dias.`].map((t) => (
                   <div key={t} style={{ font: "400 11.5px/1.6 var(--font-interface)", color: "var(--texto)" }}>{t}</div>
                 ))}
               </div>
             </div>
           </div>
-          <ExclusaoLgpdForm clientes={clientes.map((c) => ({ id: c.id, nome: c.nome, telefone: c.telefone }))} />
+          <ExclusaoLgpdForm clientes={clientes.map((c) => ({ id: c.id, nome: c.nome, telefone: c.telefone }))} diasRetencao={fatoresDb.diasRetencao} />
         </div>
       </div>
 

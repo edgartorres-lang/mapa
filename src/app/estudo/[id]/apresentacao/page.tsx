@@ -1,3 +1,4 @@
+import QRCode from "qrcode";
 import { carregarSaida } from "@/lib/carregar-saida";
 import { BarraSaida } from "@/components/saida/BarraSaida";
 
@@ -12,6 +13,11 @@ import { BarraSaida } from "@/components/saida/BarraSaida";
 export default async function PaginaApresentacao({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { r } = await carregarSaida(id);
+  // Achado real revendo o app publicado (2026-09-05): esta caixa nunca tinha sido construída de
+  // verdade, era só um placeholder com "QR CODE / WhatsApp" escrito — igual o QR do link de
+  // captação era antes de eu corrigir (ver src/app/painel/captacao/page.tsx). Sem WhatsApp
+  // cadastrado, mantém o tracejado (não força um QR sem destino nenhum).
+  const qrWhatsappSvg = r.whatsappLink ? await QRCode.toString(r.whatsappLink, { type: "svg", margin: 0, color: { dark: "#0F3D63", light: "#FFFFFF" } }) : null;
 
   return (
     <div className="pchain" style={{ minHeight: "100vh", padding: "26px 30px", fontFamily: "var(--font-interface)" }}>
@@ -265,11 +271,22 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
                 <div style={{ font: "400 14px var(--font-interface)", color: "var(--texto-terciario)", margin: "4px 0 12px" }}>{r.corretorCargo}</div>
                 <div style={{ font: "600 16px var(--font-interface)", color: "var(--texto)" }}>{r.corretorContato}</div>
               </div>
-              <div style={{ width: 104, height: 104, border: "1px dashed var(--texto-terciario)", borderRadius: 8, display: "grid", placeItems: "center", font: "600 8.5px var(--font-interface)", color: "var(--texto-terciario)", textAlign: "center", lineHeight: 1.4, flex: "none" }}>
-                QR CODE
-                <br />
-                WhatsApp
-              </div>
+              {qrWhatsappSvg ? (
+                <div style={{ flex: "none", textAlign: "center" }}>
+                  <div
+                    style={{ width: 104, height: 104, borderRadius: 8, background: "#fff", border: "1px solid var(--borda)", padding: 6, boxSizing: "border-box" }}
+                    // SVG gerado por nós (biblioteca `qrcode`), não é entrada de usuário.
+                    dangerouslySetInnerHTML={{ __html: qrWhatsappSvg }}
+                  />
+                  <div style={{ font: "600 9px var(--font-interface)", color: "var(--texto-terciario)", marginTop: 4 }}>WhatsApp</div>
+                </div>
+              ) : (
+                <div style={{ width: 104, height: 104, border: "1px dashed var(--texto-terciario)", borderRadius: 8, display: "grid", placeItems: "center", font: "600 8.5px var(--font-interface)", color: "var(--texto-terciario)", textAlign: "center", lineHeight: 1.4, flex: "none" }}>
+                  QR CODE
+                  <br />
+                  WhatsApp
+                </div>
+              )}
             </div>
             <div style={{ font: "400 12px var(--font-interface)", color: "var(--texto-terciario)", marginTop: 16 }}>{r.rodapeLegal}</div>
           </div>

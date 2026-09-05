@@ -1,23 +1,30 @@
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { carregarClientesComResumo } from "@/lib/painel-dados";
 import { ESTAGIO_INFO, corDias, corDoEstagio, textoDias, fundoSuaveDoEstagio, nomeDoEstagio } from "@/lib/funil";
 import { brl } from "@/lib/formato";
 import { ESTAGIOS_FUNIL } from "@/lib/enums";
 
-const FILTROS = [
-  { chave: "todos", rotulo: "Todos" },
-  ...ESTAGIOS_FUNIL.map((e) => ({ chave: e, rotulo: ESTAGIO_INFO[e].nome })),
-  { chave: "fora", rotulo: "Fora do funil" },
-  { chave: "parados", rotulo: "Parados 120+ dias" },
-];
-
 /** Porta de "Painel do Corretor.dc.html" (tela Clientes). Busca e filtro via querystring — sem
- * JS de cliente, cada pílula/busca é um link/form que recarrega a lista filtrada. */
+ * JS de cliente, cada pílula/busca é um link/form que recarrega a lista filtrada.
+ *
+ * Achado real revendo o app (2026-09-05): o filtro "Parados" tinha "120" fixo no rótulo e na
+ * comparação, enquanto o Dashboard já lia `FatoresCalculo.diasRetencao` (configurável em
+ * Ajustes → LGPD e retenção) pro mesmo conceito — mudar o valor lá desalinhava esta tela, que
+ * continuava falando/filtrando por 120 dias. Corrigido pra ler o mesmo `diasRetencao`. */
 export default async function PaginaClientes({ searchParams }: { searchParams: Promise<{ q?: string; filtro?: string }> }) {
   const { q = "", filtro = "todos" } = await searchParams;
   const corretor = await obterCorretorAtual();
-  const resumo = await carregarClientesComResumo(corretor.id);
+  const [resumo, fatoresDb] = await Promise.all([carregarClientesComResumo(corretor.id), prisma.fatoresCalculo.findUniqueOrThrow({ where: { corretorId: corretor.id } })]);
+  const diasRetencao = fatoresDb.diasRetencao;
+
+  const FILTROS = [
+    { chave: "todos", rotulo: "Todos" },
+    ...ESTAGIOS_FUNIL.map((e) => ({ chave: e, rotulo: ESTAGIO_INFO[e].nome })),
+    { chave: "fora", rotulo: "Fora do funil" },
+    { chave: "parados", rotulo: `Parados ${diasRetencao}+ dias` },
+  ];
 
   const buscaLower = q.trim().toLowerCase();
   const filtrados = resumo.filter((r) => {
@@ -27,7 +34,7 @@ export default async function PaginaClientes({ searchParams }: { searchParams: P
     }
     if (filtro === "todos") return true;
     if (filtro === "fora") return !r.cliente.estagioFunil;
-    if (filtro === "parados") return r.diasParado >= 120 && r.cliente.estagioFunil !== "fechado";
+    if (filtro === "parados") return r.diasParado >= diasRetencao && r.cliente.estagioFunil !== "fechado";
     return r.cliente.estagioFunil === filtro;
   });
 

@@ -60,3 +60,13 @@ export function mascaraTelefone(v: string): string {
 export function primeiroNome(s: string | null | undefined): string {
   return (s || "").trim().split(" ")[0] || "";
 }
+
+/** Link `wa.me` a partir de um telefone formatado (ex.: "(96) 98133-9955") — prepende o "55" do
+ * Brasil quando o número tem DDD + 9 dígitos (11 dígitos no total), que é o formato que
+ * `mascaraTelefone` sempre produz. `null` se não houver telefone. */
+export function linkWhatsapp(telefone: string | null | undefined): string | null {
+  const digitos = (telefone || "").replace(/\D/g, "");
+  if (!digitos) return null;
+  const comPais = digitos.length === 11 ? `55${digitos}` : digitos;
+  return `https://wa.me/${comPais}`;
+}

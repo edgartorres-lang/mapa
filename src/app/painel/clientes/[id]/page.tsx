@@ -339,7 +339,7 @@ function AbaComparar({ mapas }: { mapas: { estudo: { id: string }; mapa: { numer
       </div>
       <div style={{ font: "400 11.5px var(--font-interface)", color: "var(--texto-terciario)", marginBottom: 16 }}>Os dois mapas mais recentes.</div>
       <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 0.8fr", gap: 10, padding: "8px 0", borderBottom: "1px solid var(--borda)", font: "700 10px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".06em", color: "var(--texto-terciario)" }}>
-        <span>Número</span>
+        <span>Item</span>
         <span>Antes (v{antes.mapa.numeroVersao})</span>
         <span>Depois (v{depois.mapa.numeroVersao})</span>
         <span>Variação</span>

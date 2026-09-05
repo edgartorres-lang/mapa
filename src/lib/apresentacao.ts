@@ -1,7 +1,7 @@
 import type { Corretor } from "@prisma/client";
 import type { CalcResultado } from "./calc";
 import type { EstudoFormulario } from "./estudo-formulario";
-import { brl, brlCurto, idadeDe, primeiroNome } from "./formato";
+import { brl, brlCurto, idadeDe, linkWhatsapp, primeiroNome } from "./formato";
 
 /**
  * Monta o objeto de apresentação (`r`) consumido pelas três saídas — porta fiel do trecho final
@@ -148,6 +148,7 @@ export function construirApresentacao(dados: EstudoFormulario, c: CalcResultado,
     corretorNome: corretor.nome,
     corretorCargo: corretor.cargo || "Consultor de proteção familiar",
     corretorContato: [corretor.whatsapp, corretor.emailContato].filter(Boolean).join(" · "),
+    whatsappLink: linkWhatsapp(corretor.whatsapp),
     corretora: corretor.corretora || "Setor Norte Seguros",
     susep: corretor.susep || "",
     rodapeLegal,

@@ -250,6 +250,7 @@ export function FormularioLead({ corretor, slotsResolvidos, utmCampanha }: { cor
         {tela === "fim" && (
           <TelaAgendar
             nome={a.nome}
+            corretorNome={corretor.nome}
             slots={slots}
             ofereceCampoAberto={corretor.ofereceCampoAberto}
             slotEscolhido={slotEscolhido}
@@ -1023,6 +1024,7 @@ function TelaRevisao({ a, onCorrigir, onEnviar, enviando }: { a: LeadRespostas; 
 
 function TelaAgendar({
   nome,
+  corretorNome,
   slots,
   ofereceCampoAberto,
   slotEscolhido,
@@ -1036,6 +1038,7 @@ function TelaAgendar({
   onWhatsapp,
 }: {
   nome: string;
+  corretorNome: string;
   slots: { dia: string; hora: string }[];
   ofereceCampoAberto: boolean;
   slotEscolhido: number | null;
@@ -1100,7 +1103,7 @@ function TelaAgendar({
         {agendando ? "Confirmando…" : "Confirmar horário"}
       </button>
       <button type="button" onClick={onWhatsapp} disabled={agendando} style={{ width: "100%", border: "none", background: "none", font: "600 13.5px var(--font-interface)", color: "var(--azul)", cursor: "pointer", padding: 15 }}>
-        Prefiro que {"{Edgar}".replace("{Edgar}", "o corretor")} me chame no WhatsApp
+        Prefiro que {corretorNome.split(" ")[0]} me chame no WhatsApp
       </button>
     </div>
   );

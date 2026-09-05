@@ -74,7 +74,7 @@ interface ClienteOpcao {
 /** Pedido de exclusão LGPD — a ação mais destrutiva da tela: apaga o cadastro inteiro, sem
  * volta. Dois passos de propósito: escolher o cliente + canal primeiro, confirmar depois, com
  * o nome escrito por extenso no modal (não só um clique). */
-export function ExclusaoLgpdForm({ clientes }: { clientes: ClienteOpcao[] }) {
+export function ExclusaoLgpdForm({ clientes, diasRetencao }: { clientes: ClienteOpcao[]; diasRetencao: number }) {
   const [clienteId, setClienteId] = useState("");
   const [canal, setCanal] = useState<CanalLgpd>("whatsapp");
   const [confirmando, setConfirmando] = useState(false);
@@ -139,7 +139,7 @@ export function ExclusaoLgpdForm({ clientes }: { clientes: ClienteOpcao[] }) {
           <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", borderRadius: 14, padding: "28px 30px", width: 520, maxWidth: "100%", boxSizing: "border-box" }}>
             <div style={{ font: "600 20px var(--font-titulo)", color: "var(--texto)", marginBottom: 8 }}>Excluir o cadastro de {cliente.nome}?</div>
             <div style={{ font: "400 12.5px/1.75 var(--font-interface)", color: "var(--texto-secundario)", marginBottom: 16 }}>
-              Pedido registrado por {CANAIS.find((c) => c.valor === canal)?.rotulo.toLowerCase()}. Isto não é a mesma coisa que excluir um mapa — não tem volta e não passa pela fila dos 120 dias.
+              Pedido registrado por {CANAIS.find((c) => c.valor === canal)?.rotulo.toLowerCase()}. Isto não é a mesma coisa que excluir um mapa — não tem volta e não passa pela fila dos {diasRetencao} dias.
             </div>
             <div style={{ background: "#fff", border: "1px solid var(--texto)", borderRadius: 10, padding: "15px 17px", marginBottom: 20 }}>
               <div style={{ font: "700 10px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".08em", color: "var(--texto)", marginBottom: 9 }}>O que vai embora</div>
@@ -147,7 +147,7 @@ export function ExclusaoLgpdForm({ clientes }: { clientes: ClienteOpcao[] }) {
                 {[
                   "Sai tudo: cadastro, estudos, mapas e histórico.",
                   "Fica só o registro do pedido, com data — a prova de que você atendeu.",
-                  "Não tem volta e não passa pela fila dos 120 dias.",
+                  `Não tem volta e não passa pela fila dos ${diasRetencao} dias.`,
                 ].map((t) => (
                   <div key={t} style={{ font: "400 11.5px/1.6 var(--font-interface)", color: "var(--texto)" }}>{t}</div>
                 ))}

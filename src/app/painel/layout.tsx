@@ -5,9 +5,12 @@ import { prisma } from "@/lib/prisma";
 import { BotaoNovoEstudo } from "@/components/painel/BotaoNovoEstudo";
 
 /**
- * Barra lateral fixa de 216px (README, "Painel do Corretor"). Seis itens — só Dashboard, Funil e
- * Clientes têm tela nesta etapa; Estudos/Link de captação/Ajustes aparecem desativados até as
- * etapas 5/6 (não quis simular tela que ainda não existe).
+ * Barra lateral fixa de 216px (README, "Painel do Corretor"). Seis itens.
+ *
+ * "Estudos" achado desativado em produção (2026-09-05) — ficou com `href: null` desde a Etapa 3
+ * ("só Dashboard, Funil e Clientes têm tela nesta etapa", comentário antigo removido daqui),
+ * mesmo depois de Link de captação e Ajustes ganharem suas telas e serem ligados. Corrigido com
+ * a tela nova em src/app/painel/estudos/page.tsx.
  */
 export default async function PainelLayout({ children }: { children: ReactNode }) {
   const corretor = await obterCorretorAtual();
@@ -22,7 +25,7 @@ export default async function PainelLayout({ children }: { children: ReactNode }
     { rotulo: "Dashboard", href: "/painel/dashboard", badge: leadsCount },
     { rotulo: "Funil", href: "/painel/funil", badge: funilCount },
     { rotulo: "Clientes", href: "/painel/clientes", badge: clientesCount },
-    { rotulo: "Estudos", href: null, badge: estudosAbertosCount },
+    { rotulo: "Estudos", href: "/painel/estudos", badge: estudosAbertosCount },
     { rotulo: "Link de captação", href: "/painel/captacao", badge: null },
     { rotulo: "Ajustes", href: "/painel/ajustes", badge: null },
   ];

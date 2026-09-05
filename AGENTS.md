@@ -658,6 +658,65 @@ imagem, domínio com SSL.
      (`/painel/dashboard`, `/painel/funil`, `/painel/clientes`, `/painel/captacao`, e
      `/painel/clientes/${clienteId}`).
 
+## Revisão geral de textos e UX (2026-09-05, com o Edgar dormindo)
+
+Pedido dele: reler todo texto do site atrás de erro gramatical/ortográfico, frase fora de
+contexto ou expressão interna vazada pro usuário, e aproveitar pra olhar UX já que estava
+publicado. Passei por todos os ~35 arquivos `.tsx` do projeto (lead público, painel inteiro,
+wizard do estudo, as 3 saídas) mais os arquivos de dados de texto (`lead-formulario.ts`,
+`apresentacao.ts`, `fatores-ajustes.ts`, `funil.ts`, `memoria-calculo.ts`). Achados reais,
+todos corrigidos:
+
+- **"Estudos" no menu lateral apontava pra lugar nenhum desde a Etapa 3** — `href: null`,
+  cinza, cursor "not-allowed", com o tooltip **"Ainda não construído nesta etapa"**: uma nota
+  interna de desenvolvimento, nunca destinada a aparecer pro Edgar, ficou visível em produção o
+  tempo todo. "Link de captação" e "Ajustes" já tinham sido ligados quando prontos; "Estudos"
+  nunca foi atualizado. **O maior achado desta revisão** — corrigido criando
+  `src/app/painel/estudos/page.tsx` (lista todo estudo em aberto, com andamento em % igual ao
+  `Sidebar.tsx` do wizard, última alteração e origem) e ligando o item no menu
+  (`src/app/painel/layout.tsx`).
+- **`FormularioLead.tsx`**: o botão de WhatsApp fazia
+  `{"{Edgar}".replace("{Edgar}", "o corretor")}` — um hack sem sentido que sempre resultava em
+  "o corretor" (texto genérico, nunca o nome de verdade). Corrigido pra usar
+  `corretorNome.split(" ")[0]` de verdade, igual já era feito em `TelaWelcome`/`TelaConfirmacao`
+  no mesmo arquivo — precisou passar `corretor.nome` como prop nova pra `TelaAgendar`.
+- **`lead-formulario.ts`**: a última pergunta do formulário público tinha "Edgar" escrito à mão
+  ("Quer deixar alguma observação para o Edgar?") — quebra o princípio de `corretorId` em toda
+  tabela desde o dia 1 pra abrir o app a outros corretores sem migração (AGENTS.md, não-
+  negociáveis). Trocado pra "para o corretor", genérico.
+- **Dois QR codes nunca tinham sido construídos** (achado antes de mexer no menu, mesmo padrão
+  do bug do menu — placeholder desenhado, nunca implementado): o da tela de captação (já
+  documentado acima) e o da **última tela da apresentação de 16:9** ("QR CODE / WhatsApp",
+  `src/app/estudo/[id]/apresentacao/page.tsx`). Corrigido: `linkWhatsapp()` novo em
+  `src/lib/formato.ts` (monta `https://wa.me/55<dígitos>` a partir do telefone formatado),
+  `whatsappLink` novo no objeto retornado por `construirApresentacao` (`src/lib/apresentacao.ts`),
+  QR gerado com `qrcode` igual o da captação. Sem WhatsApp cadastrado, mantém o tracejado — não
+  força um QR sem destino.
+- **"120 dias" hardcoded em 3 lugares de UI de verdade** (fora comentários de código, que
+  ficaram como estavam) enquanto o Dashboard já lia `FatoresCalculo.diasRetencao`
+  (configurável em Ajustes → LGPD): o filtro "Parados 120+ dias" em
+  `src/app/painel/clientes/page.tsx` (rótulo **e** a comparação `>= 120` no filtro — mudar o
+  valor em Ajustes desalinhava essa tela de verdade, não só o texto) e duas frases em
+  `LgpdInterativo.tsx`/`painel/ajustes/page.tsx` sobre o pedido de exclusão. Todos os três agora
+  leem `diasRetencao` de verdade (`ExclusaoLgpdForm` ganhou a prop).
+- **Cabeçalho de tabela errado**: "Comparar mapas" (`painel/clientes/[id]/page.tsx`) tinha a
+  coluna dos nomes das métricas ("Capital em seguro de vida", "Cobertura vitalícia"...)
+  rotulada **"Número"** — não é número nenhum, é o nome do item. Trocado pra "Item".
+  - **Placeholder com o nome errado da corretora**: `PerfilMarcaForm.tsx` sugeria "Setor Norte
+  Corretora de Seguros Ltda" no campo de razão social — a razão social de verdade (`seed.ts`) é
+  "**Torres Norte** Corretora de Seguros Ltda". Só afeta quem nunca preencheu o campo (o Edgar
+  já preencheu o dele com o valor real), mas corrigido mesmo assim.
+- **Não corrigido, só sinalizado** (fora do escopo de uma revisão de texto — mexeria em
+  modelo de dado e infraestrutura de consentimento): o link "Não quero mais receber e-mails"
+  no rodapé do e-mail (`src/app/estudo/[id]/email/page.tsx`) é `<span>` com sublinhado, sem
+  `href` nem `onClick` — parece clicável, não faz nada. Não existe hoje nenhum mecanismo de
+  opt-out (campo no banco, página de confirmação). Decisão de escopo do Edgar quando ele
+  acordar: implementar de verdade, ou tirar a aparência de link clicável por enquanto.
+- Verificado depois de cada lote de mudanças: `npx tsc --noEmit`, `npx eslint .` e os 35 testes
+  de `npm test`, sempre limpos. A tela nova de Estudos testada ao vivo no navegador (lista os
+  17 estudos em aberto reais do banco de dev, andamento em % bate com o que a Sidebar do
+  wizard mostra pro mesmo estudo, clique abre o estudo certo).
+
 ## Notas operacionais
 
 - **Depois de qualquer mudança em `prisma/schema.prisma`, reinicie o `next dev`** — não basta

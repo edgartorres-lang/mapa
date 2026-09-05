@@ -100,7 +100,7 @@ export default async function PaginaCaptacaoCorretor() {
           <div style={{ font: "700 10px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".1em", color: "rgba(255,255,255,.6)", marginBottom: 12 }}>QR code</div>
           <div
             style={{ width: 140, height: 140, borderRadius: 10, background: "#fff", padding: 8, boxSizing: "border-box", margin: "0 auto" }}
-            // eslint-disable-next-line react/no-danger -- SVG gerado por nós (biblioteca `qrcode`), não é entrada de usuário.
+            // SVG gerado por nós (biblioteca `qrcode`), não é entrada de usuário.
             dangerouslySetInnerHTML={{ __html: qrCodeSvg }}
           />
           <div style={{ font: "400 11.5px/1.6 var(--font-interface)", color: "rgba(255,255,255,.7)", marginTop: 14, textAlign: "center" }}>Para material impresso — aponta pro mesmo endereço.</div>

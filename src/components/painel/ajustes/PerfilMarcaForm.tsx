@@ -11,7 +11,7 @@ const CAMPOS: { chave: keyof PerfilCorretorEditavel; rotulo: string; placeholder
   { chave: "whatsapp", rotulo: "WhatsApp", placeholder: "(96) 98133-9955" },
   { chave: "emailContato", rotulo: "E-mail de contato", placeholder: "edgar@setornorteseguros.com.br" },
   { chave: "endereco", rotulo: "Endereço", placeholder: "Rua, número, bairro, cidade — UF", largo: true },
-  { chave: "razaoSocial", rotulo: "Razão social e CNPJ", placeholder: "Setor Norte Corretora de Seguros Ltda · 00.000.000/0001-00", nota: "Vai no rodapé legal dos documentos.", largo: true },
+  { chave: "razaoSocial", rotulo: "Razão social e CNPJ", placeholder: "Torres Norte Corretora de Seguros Ltda · 00.000.000/0001-00", nota: "Vai no rodapé legal dos documentos.", largo: true },
 ];
 
 const ONDE_APARECE = [

@@ -94,7 +94,7 @@ export const PERGUNTAS_LEAD: PerguntaLead[] = [
   },
   { key: "res", grupo: "Reservas", label: "Vocês já têm alguma reserva guardada?", help: "Isso reduz o que falta proteger — vale informar.", tipo: "group" },
   { key: "cenario", grupo: "Cenário", label: "Se você ficasse um ano sem poder trabalhar, quem sustentaria a casa?", help: "Escolha a opção mais próxima da sua realidade.", tipo: "choice", opts: ["Ninguém — a renda é toda minha", "Meu cônjuge, em parte", "Temos reservas para um tempo", "Não sei dizer"] },
-  { key: "obs", grupo: "Para terminar", label: "Quer deixar alguma observação para o Edgar?", help: "Opcional. Pode seguir sem escrever nada.", tipo: "note" },
+  { key: "obs", grupo: "Para terminar", label: "Quer deixar alguma observação para o corretor?", help: "Opcional. Pode seguir sem escrever nada.", tipo: "note" },
 ];
 
 /** Converte o prazo em texto do formulário público pro número que calc.ts espera (0 = indeterminado). */
