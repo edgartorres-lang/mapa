@@ -2,6 +2,11 @@
 
 Vale pra este e pros próximos que eu for mandando. Sempre os mesmos passos.
 
+> **Lição aprendida testando o `gerar-texto`** (2026-09-06): o node "Webhook" do n8n coloca o
+> corpo da requisição dentro de `body`, não solto na raiz — `$json.perfil` vem `undefined`, o
+> certo é `$json.body.perfil`. Todo workflow que eu te mandar daqui pra frente já vem certo
+> nisso; só documentando aqui porque foi o primeiro erro real que apareceu.
+
 ## 1. A credencial da Anthropic (Claude)
 
 Você já tem uma — apareceu como **"Anthropic account 2"** em Credentials, testada com sucesso.
