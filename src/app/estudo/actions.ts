@@ -156,7 +156,13 @@ export async function gerarTextosEstudo(estudoId: string) {
     },
   };
 
-  const r = await dispararWebhookComResposta<{ cliente?: string[]; interna?: string[] }>(corretor.webhookGerarTexto, payload);
+  // Timeout maior que o padrão (15s) de propósito: bug real achado testando com o Edgar
+  // (2026-09-06) — a chamada de verdade pra Claude leva de 15 a 19s (confirmado no log de
+  // execução do n8n, todas com sucesso), então o padrão de dispararWebhookComResposta desistia
+  // antes da resposta chegar, mesmo o n8n tendo respondido certo pouco depois. Gerar texto com
+  // IA é sempre mais lento que um webhook de notificação/agenda — 45s dá folga sem deixar o
+  // botão "Gerar textos" travado pra sempre se algo quebrar de verdade.
+  const r = await dispararWebhookComResposta<{ cliente?: string[]; interna?: string[] }>(corretor.webhookGerarTexto, payload, 45000);
   if (!r.ok) return { sucesso: false as const, erro: r.erro };
 
   const cliente = Array.isArray(r.dados.cliente) ? r.dados.cliente : [];
