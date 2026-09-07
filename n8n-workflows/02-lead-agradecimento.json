@@ -1,0 +1,73 @@
+{
+  "name": "Mapa da Proteção - Lead: e-mail de agradecimento",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-agradecimento",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "b2b2b2b2-0001-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "mapa-lead-agradecimento"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.body.email }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b2b2b2b2-0002-4000-8000-000000000002",
+      "name": "Tem e-mail?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.body.corretora }} <naoresponda@setornorteseguros.com.br>",
+        "toEmail": "={{ $json.body.email }}",
+        "subject": "=Recebemos seu contato, {{ $json.body.nome.split(' ')[0] }}!",
+        "emailFormat": "text",
+        "text": "=Olá, {{ $json.body.nome.split(' ')[0] }}!\n\nRecebemos suas informações e {{ $json.body.corretorNome }}, da {{ $json.body.corretora }}, já foi avisado.\n\nEm breve entraremos em contato pra confirmar os próximos passos — fica de olho no WhatsApp e no e-mail.\n\nAté já,\n{{ $json.body.corretora }}",
+        "options": {}
+      },
+      "id": "b2b2b2b2-0003-4000-8000-000000000003",
+      "name": "Enviar e-mail",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [680, 220],
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "SMTP Setor Norte"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Tem e-mail?", "type": "main", "index": 0 }]]
+    },
+    "Tem e-mail?": {
+      "main": [[{ "node": "Enviar e-mail", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

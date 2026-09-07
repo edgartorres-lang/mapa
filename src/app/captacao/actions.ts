@@ -91,13 +91,25 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
   ]);
 
   // webhookLead dispara sempre, sem chave (não tem toggle na tela de Integrações — igual esquecer).
-  await dispararWebhook(corretor.webhookLead, { nome: dados.nome, telefone, email, campanha: utmCampanha });
+  // corretorNome/corretora vão junto pra dar pro workflow assinar o e-mail de agradecimento ao
+  // lead sem precisar hardcodear nada do lado do n8n.
+  await dispararWebhook(corretor.webhookLead, {
+    nome: dados.nome,
+    telefone,
+    email,
+    campanha: utmCampanha,
+    corretorNome: corretor.nome,
+    corretora: corretor.corretora || "Setor Norte Seguros",
+  });
   if (corretor.integracaoWhatsappAtiva) {
+    // corretorWhatsapp: pra onde o n8n manda o aviso — sempre o WhatsApp salvo no cadastro do
+    // próprio corretor (Ajustes → Perfil e marca), nunca fixo no workflow do n8n.
     await dispararWebhook(corretor.webhookNotificar, {
       tipo: leadRepetido ? "lead_repetido" : "lead_novo",
       nome: dados.nome,
       profissao: dados.profissao || null,
       origem: origemTexto,
+      corretorWhatsapp: corretor.whatsapp,
     });
   }
 
@@ -141,7 +153,7 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
       data: { clienteId, corretorId: corretor.id, tipo: "sistema", texto: "Pediu para ser chamado no WhatsApp em vez de agendar um horário." },
     });
     if (corretor.integracaoWhatsappAtiva) {
-      await dispararWebhook(corretor.webhookNotificar, { tipo: "pediu_whatsapp", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem });
+      await dispararWebhook(corretor.webhookNotificar, { tipo: "pediu_whatsapp", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem, corretorWhatsapp: corretor.whatsapp });
     }
     revalidatePath(`/painel/clientes/${clienteId}`);
     return { canal: "whatsapp" as const };
@@ -184,7 +196,7 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
     });
   }
   if (corretor.integracaoWhatsappAtiva) {
-    await dispararWebhook(corretor.webhookNotificar, { tipo: "horario_escolhido", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem });
+    await dispararWebhook(corretor.webhookNotificar, { tipo: "horario_escolhido", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem, corretorWhatsapp: corretor.whatsapp });
   }
 
   revalidatePath("/painel/dashboard");
