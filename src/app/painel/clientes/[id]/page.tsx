@@ -7,8 +7,8 @@ import type { EstagioFunil } from "@/lib/enums";
 import { ModalExclusao } from "@/components/painel/ModalExclusao";
 import { ModalDuplicar } from "@/components/painel/ModalDuplicar";
 import { NomeEditavel } from "@/components/painel/NomeEditavel";
-import { duplicarEstudo } from "@/app/estudo/actions";
-import { mudarEstagio, criarNota, excluirMapaIsolado } from "./actions";
+import { duplicarEstudo, abrirOuCriarEstudoDoCliente } from "@/app/estudo/actions";
+import { mudarEstagio, criarNota, excluirMapaIsolado, excluirCadastroSemMapa } from "./actions";
 
 const PASSOS_FUNIL: EstagioFunil[] = ["lead", "estudo", "apresentado", "cotando", "fechado"];
 const ABAS = [
@@ -74,7 +74,19 @@ export default async function PaginaCliente({
               </div>
             </div>
           </div>
-          <div style={{ display: "flex", gap: 9 }}>
+          <div style={{ display: "flex", gap: 9, alignItems: "center" }}>
+            {mapas.length === 0 && (
+              <ModalExclusao
+                rotuloBotao="Excluir cadastro"
+                corBotao="var(--texto-terciario)"
+                titulo={`Excluir o cadastro de ${cliente.nome}?`}
+                subtitulo="Sem mapa gerado nenhum — não é pedido de exclusão LGPD, é só apagar um cadastro de teste ou engano."
+                vaiEmbora={["O cadastro inteiro, com telefone/e-mail.", "Estudo em aberto, se houver.", "Histórico e anotações."]}
+                oQueFica={["Nada — some por completo, sem deixar rastro nenhum."]}
+                rotuloConfirmar="Excluir cadastro"
+                acaoConfirmar={excluirCadastroSemMapa.bind(null, cliente.id)}
+              />
+            )}
             {!estudoAberto && mapas[0] && (
               <ModalDuplicar clienteNome={cliente.nome} acaoConfirmar={duplicarEstudo.bind(null, mapas[0].estudo.id)} />
             )}
@@ -85,6 +97,16 @@ export default async function PaginaCliente({
               >
                 Abrir {estudoAberto ? "estudo" : "mapa atual"}
               </Link>
+            )}
+            {!estudoAberto && !mapas[0] && (
+              <form action={abrirOuCriarEstudoDoCliente.bind(null, cliente.id)}>
+                <button
+                  type="submit"
+                  style={{ font: "700 12.5px var(--font-interface)", color: "#fff", background: "var(--verde)", border: "none", padding: "11px 18px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap" }}
+                >
+                  Iniciar novo estudo
+                </button>
+              </form>
             )}
           </div>
         </div>

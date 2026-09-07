@@ -6,9 +6,9 @@ import { Cartao } from "@/components/ui/Campos";
 /**
  * Etapa 4 — antes "Contato e consentimento". WhatsApp e e-mail migraram pro Perfil (2026-09-06);
  * o consentimento LGPD deixou de ter checkbox aqui — vira automático (`lgpdStatus: "verbal"`) no
- * momento em que o corretor cria o cliente/estudo direto, ver `criarEstudoNovo`/
- * `criarClienteRapido` em src/app/estudo/actions.ts. O formulário público do lead (captação)
- * continua com o checkbox explícito, que ali é obrigatório por lei.
+ * momento em que o corretor cria o cliente/estudo direto, ver `criarClienteRapido`/
+ * `abrirOuCriarEstudoDoCliente` em src/app/estudo/actions.ts. O formulário público do lead
+ * (captação) continua com o checkbox explícito, que ali é obrigatório por lei.
  *
  * O que sobrou é só isto: um campo livre e opcional, que vira contexto extra no payload da IA
  * (Resumo para o cliente / Análise interna) — nunca bloqueia o Resultado.

@@ -9,6 +9,7 @@ import { paraFatoresCalc, padroesPorEstudo } from "@/lib/fatores-calculo";
 import { ESTUDO_VAZIO, paraEstudoFormulario, type EstudoFormulario } from "@/lib/estudo-formulario";
 import { dispararWebhookComResposta } from "@/lib/webhooks";
 import { carregarSaida } from "@/lib/carregar-saida";
+import { dataBrParaDate, dataParaBr } from "@/lib/formato";
 
 /**
  * Consentimento automático (2026-09-06): todo cliente criado direto pelo wizard do corretor —
@@ -22,45 +23,38 @@ function consentimentoVerbal() {
   return { lgpdStatus: "verbal", lgpdOrigem: "Direto pelo corretor", lgpdAceitoEm: new Date() };
 }
 
-/** Botão "+ Novo estudo": cria o cliente e o estudo em aberto, e manda pro estudo. */
-export async function criarEstudoNovo() {
-  const corretor = await obterCorretorAtual();
-  const fatores = await prisma.fatoresCalculo.findUniqueOrThrow({ where: { corretorId: corretor.id } });
-
-  const dadosIniciais: EstudoFormulario = { ...ESTUDO_VAZIO, ...padroesPorEstudo(fatores) };
-
-  const cliente = await prisma.cliente.create({
-    data: { corretorId: corretor.id, nome: "Novo estudo", estagioFunil: "estudo", ...consentimentoVerbal() },
-  });
-  const estudo = await prisma.estudo.create({
-    data: {
-      clienteId: cliente.id,
-      corretorId: corretor.id,
-      status: "aberto",
-      dados: dadosIniciais as object,
-    },
-  });
-
-  redirect(`/estudo/${estudo.id}`);
-}
-
 /**
- * Botão "+ Novo cliente": cadastro rápido, sem estudo nenhum — o cliente fica parado como "lead"
- * até alguém (o corretor, ou o próprio cliente pelo botão que já existe na página dele) abrir o
- * estudo de verdade com "+ Novo estudo" (que aí sim já vem pré-preenchido, ver
- * `abrirOuCriarEstudoDoCliente`). Diferente de `criarEstudoNovo`, que já cria o estudo junto.
+ * Botão "+ Novo cliente" (único jeito de criar alguém a partir da sidebar desde 2026-09-07 — o
+ * antigo "+ Novo estudo" da barra lateral saiu; a página do cliente tem seu próprio botão pra
+ * iniciar o estudo, ver `abrirOuCriarEstudoDoCliente`). Cadastro rápido — nome e telefone são os
+ * únicos obrigatórios, o resto é o que já se sabe na hora.
+ *
+ * `iniciarEstudo`: quando true (botão "Salvar e iniciar novo estudo"), cria o cliente E o estudo
+ * na mesma chamada, pré-preenchido com o que acabou de ser digitado, e manda direto pro wizard —
+ * evita ida e volta (criar cliente, depois clicar de novo pra abrir o estudo).
  */
-export async function criarClienteRapido(dados: { nome: string; telefone: string; email: string; profissao: string }) {
+export async function criarClienteRapido(
+  dados: { nome: string; telefone: string; email: string; profissao: string; nascimento: string; estadoCivil: string },
+  iniciarEstudo: boolean,
+) {
   const corretor = await obterCorretorAtual();
-  if (!(dados.nome || "").trim()) throw new Error("Nome é obrigatório.");
+  const nome = dados.nome.trim();
+  const telefone = dados.telefone.trim();
+  if (!nome) throw new Error("Nome é obrigatório.");
+  if (!telefone) throw new Error("Telefone é obrigatório.");
+
+  const nascimentoDate = dataBrParaDate(dados.nascimento);
+  const estadoCivil = dados.estadoCivil.trim() || null;
 
   const cliente = await prisma.cliente.create({
     data: {
       corretorId: corretor.id,
-      nome: dados.nome.trim(),
-      telefone: dados.telefone.trim() || null,
+      nome,
+      telefone,
       email: dados.email.trim() || null,
       profissao: dados.profissao.trim() || null,
+      nascimento: nascimentoDate,
+      estadoCivil,
       estagioFunil: "lead",
       estagioAtualizadoEm: new Date(),
       origem: "Contato direto",
@@ -68,14 +62,41 @@ export async function criarClienteRapido(dados: { nome: string; telefone: string
     },
   });
 
+  if (!iniciarEstudo) {
+    revalidatePath("/painel/clientes");
+    redirect(`/painel/clientes/${cliente.id}`);
+  }
+
+  const fatores = await prisma.fatoresCalculo.findUniqueOrThrow({ where: { corretorId: corretor.id } });
+  const dadosIniciais: EstudoFormulario = {
+    ...ESTUDO_VAZIO,
+    ...padroesPorEstudo(fatores),
+    nome,
+    whats: telefone,
+    email: dados.email.trim(),
+    profissao: dados.profissao.trim(),
+    nasc: dataParaBr(nascimentoDate),
+    estadoCivil: estadoCivil ?? ESTUDO_VAZIO.estadoCivil,
+  };
+  const estudo = await prisma.estudo.create({
+    data: { clienteId: cliente.id, corretorId: corretor.id, status: "aberto", dados: dadosIniciais as object },
+  });
+
+  await prisma.$transaction([
+    prisma.cliente.update({ where: { id: cliente.id }, data: { estagioFunil: "estudo", estagioAtualizadoEm: new Date() } }),
+    prisma.eventoHistorico.create({
+      data: { clienteId: cliente.id, corretorId: corretor.id, tipo: "sistema", texto: "Cliente e estudo criados pelo corretor." },
+    }),
+  ]);
+
   revalidatePath("/painel/clientes");
-  redirect(`/painel/clientes/${cliente.id}`);
+  redirect(`/estudo/${estudo.id}`);
 }
 
 /**
- * Botão "+ Novo estudo" chamado de dentro da página de um cliente específico (`clienteId` vem do
- * pathname, ver `BotaoNovoEstudo`) — corrige um bug real: o botão do menu lateral sempre criava
- * um cliente novo em branco, mesmo com o corretor olhando pra um cliente já aberto na tela.
+ * Botão "Iniciar novo estudo" na página de um cliente específico — corrige um bug real: o antigo
+ * botão do menu lateral sempre criava um cliente novo em branco, mesmo com o corretor olhando pra
+ * um cliente já aberto na tela.
  *
  * Três casos, igual à lógica que "Duplicar" já usa pra decidir quando aparecer:
  * 1. Cliente já tem estudo em aberto → só abre ele, não cria nada (evita dois estudos abertos ao
@@ -84,7 +105,7 @@ export async function criarClienteRapido(dados: { nome: string; telefone: string
  *    a linhagem via `duplicadoDeEstudoId`), não criar um estudo solto por fora dela — manda de
  *    volta pra página do cliente, onde o botão de duplicar já está.
  * 3. Cliente novo, sem estudo nem mapa nenhum → cria de verdade, pré-preenchido com o que já se
- *    sabe do cadastro (nome/contato/profissão/estado civil/sexo).
+ *    sabe do cadastro (nome/nascimento/contato/profissão/estado civil/sexo).
  */
 export async function abrirOuCriarEstudoDoCliente(clienteId: string) {
   const corretor = await obterCorretorAtual();
@@ -101,7 +122,11 @@ export async function abrirOuCriarEstudoDoCliente(clienteId: string) {
   const dadosIniciais: EstudoFormulario = {
     ...ESTUDO_VAZIO,
     ...padroesPorEstudo(fatores),
+    // "Novo estudo" era o nome-placeholder do antigo botão "+ Novo estudo" da sidebar (removido
+    // 2026-09-07) — cadastros antigos com esse nome literal ainda existem no banco; o check
+    // continua aqui só por retrocompatibilidade com eles.
     nome: cliente.nome === "Novo estudo" ? "" : cliente.nome,
+    nasc: dataParaBr(cliente.nascimento),
     whats: cliente.telefone ?? "",
     email: cliente.email ?? "",
     profissao: cliente.profissao ?? "",

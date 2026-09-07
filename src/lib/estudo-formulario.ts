@@ -19,7 +19,7 @@ export interface EstudoFormulario extends EstudoDados {
   /** Só usado pelo formulário público do lead (`mapearLeadParaEstudo`/`captacao/actions.ts`) —
    * ali sim o checkbox é obrigatório por lei, e este campo é o transporte do "sim" do cliente até
    * `Cliente.lgpdStatus`. No wizard do corretor não existe mais UI nenhuma pra isso: o
-   * consentimento nasce automático (`lgpdStatus: "verbal"`, ver `criarEstudoNovo` em
+   * consentimento nasce automático (`lgpdStatus: "verbal"`, ver `criarClienteRapido` em
    * src/app/estudo/actions.ts) e este campo fica sempre `false`, sem uso. */
   lgpd: boolean;
   /** Etapa "Observações" — texto livre, opcional. Vai como contexto extra no payload da IA
@@ -74,9 +74,10 @@ export const ESTUDO_VAZIO: EstudoFormulario = {
  * qualquer campo ausente com o padrão de `ESTUDO_VAZIO` — inclusive dentro de `vinculos`/`edu`/
  * `anexos`, que são objetos aninhados.
  *
- * Rede de segurança, não o caminho normal: todo estudo criado pela aplicação (`criarEstudoNovo`,
- * `enviarLead`) já nasce com o formato completo. Existe por causa de dados legados/semeados com
- * `dados` incompleto ou `{}` (visto de verdade: um cliente de teste da Etapa 1 com `dados: {}`
+ * Rede de segurança, não o caminho normal: todo estudo criado pela aplicação (`criarClienteRapido`,
+ * `abrirOuCriarEstudoDoCliente`, `enviarLead`) já nasce com o formato completo. Existe por causa
+ * de dados legados/semeados com `dados` incompleto ou `{}` (visto de verdade: um cliente de teste
+ * da Etapa 1 com `dados: {}`
  * quebrava `calc()` — "Cannot read properties of undefined (reading 'clt')" — tanto ao abrir o
  * estudo quanto, pior, ao **duplicar** um mapa gerado a partir dele, porque `duplicarEstudo`
  * copiava o JSON cru sem validar o formato). Use em qualquer lugar que leia `estudo.dados` do

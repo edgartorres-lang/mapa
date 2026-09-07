@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { ESTAGIOS_FUNIL, type EstagioFunil } from "@/lib/enums";
 
 /** Avançar/mudar estágio no funil é ação de CRM (Etapa 3), diferente de gerar/duplicar/excluir
@@ -131,4 +132,29 @@ export async function excluirHistoricoCompleto(clienteId: string) {
   revalidatePath("/painel/funil");
   revalidatePath("/painel/clientes");
   revalidatePath(`/painel/clientes/${clienteId}`);
+}
+
+/**
+ * Excluir cadastro (2026-09-07) — diferente do pedido de exclusão LGPD (Ajustes → LGPD e
+ * retenção, que é a rota certa quando é o CLIENTE quem pede pra sair da base, sempre deixando um
+ * registro de auditoria em `ExclusaoLgpd`). Esta aqui é a faxina de cadastro de teste/engano do
+ * próprio corretor — só aparece na UI quando `mapas.length === 0` (nunca existiu nada de valor
+ * pra perder) e apaga de vez, sem deixar rastro nenhum: cadastro, estudo(s) em aberto e histórico
+ * juntos (cascade do Prisma). Trava no servidor se já existir Mapa gerado, mesmo que a tela não
+ * mostre o botão nesse caso — defesa contra chamar isto direto por engano.
+ */
+export async function excluirCadastroSemMapa(clienteId: string) {
+  const corretor = await obterCorretorAtual();
+  const cliente = await prisma.cliente.findUniqueOrThrow({ where: { id: clienteId } });
+  if (cliente.corretorId !== corretor.id) throw new Error("Cliente não pertence a este corretor.");
+
+  const temMapa = await prisma.mapa.count({ where: { clienteId } });
+  if (temMapa > 0) throw new Error("Este cliente já tem Mapa gerado — use \"Excluir mapa\" por versão, ou o pedido de exclusão LGPD em Ajustes.");
+
+  await prisma.cliente.delete({ where: { id: clienteId } }); // cascade: estudos, eventos, notas, agendamentos
+
+  revalidatePath("/painel/dashboard");
+  revalidatePath("/painel/funil");
+  revalidatePath("/painel/clientes");
+  redirect("/painel/clientes");
 }

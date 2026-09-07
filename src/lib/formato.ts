@@ -48,6 +48,26 @@ export function mascaraData(v: string): string {
   return d.slice(0, 2) + "/" + d.slice(2, 4) + "/" + d.slice(4);
 }
 
+/** "dd/mm/aaaa" → Date, meio-dia local (evita a data cair um dia antes/depois por causa de fuso
+ * horário ao ir e voltar do banco). `null` se o texto não bater no formato ou a data não existir
+ * (ex.: 31/02). Usa `Cliente.nascimento` (DateTime, "só data" por convenção da aplicação — ver
+ * schema.prisma). */
+export function dataBrParaDate(str: string): Date | null {
+  const m = REGEX_DATA.exec((str || "").trim());
+  if (!m) return null;
+  const d = new Date(+m[3], +m[2] - 1, +m[1], 12);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+/** Date → "dd/mm/aaaa", o inverso de `dataBrParaDate` (mesmo formato de `mascaraData`/`idadeDe`).
+ * `null`/`undefined` vira string vazia. */
+export function dataParaBr(d: Date | null | undefined): string {
+  if (!d) return "";
+  const dia = String(d.getDate()).padStart(2, "0");
+  const mes = String(d.getMonth() + 1).padStart(2, "0");
+  return `${dia}/${mes}/${d.getFullYear()}`;
+}
+
 /** Máscara de telefone brasileiro enquanto digita. */
 export function mascaraTelefone(v: string): string {
   const d = (v || "").replace(/\D/g, "").slice(0, 11);

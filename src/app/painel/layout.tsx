@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { prisma } from "@/lib/prisma";
-import { BotaoNovoEstudo } from "@/components/painel/BotaoNovoEstudo";
 import { BotaoNovoCliente } from "@/components/painel/BotaoNovoCliente";
 
 /**
@@ -70,7 +69,6 @@ export default async function PainelLayout({ children }: { children: ReactNode }
           )}
         </div>
 
-        <BotaoNovoEstudo />
         <BotaoNovoCliente />
 
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderTop: "1px solid rgba(255,255,255,.14)", paddingTop: 14 }}>
