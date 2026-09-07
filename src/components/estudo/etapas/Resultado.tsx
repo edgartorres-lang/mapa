@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { EstudoFormulario } from "@/lib/estudo-formulario";
 import type { CalcResultado, FatoresCalculo } from "@/lib/calc";
 import { brl, brlCurto } from "@/lib/formato";
+import { notaPensaoCriacao, notaTemporaria } from "@/lib/notas-calculo";
 import { ModalGerar } from "@/components/estudo/ModalGerar";
 import { gerarTextosEstudo } from "@/app/estudo/actions";
 
@@ -81,8 +82,8 @@ export function Resultado({
 
   const coberturas = [
     { titulo: "Vida — vitalícia (sucessão e um ano de renda)", valor: brl(c.vitalicia), nota: `${brl(c.patrimonioTotal)} de patrimônio × ${dados.pctSucessao}% de custo de transmissão = ${brl(c.modSucessao)}, mais ${brl(c.modUmAnoRenda)} de um ano de renda.` },
-    { titulo: `Vida — temporária (padrão de vida por ${dados.prazoManutencao} anos)`, valor: brl(c.temporaria), nota: c.temDep ? `${brl(c.rendaEquiv)} de renda ajustada × ${Math.round(c.participacao * 100)}% de participação × ${dados.prazoManutencao * 12} meses, menos ${brl(c.receitasLiquidaveis)} de receitas liquidáveis${c.modObjetivos ? `, mais ${brl(c.modObjetivos)} de projetos e objetivos` : ""}.` : "Sem dependentes financeiros; entra apenas o valor de projetos e objetivos." },
-    { titulo: "Pensão de Criação", valor: `${brl(c.pensaoMensal)}/mês`, nota: c.pensaoMensal > 0 ? `${brl(c.custoEducacaoTotal)} de custo de criação × ${Math.round(c.fatorPensao * 100)}% de fator de pensão × ${Math.round(c.participacao * 100)}% de participação, diluídos em ${c.prazoPensao} anos. Média sem diluição: ${brl(c.mediaAteFormar)}/mês até a formação.` : "Sem plano de criação informado." },
+    { titulo: `Vida — temporária (padrão de vida por ${dados.prazoManutencao} anos)`, valor: brl(c.temporaria), nota: notaTemporaria(c, dados.prazoManutencao) },
+    { titulo: "Pensão de Criação", valor: `${brl(c.pensaoMensal)}/mês`, nota: c.pensaoMensal > 0 ? notaPensaoCriacao(c) : "Sem plano de criação informado." },
     { titulo: "Invalidez total por acidente", valor: brl(c.invalidezAcidente), nota: `${fatores.anosInvalidez} anos de renda (${brl(c.rendaMensal)} × 12 × ${fatores.anosInvalidez}).` },
     { titulo: "Invalidez por doença", valor: brl(c.invalidezDoenca), nota: "50% do capital de invalidez por acidente." },
     { titulo: "Renda vitalícia por invalidez", valor: c.rendaInvalidezVitalicia > 0 ? `${brl(c.rendaInvalidezVitalicia)}/mês` : "não se aplica", nota: c.rendaInvalidezVitalicia > 0 ? "50% da renda mensal, contínua." : "Servidor público já recebe aposentadoria por invalidez pelo RPPS." },

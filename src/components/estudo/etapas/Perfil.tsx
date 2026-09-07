@@ -172,7 +172,8 @@ export function Perfil({
         <div style={{ font: "600 13.5px var(--font-interface)", color: "var(--marinho)" }}>Rendas permanentes de terceiros</div>
         <div style={{ font: "400 11.5px/1.5 var(--font-interface)", color: "var(--texto-terciario)", margin: "5px 0 14px" }}>
           Aluguéis, dividendos, sociedades. Continuam entrando na conta da família depois do falecimento —
-          reduzem a necessidade pela participação do segurado na renda, não como abatimento de capital.
+          reduzem a participação do segurado na renda da casa, o que reduz a Pensão de Criação (não a
+          proteção temporária, nem como abatimento de capital).
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {dados.terceiros.map((t, i) => (
@@ -231,8 +232,9 @@ export function Perfil({
           ))}
         </div>
         <div style={{ font: "400 11.5px/1.6 var(--font-interface)", color: "var(--marinho)", marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--azul-claro-borda)" }}>
-          A participação multiplica a manutenção do padrão de vida e a pensão de criação: o seguro do
-          segurado cobre a fatia proporcional à contribuição dele na renda da casa.
+          A participação multiplica a pensão de criação: o seguro do segurado cobre a fatia
+          proporcional à contribuição dele na renda da casa. A manutenção do padrão de vida
+          (proteção temporária) usa a renda ajustada cheia, sem esse corte.
         </div>
       </div>
     </fieldset>

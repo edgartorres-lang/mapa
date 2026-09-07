@@ -35,7 +35,16 @@ prazo nenhum — todo prazo abaixo vem pronto no JSON, com esses nomes de campo)
 - A **Pensão de Criação** dura `prazoPensaoAnos` anos (normalmente mais longo que o total acima)
   e cobre a criação do(s) filho(s) como um todo — não é só escola: educação, cursos, terapias,
   esporte, saúde, tudo que os pais quiserem garantir pro filho crescer bem. Só existe se houver
-  plano de criação.
+  plano de criação. Importante pra credibilidade (o corretor mesmo pediu isso, 2026-09-07): o
+  valor da pensão é sempre BEM menor que o custo total de criação dividido pelos anos — isso é
+  esperado, não erro, e o texto precisa explicar o motivo, não só jogar os dois números soltos.
+  Motivo 1, sempre presente: a pensão cobre só a fatia do custo proporcional à `participacao` do
+  segurado na renda da casa — o resto continua sendo pago pela renda de quem fica. Motivo 2, só
+  quando `fatorPensao` vier menor que 1 (indica vínculo de servidor público): parte já é coberta
+  por uma pensão automática do RPPS, reduzindo ainda mais o que o seguro precisa cobrir. Cite os
+  dois motivos (o segundo só se aplicável) sempre que mencionar por que a pensão é menor que o
+  custo total dividido pelos anos — nunca deixe os dois valores soltos sem explicar a ponte entre
+  eles.
 - Além da morte, o estudo também protege a renda em caso de afastamento por saúde: invalidez por
   acidente equivale a `anosInvalidezAcidente` anos de renda; por doença, sempre metade disso;
   uma renda mensal vitalícia de metade da renda atual, se a pessoa ficar permanentemente incapaz
@@ -81,7 +90,7 @@ neste formato:
 Perfil: {"nome":"Renata Souza","nasc":"15/03/1985","sexo":"F","estadoCivil":"Casado(a)","profissao":"Arquiteta"}
 Dependentes: [{"nome":"Theo","nasc":"30/10/2011","rel":"Filho(a)"},{"nome":"João","nasc":"14/03/2015","rel":"Filho(a)"}]
 Observações: Filho mais novo é autista; já passou por uma doença grave na família.
-Números calculados: {"rendaMensal":15000,"rendaConjuge":4000,"rendaTerceiros":0,"rendaFamiliar":21000,"participacao":0.71,"vitalicia":292500,"temporaria":519286,"prazoManutencaoAnos":5,"pensaoMensal":3013,"prazoPensaoAnos":15, "...": "..."}
+Números calculados: {"rendaMensal":15000,"rendaConjuge":4000,"rendaTerceiros":0,"rendaFamiliar":21000,"participacao":0.71,"vitalicia":292500,"temporaria":519286,"prazoManutencaoAnos":5,"pensaoMensal":3013,"prazoPensaoAnos":15,"fatorPensao":1, "...": "..."}
 ```
 
 (A linha "Observações" só aparece quando o corretor escreveu alguma coisa na etapa opcional do
@@ -92,7 +101,8 @@ campos em "Números calculados" — `custoEducacaoTotal`, `capitalAProteger`, `i
 em cima deles, nunca calcula nada sozinha. Os campos `prazoManutencaoAnos`, `prazoPensaoAnos`,
 `anosInvalidezAcidente`, `pctDit` e `anosDoencasGraves` são configuráveis por corretor em
 Ajustes → Fatores de cálculo — por isso vêm como número explícito no JSON, em vez de o prompt
-fixar "5 anos"/"15 anos" no texto.)
+fixar "5 anos"/"15 anos" no texto. `fatorPensao` vem 1 pra CLT/autônomo e 0,6 (padrão) pra
+servidor público — é o motivo 2 da Pensão de Criação, explicado acima.)
 
 ## Modelo escolhido
 

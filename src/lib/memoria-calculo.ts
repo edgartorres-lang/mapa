@@ -17,6 +17,25 @@ export interface GrupoMemoria {
 
 const ROTULO_VINCULO: Record<VinculoKey, string> = { clt: "CLT", servidor: "Servidor", autonomo: "Autônomo" };
 
+/** Passos da Pensão de Criação, um por linha, cada um partindo do valor em reais do passo
+ * anterior (não do percentual arredondado) — ver nota de correção 2026-09-07 acima. Mesma lógica
+ * de `notaPensaoCriacao` em notas-calculo.ts, só que como linhas de tabela em vez de uma frase. */
+function linhasPensaoMensal(c: CalcResultado): { rotulo: string; formula: string; valor: string }[] {
+  const linhas: { rotulo: string; formula: string; valor: string }[] = [];
+  let valor = c.custoEducacaoTotal;
+
+  if (c.fatorPensao < 1) {
+    valor *= c.fatorPensao;
+    linhas.push({ rotulo: "Após pensão automática do RPPS", formula: `custo de criação × ${(c.fatorPensao * 100).toFixed(1)}%`, valor: brl(valor) });
+  }
+
+  valor *= c.participacao;
+  linhas.push({ rotulo: "Sua parte (participação na renda)", formula: `${brl(valor / c.participacao)} × ${(c.participacao * 100).toFixed(1)}%`, valor: brl(valor) });
+
+  linhas.push({ rotulo: "Pensão mensal", formula: `${brl(valor)} ÷ ${c.prazoPensao * 12} meses`, valor: brl(c.pensaoMensal) });
+  return linhas;
+}
+
 export function construirMemoriaCalculo(dados: EstudoFormulario, c: CalcResultado, fatores: FatoresCalculo): GrupoMemoria[] {
   const ativos = (["clt", "servidor", "autonomo"] as VinculoKey[])
     .filter((k) => dados.vinculos[k].on && dados.vinculos[k].renda > 0)
@@ -64,7 +83,9 @@ export function construirMemoriaCalculo(dados: EstudoFormulario, c: CalcResultad
       cor: "#1B72BE",
       total: brl(c.temporaria),
       linhas: [
-        { rotulo: "Manutenção bruta", formula: `${brl(c.rendaEquiv)} × ${Math.round(c.participacao * 100)}% × ${dados.prazoManutencao * 12} meses`, valor: brl(c.necessidadeBruta) },
+        // Correção 2026-09-07: não multiplica mais por participação — ver calc.ts, comentário em
+        // "necessidadeBruta". A renda ajustada já é o valor a substituir, cheio.
+        { rotulo: "Manutenção bruta", formula: `${brl(c.rendaEquiv)} × ${dados.prazoManutencao * 12} meses`, valor: brl(c.necessidadeBruta) },
         { rotulo: "Menos receitas liquidáveis", formula: "liquidável + FGTS + INSS + previdência + seguro atual", valor: `− ${brl(c.receitasLiquidaveis)}` },
         { rotulo: "Teto de razoabilidade", formula: `${dados.teto} × ${brl(c.rendaAnual)}${c.tetoAtingido ? " — atingido" : " — não atingido"}`, valor: brl(c.teto) },
         { rotulo: "Mais objetivos incluídos", formula: objetivosTexto, valor: `+ ${brl(c.modObjetivos)}` },
@@ -74,10 +95,14 @@ export function construirMemoriaCalculo(dados: EstudoFormulario, c: CalcResultad
       grupo: "Pensão de Criação",
       cor: "#39CC00",
       total: `${brl(c.pensaoMensal)}/mês`,
+      // Correção 2026-09-07: as linhas abaixo mostravam os percentuais arredondados (ex.: "45%")
+      // mas calculavam com a fração exata — conferir na calculadora exatamente o que estava
+      // escrito dava um valor diferente do mostrado. Agora cada linha mostra o valor em reais que
+      // sai do passo anterior, não só o percentual — a corrente sempre bate.
       linhas: [
         { rotulo: "Despesa de hoje", formula: eduHojeTexto, valor: brl(c.eduHoje) },
         { rotulo: "Custo de criação total", formula: "por filho, por fase, até os 25 anos", valor: brl(c.custoEducacaoTotal) },
-        { rotulo: "Pensão mensal", formula: `${brl(c.custoEducacaoTotal)} × ${Math.round(c.fatorPensao * 100)}% × ${Math.round(c.participacao * 100)}% ÷ ${dados.prazoPensao * 12} meses`, valor: brl(c.pensaoMensal) },
+        ...linhasPensaoMensal(c),
       ],
     },
     {

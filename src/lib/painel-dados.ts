@@ -9,10 +9,15 @@ import type { EstagioFunil } from "./enums";
  * nenhum ainda.
  */
 export async function carregarClientesComResumo(corretorId: string) {
-  const [clientes, eventos, mapas] = await Promise.all([
+  const [clientes, eventos, mapas, estudosAbertos] = await Promise.all([
     prisma.cliente.findMany({ where: { corretorId }, orderBy: { atualizadoEm: "desc" } }),
     prisma.eventoHistorico.findMany({ where: { corretorId }, orderBy: { criadoEm: "desc" }, select: { clienteId: true, criadoEm: true } }),
     prisma.mapa.findMany({ where: { corretorId }, orderBy: { geradoEm: "desc" } }),
+    // "Estudo em andamento" — desde que a aba "Estudos" foi aposentada (2026-09-07), esse sinal
+    // mora aqui, na lista de Clientes, em vez de numa aba à parte. `Estudo.status: "aberto"` é
+    // literal (questionário ainda não virou Mapa) — não confundir com `estagioFunil: "estudo"`,
+    // que é um rótulo manual de CRM que não muda sozinho quando o estudo termina.
+    prisma.estudo.findMany({ where: { corretorId, status: "aberto" }, select: { clienteId: true } }),
   ]);
 
   const ultimoEventoPorCliente = new Map<string, Date>();
@@ -27,6 +32,8 @@ export async function carregarClientesComResumo(corretorId: string) {
     mapasPorCliente.set(m.clienteId, lista);
   }
 
+  const clientesComEstudoAberto = new Set(estudosAbertos.map((e) => e.clienteId));
+
   const agora = new Date();
 
   return clientes.map((cliente) => {
@@ -39,6 +46,7 @@ export async function carregarClientesComResumo(corretorId: string) {
       diasParado: diasDesde(ultimoMovimento, agora),
       mapaAtual,
       quantidadeMapas: mapasDoCliente.length,
+      temEstudoAberto: clientesComEstudoAberto.has(cliente.id),
     };
   });
 }

@@ -2,6 +2,7 @@ import type { Corretor, FatoresCalculo as FatoresCalculoDb } from "@prisma/clien
 import type { CalcResultado } from "./calc";
 import type { EstudoFormulario } from "./estudo-formulario";
 import { brl, brlCurto, idadeDe, linkWhatsapp, primeiroNome } from "./formato";
+import { notaPensaoCriacao, notaTemporaria } from "./notas-calculo";
 
 /**
  * Monta o objeto de apresentação (`r`) consumido pelas três saídas — porta fiel do trecho final
@@ -77,10 +78,10 @@ export function construirApresentacao(
     `${primeiroNomeCliente}, a sua renda de ${brl(c.rendaMensal)} por mês vem de ${vincTexto || "trabalho"} e representa ${participacaoTexto} da renda da casa, que hoje soma ${brl(c.rendaFamiliar)}. Essa participação é o que define o tamanho da proteção: o seguro cobre a fatia que depende de você, não o total da família.`,
     `A parte vitalícia, de ${brl(c.vitalicia)}, existe porque patrimônio não vira dinheiro no dia seguinte. São ${brl(c.modSucessao)} de custo de transmissão sobre ${brl(c.patrimonioTotal)} em bens, mais um ano da sua renda para a família atravessar o inventário sem vender nada às pressas.`,
     c.temDep
-      ? `A parte temporária, de ${brl(c.temporaria)}, mantém o padrão de vida por ${dados.prazoManutencao} anos${c.modObjetivos > 0 ? ` e inclui ${brl(c.modObjetivos)} dos projetos que você listou` : ""}. Dela já foram descontados ${brl(c.receitasLiquidaveis)} de patrimônio liquidável, FGTS, INSS, previdência e seguro atual.`
+      ? `A parte temporária, de ${brl(c.temporaria)}, substitui sua renda ajustada de ${brl(c.rendaEquiv)} por ${dados.prazoManutencao} anos — o tempo pra família se reorganizar sem precisar mudar de vida da noite pro dia${c.modObjetivos > 0 ? `, mais ${brl(c.modObjetivos)} dos projetos que você listou` : ""}. Dela já foram descontados ${brl(c.receitasLiquidaveis)} de patrimônio liquidável, FGTS, INSS, previdência e seguro atual.`
       : "Sem dependentes financeiros informados, a manutenção de padrão de vida não entra neste estudo.",
     c.custoEducacaoTotal > 0
-      ? `Os estudos somam ${brl(c.custoEducacaoTotal)} até o fim da formação, o equivalente a ${brl(c.mediaAteFormar)} por mês de média até ${filhos.length > 1 ? "os filhos se formarem" : "a formatura"}. Contratada como pensão por ${c.prazoPensao} anos e ajustada pela sua participação na renda, a mensalidade fica em ${brl(c.pensaoMensal)} — chega quando a mensalidade vence, sem depender de alguém administrar um valor grande num momento difícil.`
+      ? `Os estudos somam ${brl(c.custoEducacaoTotal)} até o fim da formação, o equivalente a ${brl(c.mediaAteFormar)} por mês de média até ${filhos.length > 1 ? "os filhos se formarem" : "a formatura"}. Contratada como pensão por ${c.prazoPensao} anos, a mensalidade cobre a sua fatia disso — ${Math.round(c.participacao * 100)}% do custo, na mesma proporção da sua participação na renda da casa${c.fatorPensao < 1 ? ", com um abatimento a mais porque parte da sua renda já garante pensão automática pelo RPPS" : ""} — e fica em ${brl(c.pensaoMensal)}/mês, chegando quando a mensalidade vence, sem depender de alguém administrar um valor grande num momento difícil.`
       : "Nenhum custo de criação foi informado, então a pensão de criação não entra neste estudo.",
     `Além da morte, o estudo dimensiona invalidez em ${brl(c.invalidezAcidente)} por acidente (${brl(c.invalidezDoenca)} por doença), doenças graves em ${brl(c.doencasGraves)} e ${brl(c.dit)} por mês de diária por incapacidade temporária. São eventos que interrompem a renda sem interromper as despesas.`,
   ];
@@ -143,8 +144,8 @@ export function construirApresentacao(
     ],
     coberturas: [
       { titulo: "Vida — vitalícia (sucessão e um ano de renda)", valor: brl(c.vitalicia), nota: `${brl(c.patrimonioTotal)} de patrimônio × ${dados.pctSucessao}% de custo de transmissão = ${brl(c.modSucessao)}, mais ${brl(c.modUmAnoRenda)} de um ano de renda.` },
-      { titulo: `Vida — temporária (padrão de vida por ${dados.prazoManutencao} anos)`, valor: brl(c.temporaria), nota: c.temDep ? `${brl(c.rendaEquiv)} de renda ajustada × ${Math.round(c.participacao * 100)}% de participação × ${dados.prazoManutencao * 12} meses, menos ${brl(c.receitasLiquidaveis)} de receitas liquidáveis${c.modObjetivos ? `, mais ${brl(c.modObjetivos)} de projetos e objetivos` : ""}.` : "Sem dependentes financeiros; entra apenas o valor de projetos e objetivos." },
-      { titulo: "Pensão de Criação", valor: `${brl(c.pensaoMensal)}/mês`, nota: c.pensaoMensal > 0 ? `${brl(c.custoEducacaoTotal)} de custo de criação × ${Math.round(c.fatorPensao * 100)}% de fator de pensão × ${Math.round(c.participacao * 100)}% de participação, diluídos em ${c.prazoPensao} anos. Média sem diluição: ${brl(c.mediaAteFormar)}/mês até a formação.` : "Sem plano de criação informado." },
+      { titulo: `Vida — temporária (padrão de vida por ${dados.prazoManutencao} anos)`, valor: brl(c.temporaria), nota: notaTemporaria(c, dados.prazoManutencao) },
+      { titulo: "Pensão de Criação", valor: `${brl(c.pensaoMensal)}/mês`, nota: c.pensaoMensal > 0 ? notaPensaoCriacao(c) : "Sem plano de criação informado." },
       { titulo: "Invalidez total por acidente", valor: brl(c.invalidezAcidente), nota: `${fatoresDb.anosInvalidez} anos de renda (${brl(c.rendaMensal)} × 12 × ${fatoresDb.anosInvalidez}).` },
       { titulo: "Invalidez por doença", valor: brl(c.invalidezDoenca), nota: "50% do capital de invalidez por acidente." },
       { titulo: "Renda vitalícia por invalidez", valor: c.rendaInvalidezVitalicia > 0 ? `${brl(c.rendaInvalidezVitalicia)}/mês` : "não se aplica", nota: c.rendaInvalidezVitalicia > 0 ? "50% da renda mensal, contínua." : "Servidor público já recebe aposentadoria por invalidez pelo RPPS." },

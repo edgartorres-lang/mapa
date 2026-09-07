@@ -29,7 +29,7 @@ export default async function PaginaMemoriaCalculo({ params }: { params: Promise
       <div style={{ font: "600 24px var(--font-titulo)", color: "var(--marinho)", marginBottom: 4 }}>Memória de cálculo</div>
       <div style={{ font: "400 13px var(--font-interface)", color: "var(--texto-secundario)", marginBottom: 4 }}>{r.nome}</div>
       <div style={{ font: "400 11.5px var(--font-interface)", color: "var(--texto-terciario)", marginBottom: 22 }}>
-        Mapa v{mapa.numeroVersao} · gerado em {mapa.geradoEm.toLocaleDateString("pt-BR")} · os fatores usados foram os em vigor naquele dia, mesmo que Ajustes tenha mudado depois.
+        Mapa v{mapa.numeroVersao} · gerado em {mapa.geradoEm.toLocaleDateString("pt-BR")} às {mapa.geradoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} · os fatores usados foram os em vigor naquele dia, mesmo que Ajustes tenha mudado depois.
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>

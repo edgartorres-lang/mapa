@@ -223,6 +223,10 @@ export async function gerarTextosEstudo(estudoId: string) {
       prazoManutencaoAnos: dados.prazoManutencao,
       pensaoMensal: c.pensaoMensal,
       prazoPensaoAnos: c.prazoPensao,
+      // < 1 só quando o vínculo é servidor público (RPPS já paga uma pensão automática aos
+      // dependentes) — a Pensão de Criação é reduzida por isso. Ver "por que a Pensão de Criação
+      // é menor que o custo total" em 01-gerar-texto-PROMPT.md.
+      fatorPensao: c.fatorPensao,
       custoEducacaoTotal: c.custoEducacaoTotal,
       capitalAProteger: c.capitalAProteger,
       invalidezAcidente: c.invalidezAcidente,

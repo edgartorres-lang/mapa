@@ -280,9 +280,22 @@ export function calc(
 
   const receitasLiquidaveis = patrimonioLiquidavel + d.fgts + d.inss + d.prevPrivada + d.seguroAtual;
 
-  // Temporária
+  // Temporária — correção real de metodologia (2026-09-07, achada pelo Edgar testando com um
+  // cliente de baixa participação, "João Oliveira"): a fórmula original do protótipo multiplicava
+  // a renda ajustada do segurado (`rendaEquiv`, só a renda DELE) pela própria `participacao` dele
+  // (renda dele ÷ renda familiar) — ou seja, cortava a renda dele pela fatia dele na própria
+  // renda dele, um valor sem sentido (com participação de 45%, alguém que ganha R$15.000 tinha a
+  // necessidade calculada sobre R$6.750, não R$15.000). Inconsistente com a vitalícia, que usa a
+  // renda cheia (`modUmAnoRenda = rendaMensal × 12`, sem desconto nenhum) pro mesmo tipo de
+  // proteção (substituir a renda que falta). Corrigido pra não multiplicar mais pela participação
+  // — `rendaEquiv` já é a renda (ajustada) da pessoa; não faz sentido cortá-la de novo pela fatia
+  // dela mesma. Detalhe: `participacao` continua correta e em uso nos outros lugares (Pensão de
+  // Criação prorateia um custo que é DA FAMÍLIA INTEIRA pela fatia de quem contribui — isso sim
+  // faz sentido). Muda o valor de "temporária" de todo estudo (pra mais, principalmente de quem
+  // tem participação baixa) — ver reference-calc-engine.md e o caso de teste da Marina em
+  // calc.test.ts, ambos atualizados junto.
   const prazoManut = d.prazoManutencao || 0;
-  const necessidadeBruta = temDep ? rendaEquiv * participacao * prazoManut * 12 : 0;
+  const necessidadeBruta = temDep ? rendaEquiv * prazoManut * 12 : 0;
   const necessidadeLiquida = Math.max(0, necessidadeBruta - receitasLiquidaveis);
   const teto = rendaAnual * d.teto;
   const modManutencao = teto > 0 ? Math.min(necessidadeLiquida, teto) : necessidadeLiquida;

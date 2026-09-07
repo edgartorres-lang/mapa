@@ -77,15 +77,23 @@ describe("calc() — caso da Marina (conferência obrigatória do README)", () =
     expect(r.vitalicia).toBe(358500);
   });
 
-  it("cobertura temporária ≈ R$ 389.285,71", () => {
-    // Nota: o mock de CRM em `Painel do Corretor.dc.html` arredonda isso para 389.285 (para
-    // baixo) — é dado ilustrativo de tela de cliente, não a fonte de verdade do cálculo.
-    // O valor exato, recalculado à mão a partir do racional, é 2.725.000 / 7.
-    expect(r.temporaria).toBeCloseTo(2725000 / 7, 6);
+  it("cobertura temporária = R$ 685.000 (correção de metodologia, 2026-09-07)", () => {
+    // Valor mudou nesta data: a fórmula original (fiel ao protótipo, "fonte de verdade" antiga)
+    // multiplicava rendaEquiv pela própria participação da Marina — cortava a renda dela pela
+    // fatia dela mesma na renda familiar, um valor sem sentido, achado pelo Edgar testando com
+    // um cliente de participação baixa ("João Oliveira", 45%). Corrigido: necessidadeBruta não
+    // multiplica mais por participação (ver comentário em calc.ts, "Temporária — correção real
+    // de metodologia"). O valor antigo, 2.725.000/7 ≈ 389.285,71, fica só de referência histórica
+    // — não é mais o esperado.
+    // rendaEquiv(17.250) × prazoManutencao(5) × 12 = 1.035.000
+    // − receitasLiquidaveis(90.000+25.000+80.000+45.000+150.000=390.000) = 645.000
+    // (não estoura o teto de 1.440.000) + modObjetivos(40.000) = 685.000
+    expect(r.necessidadeBruta).toBe(1035000);
+    expect(r.temporaria).toBe(685000);
   });
 
-  it("capital em seguro de vida (vitalícia + temporária) ≈ R$ 747.785,71", () => {
-    expect(r.totalVida).toBeCloseTo(358500 + 2725000 / 7, 6);
+  it("capital em seguro de vida (vitalícia + temporária) = R$ 1.043.500", () => {
+    expect(r.totalVida).toBe(358500 + 685000);
   });
 
   it("pensão de educação ≈ R$ 3.013,33/mês", () => {

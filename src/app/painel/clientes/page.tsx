@@ -111,7 +111,14 @@ export default async function PaginaClientes({ searchParams }: { searchParams: P
             >
               {nomeDoEstagio(r.cliente.estagioFunil)}
             </span>
-            <span style={{ font: "500 12.5px var(--font-interface)", color: "var(--texto-secundario)" }}>{r.quantidadeMapas}</span>
+            <span style={{ font: "500 12.5px var(--font-interface)", color: "var(--texto-secundario)", display: "flex", alignItems: "center", gap: 6 }}>
+              {r.quantidadeMapas}
+              {r.temEstudoAberto && (
+                <span style={{ font: "600 9.5px var(--font-interface)", color: "var(--azul)", background: "var(--azul-claro-fundo)", padding: "2px 7px", borderRadius: 99, whiteSpace: "nowrap" }}>
+                  em andamento
+                </span>
+              )}
+            </span>
             <span style={{ font: "700 13px var(--font-interface)", color: "var(--marinho)", textAlign: "right" }}>
               {r.mapaAtual ? brl(r.mapaAtual.capitalAProteger) : "—"}
             </span>

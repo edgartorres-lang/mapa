@@ -5,27 +5,26 @@ import { prisma } from "@/lib/prisma";
 import { BotaoNovoCliente } from "@/components/painel/BotaoNovoCliente";
 
 /**
- * Barra lateral fixa de 216px (README, "Painel do Corretor"). Seis itens.
+ * Barra lateral fixa de 216px (README, "Painel do Corretor"). Cinco itens.
  *
- * "Estudos" achado desativado em produção (2026-09-05) — ficou com `href: null` desde a Etapa 3
- * ("só Dashboard, Funil e Clientes têm tela nesta etapa", comentário antigo removido daqui),
- * mesmo depois de Link de captação e Ajustes ganharem suas telas e serem ligados. Corrigido com
- * a tela nova em src/app/painel/estudos/page.tsx.
+ * "Estudos" existiu como aba própria entre 2026-09-05 e 2026-09-07 (listava só os `Estudo` com
+ * `status: "aberto"`) — aposentada por decisão do Edgar: sobrepunha demais com "Funil" (mesmos
+ * clientes, visões diferentes) e "Clientes" virou o centro de busca único, com um sinal de
+ * "estudo em andamento" direto na lista (ver `carregarClientesComResumo`) em vez de uma aba à
+ * parte. A rota `/painel/estudos` foi removida junto.
  */
 export default async function PainelLayout({ children }: { children: ReactNode }) {
   const corretor = await obterCorretorAtual();
-  const [leadsCount, funilCount, clientesCount, estudosAbertosCount] = await Promise.all([
+  const [leadsCount, funilCount, clientesCount] = await Promise.all([
     prisma.cliente.count({ where: { corretorId: corretor.id, estagioFunil: "lead" } }),
     prisma.cliente.count({ where: { corretorId: corretor.id, estagioFunil: { not: null } } }),
     prisma.cliente.count({ where: { corretorId: corretor.id } }),
-    prisma.estudo.count({ where: { corretorId: corretor.id, status: "aberto" } }),
   ]);
 
   const itens = [
     { rotulo: "Dashboard", href: "/painel/dashboard", badge: leadsCount },
     { rotulo: "Funil", href: "/painel/funil", badge: funilCount },
     { rotulo: "Clientes", href: "/painel/clientes", badge: clientesCount },
-    { rotulo: "Estudos", href: "/painel/estudos", badge: estudosAbertosCount },
     { rotulo: "Link de captação", href: "/painel/captacao", badge: null },
     { rotulo: "Ajustes", href: "/painel/ajustes", badge: null },
   ];

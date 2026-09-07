@@ -173,7 +173,7 @@ export default async function PaginaCliente({
                         <span style={{ font: "700 14px var(--font-interface)", color: "var(--marinho)" }}>{brl(mapa.capitalAProteger)}</span>
                       </div>
                       <div style={{ font: "400 11px var(--font-interface)", color: "var(--texto-terciario)", marginBottom: 10 }}>
-                        Gerado em {mapa.geradoEm.toLocaleDateString("pt-BR")}
+                        Gerado em {mapa.geradoEm.toLocaleDateString("pt-BR")} às {mapa.geradoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div style={{ display: "flex", gap: 6 }}>
@@ -196,7 +196,7 @@ export default async function PaginaCliente({
                         <ModalExclusao
                           rotuloBotao="Excluir mapa"
                           titulo={`Excluir o Mapa da Proteção v${mapa.numeroVersao}?`}
-                          subtitulo={`${cliente.nome} · gerado em ${mapa.geradoEm.toLocaleDateString("pt-BR")} · ${brl(mapa.capitalAProteger)}`}
+                          subtitulo={`${cliente.nome} · gerado em ${mapa.geradoEm.toLocaleDateString("pt-BR")} às ${mapa.geradoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} · ${brl(mapa.capitalAProteger)}`}
                           vaiEmbora={[
                             `O Mapa da Proteção v${mapa.numeroVersao} e as saídas geradas dele (apresentação, proposta, e-mail).`,
                             `O estudo de ${estudo.criadoEm.toLocaleDateString("pt-BR")} que originou este mapa, com todas as respostas.`,
