@@ -9,18 +9,21 @@ import { Sidebar } from "./Sidebar";
 import { Perfil } from "./etapas/Perfil";
 import { DependentesObjetivos } from "./etapas/DependentesObjetivos";
 import { CustosPatrimonio } from "./etapas/CustosPatrimonio";
-import { ContatoConsentimento } from "./etapas/ContatoConsentimento";
+import { Observacoes } from "./etapas/Observacoes";
 import { Resultado } from "./etapas/Resultado";
 
 const TITULOS = [
-  { titulo: "Perfil", sub: "Quem é, como trabalha e de onde vem a renda da casa." },
+  { titulo: "Perfil", sub: "Quem é, como trabalha, de onde vem a renda da casa e como falar com o cliente." },
   { titulo: "Dependentes e objetivos", sub: "Quem depende dessa renda, o plano de estudos, prazos e projetos." },
   { titulo: "Custos e patrimônio", sub: "Bem por bem, custo de transmissão e o que já existe de reserva." },
-  { titulo: "Contato e consentimento", sub: "Onde falar com o cliente e a autorização de uso dos dados." },
+  { titulo: "Observações", sub: "Qualquer contexto extra pro Resumo para o cliente e a Análise interna. Opcional." },
   { titulo: "Resultado", sub: "O mapa fechado: apresentação, proposta em A4 ou e-mail." },
 ];
 
-const OBRIGATORIAS = [0, 1, 3];
+// Só Perfil e Dependentes travam o Resultado. Custos e patrimônio (2) e Observações (3) nunca
+// bloquearam — Observações é texto livre opcional desde que o consentimento LGPD deixou de ter
+// checkbox aqui (2026-09-06): virou automático na criação do cliente, ver actions.ts.
+const OBRIGATORIAS = [0, 1];
 
 export function EstudoShell({
   estudoId,
@@ -61,6 +64,14 @@ export function EstudoShell({
     if (somenteLeitura) return;
     setDados((d) => ({ ...d, ...patch }));
   }
+
+  // Bug real achado testando com o Edgar (2026-09-06): a etapa "Custos e patrimônio" é comprida
+  // — clicando Continuar/Voltar (ou pulando de etapa pela Sidebar) lá de baixo, a etapa nova
+  // abria no meio da tela, do jeito que a rolagem tinha ficado na etapa anterior. Volta pro topo
+  // sempre que troca de etapa.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
 
   // Autosave: grava 900ms depois da última alteração. Não roda se o mapa já foi gerado.
   useEffect(() => {
@@ -129,11 +140,12 @@ export function EstudoShell({
           {step === 0 && <Perfil dados={dados} set={set} somenteLeitura={somenteLeitura} />}
           {step === 1 && <DependentesObjetivos dados={dados} set={set} somenteLeitura={somenteLeitura} />}
           {step === 2 && <CustosPatrimonio dados={dados} set={set} somenteLeitura={somenteLeitura} />}
-          {step === 3 && <ContatoConsentimento dados={dados} set={set} somenteLeitura={somenteLeitura} />}
+          {step === 3 && <Observacoes dados={dados} set={set} somenteLeitura={somenteLeitura} />}
           {step === 4 && (
             <Resultado
               dados={dados}
               c={c}
+              fatores={fatores}
               estudoId={estudoId}
               status={statusInicial}
               bloqueado={bloqueado}

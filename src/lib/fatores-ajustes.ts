@@ -92,11 +92,11 @@ export const GRUPOS_FATORES: GrupoFatores[] = [
     ],
   },
   {
-    nome: "Educação",
-    sub: "Custo total até a formação, transformado em pensão mensal.",
+    nome: "Pensão de Criação",
+    sub: "Custo total de criar o(s) filho(s) — educação, cursos, terapias, esporte, saúde — transformado em pensão mensal.",
     campos: [
       { chave: "prazoPensaoAnosPadrao", rotulo: "Prazo padrão da pensão", unidade: "anos", nota: "Sugestão inicial; o estudo permite trocar caso a caso.", camada: "padrao" },
-      { chave: "idadeIndependencia", rotulo: "Idade de independência", unidade: "anos", nota: "Até quando o custo educacional é contado.", camada: "inerte" },
+      { chave: "idadeIndependencia", rotulo: "Idade de independência", unidade: "anos", nota: "Até quando o custo de criação é contado.", camada: "inerte" },
     ],
   },
   {
@@ -105,7 +105,7 @@ export const GRUPOS_FATORES: GrupoFatores[] = [
     campos: [
       { chave: "fatorClt", rotulo: "CLT", unidade: "×", nota: "Sem majoração.", camada: "travado", decimal: true },
       { chave: "fatorServidor", rotulo: "Servidor público", unidade: "×", nota: "Sem majoração de renda.", camada: "travado", decimal: true },
-      { chave: "fatorPensaoServidor", rotulo: "Fator de pensão do servidor", unidade: "×", nota: "O RPPS já paga parte; reduz a pensão de educação.", camada: "live", decimal: true },
+      { chave: "fatorPensaoServidor", rotulo: "Fator de pensão do servidor", unidade: "×", nota: "O RPPS já paga parte; reduz a pensão de criação.", camada: "live", decimal: true },
       { chave: "fatorAutonomo", rotulo: "Autônomo, liberal, empresário", unidade: "×", nota: "Sem rede formal de proteção.", camada: "live", decimal: true },
     ],
   },

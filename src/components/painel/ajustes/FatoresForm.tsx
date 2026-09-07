@@ -17,7 +17,7 @@ const LINHAS_SIMULACAO: { rotulo: string; chave: "totalVida" | "vitalicia" | "te
   { rotulo: "Capital em seguro de vida", chave: "totalVida" },
   { rotulo: "Cobertura vitalícia", chave: "vitalicia" },
   { rotulo: "Cobertura temporária", chave: "temporaria" },
-  { rotulo: "Pensão de educação (mês)", chave: "pensaoMensal" },
+  { rotulo: "Pensão de criação (mês)", chave: "pensaoMensal" },
   { rotulo: "DIT (mês)", chave: "dit" },
   { rotulo: "Doenças graves", chave: "doencasGraves" },
 ];

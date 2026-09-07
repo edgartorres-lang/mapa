@@ -71,12 +71,12 @@ export function construirMemoriaCalculo(dados: EstudoFormulario, c: CalcResultad
       ],
     },
     {
-      grupo: "Educação",
+      grupo: "Pensão de Criação",
       cor: "#39CC00",
       total: `${brl(c.pensaoMensal)}/mês`,
       linhas: [
         { rotulo: "Despesa de hoje", formula: eduHojeTexto, valor: brl(c.eduHoje) },
-        { rotulo: "Custo educacional total", formula: "por filho, por fase, até os 25 anos", valor: brl(c.custoEducacaoTotal) },
+        { rotulo: "Custo de criação total", formula: "por filho, por fase, até os 25 anos", valor: brl(c.custoEducacaoTotal) },
         { rotulo: "Pensão mensal", formula: `${brl(c.custoEducacaoTotal)} × ${Math.round(c.fatorPensao * 100)}% × ${Math.round(c.participacao * 100)}% ÷ ${dados.prazoPensao * 12} meses`, valor: brl(c.pensaoMensal) },
       ],
     },
@@ -85,11 +85,11 @@ export function construirMemoriaCalculo(dados: EstudoFormulario, c: CalcResultad
       cor: "#D9A400",
       total: brl(c.invalidezAcidente),
       linhas: [
-        { rotulo: "Invalidez por acidente", formula: `${brl(c.rendaMensal)} × 12 × 5 anos`, valor: brl(c.invalidezAcidente) },
+        { rotulo: "Invalidez por acidente", formula: `${brl(c.rendaMensal)} × 12 × ${fatores.anosInvalidez} anos`, valor: brl(c.invalidezAcidente) },
         { rotulo: "Invalidez por doença", formula: "50% da invalidez por acidente", valor: brl(c.invalidezDoenca) },
         { rotulo: "Renda vitalícia por invalidez", formula: "50% da renda mensal", valor: c.rendaInvalidezVitalicia > 0 ? `${brl(c.rendaInvalidezVitalicia)}/mês` : "não se aplica" },
-        { rotulo: "DIT", formula: "70% da renda mensal", valor: `${brl(c.dit)}/mês` },
-        { rotulo: "Doenças graves", formula: "1,5 × a renda anual", valor: brl(c.doencasGraves) },
+        { rotulo: "DIT", formula: `${Math.round(fatores.fatorDIT * 100)}% da renda mensal`, valor: `${brl(c.dit)}/mês` },
+        { rotulo: "Doenças graves", formula: `${String(fatores.fatorDoencasGraves).replace(".", ",")} × a renda anual`, valor: brl(c.doencasGraves) },
       ],
     },
   ];

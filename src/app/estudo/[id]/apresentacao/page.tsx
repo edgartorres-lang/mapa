@@ -3,12 +3,15 @@ import { carregarSaida } from "@/lib/carregar-saida";
 import { BarraSaida } from "@/components/saida/BarraSaida";
 
 /**
- * Dez slides 960×540 (equivalem a 1920×1080), impressos em A4 deitado. Porta fiel da seção
+ * Onze slides 960×540 (equivalem a 1920×1080), impressos em A4 deitado. Porta fiel da seção
  * "APRESENTAÇÃO" em "Wizard 1a - Protótipo funcional v3.dc.html" (~linha 567-755) — mudou de 6
  * pra 10 telas em 2026-09-03 (Capa ganhou uma linha de contexto pessoal; Proteção em vida,
- * Educação dos filhos, Além da morte e Resumo para o cliente são novas). Placeholders de
- * logo/foto/QR seguem tracejados quando a marca não foi configurada — ver Ajustes → Perfil e
- * marca.
+ * Pensão de Criação (antes "Educação dos filhos"), Além da morte e Resumo para o cliente são
+ * novas) e de 10 pra 11 em 2026-09-06 (Abertura pessoal — 1-2 frases sem valor nenhum, logo
+ * depois do "Ponto de partida" — pra abrir com algo caloroso antes dos números; o "Resumo para o
+ * cliente" completo, com todos os valores, continua onde estava, mais pra frente na
+ * apresentação). Placeholders de logo/foto/QR seguem tracejados quando a marca não foi
+ * configurada — ver Ajustes → Perfil e marca.
  */
 export default async function PaginaApresentacao({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -78,7 +81,19 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Slide 3 — a conta */}
+        {/* Slide 3 — abertura pessoal (novo): 1-2 frases, sem valor nenhum — a versão curta e
+            calorosa do "Resumo para o cliente" completo, que continua lá pela metade da
+            apresentação (hoje slide 9), depois que vitalícia/temporária/Pensão de Criação já
+            foram explicadas uma a uma. Ver nota em src/lib/apresentacao.ts. */}
+        <div className="slide16 paper" style={{ width: 960, height: 540, background: "var(--marinho)", position: "relative", overflow: "hidden", borderRadius: 4 }}>
+          <div style={{ position: "absolute", right: -110, bottom: -190, width: 440, height: 440, borderRadius: "50%", background: "rgba(57,204,0,.12)" }} />
+          <div style={{ position: "relative", height: "100%", boxSizing: "border-box", padding: "60px 84px", display: "flex", flexDirection: "column", justifyContent: "center", color: "#fff" }}>
+            <div style={{ width: 48, height: 4, background: "var(--verde)", marginBottom: 28 }} />
+            <div style={{ font: "600 40px/1.35 var(--font-titulo)" }}>{r.aberturaPessoal}</div>
+          </div>
+        </div>
+
+        {/* Slide 4 — a conta */}
         <div className="slide16 paper" style={{ width: 960, height: 540, background: "#fff", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
           <div style={{ height: "100%", boxSizing: "border-box", padding: "52px 64px", display: "flex", flexDirection: "column" }}>
             <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 14 }}>A conta</div>
@@ -114,7 +129,7 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Slide 4 — o que cada parte resolve (panorama) */}
+        {/* Slide 5 — o que cada parte resolve (panorama) */}
         <div className="slide16 paper" style={{ width: 960, height: 540, background: "var(--fundo)", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
           <div style={{ height: "100%", boxSizing: "border-box", padding: "48px 60px", display: "flex", flexDirection: "column" }}>
             <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 12 }}>O que cada parte resolve</div>
@@ -134,7 +149,7 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Slide 5 — proteção em vida (novo) */}
+        {/* Slide 6 — proteção em vida (novo) */}
         <div className="slide16 paper" style={{ width: 960, height: 540, background: "#fff", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
           <div style={{ height: "100%", boxSizing: "border-box", padding: "52px 64px", display: "flex", flexDirection: "column" }}>
             <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 14 }}>Proteção em vida</div>
@@ -157,13 +172,13 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Slide 6 — educação dos filhos (novo) */}
+        {/* Slide 7 — Pensão de Criação (novo) */}
         <div className="slide16 paper" style={{ width: 960, height: 540, background: "var(--fundo)", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
           <div style={{ height: "100%", boxSizing: "border-box", padding: "52px 64px", display: "flex", flexDirection: "column" }}>
-            <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 14 }}>Educação dos filhos</div>
+            <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 14 }}>Pensão de Criação</div>
             <div style={{ font: "600 40px/1.15 var(--font-titulo)", color: "var(--marinho)", marginBottom: 30 }}>
-              Os estudos, garantidos
-              <br />até a formatura.
+              Tudo que você queria dar a eles,
+              <br />garantido.
             </div>
             <div style={{ background: "#fff", borderRadius: 16, padding: "30px 32px", display: "flex", alignItems: "baseline", gap: 14 }}>
               <span style={{ font: "600 56px var(--font-titulo)", color: "var(--marinho)" }}>{r.coberturas[2].valor}</span>
@@ -173,12 +188,12 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
             <div style={{ flex: 1 }} />
             <div style={{ display: "inline-flex", alignSelf: "flex-start", alignItems: "center", gap: 10, background: "#fff", border: "1px solid var(--borda)", borderRadius: 999, padding: "12px 20px" }}>
               <span style={{ font: "700 14px var(--font-interface)", color: "var(--marinho)" }}>{r.categorias[2].valor}</span>
-              <span style={{ font: "400 13px var(--font-interface)", color: "var(--texto-secundario)" }}>de custo total até a formatura, como referência</span>
+              <span style={{ font: "400 13px var(--font-interface)", color: "var(--texto-secundario)" }}>de custo total de criação, como referência</span>
             </div>
           </div>
         </div>
 
-        {/* Slide 7 — além da morte (novo) */}
+        {/* Slide 8 — além da morte (novo) */}
         <div className="slide16 paper" style={{ width: 960, height: 540, background: "#fff", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
           <div style={{ height: "100%", boxSizing: "border-box", padding: "48px 60px", display: "flex", flexDirection: "column" }}>
             <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 12 }}>Além da morte</div>
@@ -212,7 +227,7 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Slide 8 — resumo para o cliente (novo; sempre visível aqui, ao contrário da tela do
+        {/* Slide 9 — resumo para o cliente (novo; sempre visível aqui, ao contrário da tela do
             estudo, onde o mesmo rótulo fica atrás do botão "Gerar") */}
         <div className="slide16 paper" style={{ width: 960, height: 540, background: "#fff", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
           <div style={{ height: "100%", boxSizing: "border-box", padding: "52px 64px", display: "flex", flexDirection: "column" }}>
@@ -228,7 +243,7 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Slide 9 — a recomendação */}
+        {/* Slide 10 — a recomendação */}
         <div className="slide16 paper" style={{ width: 960, height: 540, background: "linear-gradient(135deg,#0F3D63,#1B72BE)", overflow: "hidden", borderRadius: 4 }}>
           <div style={{ height: "100%", boxSizing: "border-box", padding: "56px 64px", display: "flex", flexDirection: "column", color: "#fff" }}>
             <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--sucesso-fundo)", marginBottom: "auto" }}>A recomendação</div>
@@ -237,7 +252,7 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
             <div style={{ display: "flex", gap: 10, marginBottom: "auto", flexWrap: "wrap" }}>
               <span style={{ font: "700 14px var(--font-interface)", background: "rgba(255,255,255,.16)", border: "1px solid rgba(255,255,255,.34)", borderRadius: 99, padding: "10px 18px" }}>Vitalícia {r.vitalicia}</span>
               <span style={{ font: "700 14px var(--font-interface)", background: "rgba(255,255,255,.16)", border: "1px solid rgba(255,255,255,.34)", borderRadius: 99, padding: "10px 18px" }}>Temporária {r.temporaria}</span>
-              <span style={{ font: "700 14px var(--font-interface)", background: "rgba(57,204,0,.28)", border: "1px solid rgba(57,204,0,.6)", borderRadius: 99, padding: "10px 18px" }}>+ pensão de educação {r.pensaoMensal}/mês</span>
+              <span style={{ font: "700 14px var(--font-interface)", background: "rgba(57,204,0,.28)", border: "1px solid rgba(57,204,0,.6)", borderRadius: 99, padding: "10px 18px" }}>+ pensão de criação {r.pensaoMensal}/mês</span>
             </div>
             <div style={{ font: "400 16px/1.6 var(--font-interface)", color: "rgba(255,255,255,.7)", borderTop: "1px solid rgba(255,255,255,.2)", paddingTop: 18 }}>
               Valor de referência. O prêmio final depende da seguradora, da idade na contratação e da avaliação médica.
@@ -245,7 +260,7 @@ export default async function PaginaApresentacao({ params }: { params: Promise<{
           </div>
         </div>
 
-        {/* Slide 10 — próximo passo */}
+        {/* Slide 11 — próximo passo */}
         <div className="slide16 paper" style={{ width: 960, height: 540, background: "#fff", overflow: "hidden", borderRadius: 4, border: "1px solid var(--borda)" }}>
           <div style={{ height: "100%", boxSizing: "border-box", padding: "52px 64px", display: "flex", flexDirection: "column" }}>
             <div style={{ font: "700 12px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".16em", color: "var(--azul)", marginBottom: 12 }}>Próximo passo</div>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { EstudoFormulario } from "@/lib/estudo-formulario";
-import type { CalcResultado } from "@/lib/calc";
+import type { CalcResultado, FatoresCalculo } from "@/lib/calc";
 import { brl, brlCurto } from "@/lib/formato";
 import { ModalGerar } from "@/components/estudo/ModalGerar";
 import { gerarTextosEstudo } from "@/app/estudo/actions";
@@ -13,6 +13,7 @@ const CORES_CATEGORIA = ["#0F3D63", "#1B72BE", "#39CC00", "#D9A400"];
 export function Resultado({
   dados,
   c,
+  fatores,
   estudoId,
   status,
   bloqueado,
@@ -24,6 +25,7 @@ export function Resultado({
 }: {
   dados: EstudoFormulario;
   c: CalcResultado;
+  fatores: FatoresCalculo;
   estudoId: string;
   status: "aberto" | "gerado";
   bloqueado: boolean;
@@ -59,14 +61,14 @@ export function Resultado({
   const categorias = [
     { rotulo: "Proteção vitalícia", valor: c.vitalicia, cor: CORES_CATEGORIA[0], nota: `${brl(c.modUmAnoRenda)} de um ano de renda + custo de transmissão` },
     { rotulo: "Proteção temporária", valor: c.temporaria, cor: CORES_CATEGORIA[1], nota: `${dados.prazoManutencao} anos de padrão de vida${c.modObjetivos ? ` + ${brl(c.modObjetivos)} de objetivos` : ""}` },
-    { rotulo: "Educação dos filhos", valor: c.custoEducacaoTotal, cor: CORES_CATEGORIA[2], nota: `referência; pago como pensão de ${brl(c.pensaoMensal)}/mês` },
+    { rotulo: "Pensão de Criação", valor: c.custoEducacaoTotal, cor: CORES_CATEGORIA[2], nota: `referência; pago como pensão de ${brl(c.pensaoMensal)}/mês` },
     { rotulo: "Capacidade de renda", valor: Math.max(c.invalidezAcidente, c.doencasGraves), cor: CORES_CATEGORIA[3], nota: "maior entre invalidez por acidente e doenças graves" },
   ];
 
   const necessidadeLinhas = [
     { rotulo: "Vitalícia — transmissão sucessória e um ano de renda", valor: brl(c.vitalicia) },
     { rotulo: "Temporária — padrão de vida e objetivos", valor: brl(c.temporaria) },
-    { rotulo: "Educação — custo total até a formação", valor: brl(c.custoEducacaoTotal) },
+    { rotulo: "Pensão de Criação — custo total de criar o(s) filho(s)", valor: brl(c.custoEducacaoTotal) },
   ];
 
   const protegidoLinhas = [
@@ -80,12 +82,12 @@ export function Resultado({
   const coberturas = [
     { titulo: "Vida — vitalícia (sucessão e um ano de renda)", valor: brl(c.vitalicia), nota: `${brl(c.patrimonioTotal)} de patrimônio × ${dados.pctSucessao}% de custo de transmissão = ${brl(c.modSucessao)}, mais ${brl(c.modUmAnoRenda)} de um ano de renda.` },
     { titulo: `Vida — temporária (padrão de vida por ${dados.prazoManutencao} anos)`, valor: brl(c.temporaria), nota: c.temDep ? `${brl(c.rendaEquiv)} de renda ajustada × ${Math.round(c.participacao * 100)}% de participação × ${dados.prazoManutencao * 12} meses, menos ${brl(c.receitasLiquidaveis)} de receitas liquidáveis${c.modObjetivos ? `, mais ${brl(c.modObjetivos)} de projetos e objetivos` : ""}.` : "Sem dependentes financeiros; entra apenas o valor de projetos e objetivos." },
-    { titulo: "Pensão por morte — educação", valor: `${brl(c.pensaoMensal)}/mês`, nota: c.pensaoMensal > 0 ? `${brl(c.custoEducacaoTotal)} de custo educacional × ${Math.round(c.fatorPensao * 100)}% de fator de pensão × ${Math.round(c.participacao * 100)}% de participação, diluídos em ${c.prazoPensao} anos. Média sem diluição: ${brl(c.mediaAteFormar)}/mês até a formação.` : "Sem planejamento educacional informado." },
-    { titulo: "Invalidez total por acidente", valor: brl(c.invalidezAcidente), nota: `5 anos de renda (${brl(c.rendaMensal)} × 12 × 5).` },
+    { titulo: "Pensão de Criação", valor: `${brl(c.pensaoMensal)}/mês`, nota: c.pensaoMensal > 0 ? `${brl(c.custoEducacaoTotal)} de custo de criação × ${Math.round(c.fatorPensao * 100)}% de fator de pensão × ${Math.round(c.participacao * 100)}% de participação, diluídos em ${c.prazoPensao} anos. Média sem diluição: ${brl(c.mediaAteFormar)}/mês até a formação.` : "Sem plano de criação informado." },
+    { titulo: "Invalidez total por acidente", valor: brl(c.invalidezAcidente), nota: `${fatores.anosInvalidez} anos de renda (${brl(c.rendaMensal)} × 12 × ${fatores.anosInvalidez}).` },
     { titulo: "Invalidez por doença", valor: brl(c.invalidezDoenca), nota: "50% do capital de invalidez por acidente." },
     { titulo: "Renda vitalícia por invalidez", valor: c.rendaInvalidezVitalicia > 0 ? `${brl(c.rendaInvalidezVitalicia)}/mês` : "não se aplica", nota: c.rendaInvalidezVitalicia > 0 ? "50% da renda mensal, contínua." : "Servidor público já recebe aposentadoria por invalidez pelo RPPS." },
-    { titulo: "Diária por incapacidade temporária (DIT)", valor: `${brl(c.dit)}/mês`, nota: "70% da renda mensal enquanto durar o afastamento." },
-    { titulo: "Doenças graves", valor: brl(c.doencasGraves), nota: "1,5 × a renda anual, pago no diagnóstico, para tratar sem consumir reservas." },
+    { titulo: "Diária por incapacidade temporária (DIT)", valor: `${brl(c.dit)}/mês`, nota: `${Math.round(fatores.fatorDIT * 100)}% da renda mensal enquanto durar o afastamento.` },
+    { titulo: "Doenças graves", valor: brl(c.doencasGraves), nota: `${String(fatores.fatorDoencasGraves).replace(".", ",")} × a renda anual, pago no diagnóstico, para tratar sem consumir reservas.` },
   ];
 
   if (bloqueado) {
@@ -116,7 +118,7 @@ export function Resultado({
             <br />
             Cobertura temporária {brlCurto(c.temporaria)}
             <br />
-            Pensão de educação {brl(c.pensaoMensal)}/mês
+            Pensão de criação {brl(c.pensaoMensal)}/mês
           </div>
         </div>
       </div>

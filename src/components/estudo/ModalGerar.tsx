@@ -14,7 +14,7 @@ export function ModalGerar({ c, gerando, onConfirmar }: { c: CalcResultado; gera
     { rotulo: "Capital sugerido em seguro de vida", valor: brl(c.totalVida) },
     { rotulo: "Cobertura vitalícia", valor: brl(c.vitalicia) },
     { rotulo: "Cobertura temporária", valor: brl(c.temporaria) },
-    { rotulo: "Pensão de educação", valor: `${brl(c.pensaoMensal)}/mês` },
+    { rotulo: "Pensão de criação", valor: `${brl(c.pensaoMensal)}/mês` },
   ];
 
   return (

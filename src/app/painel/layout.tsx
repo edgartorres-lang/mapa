@@ -3,6 +3,7 @@ import Link from "next/link";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { prisma } from "@/lib/prisma";
 import { BotaoNovoEstudo } from "@/components/painel/BotaoNovoEstudo";
+import { BotaoNovoCliente } from "@/components/painel/BotaoNovoCliente";
 
 /**
  * Barra lateral fixa de 216px (README, "Painel do Corretor"). Seis itens.
@@ -70,6 +71,7 @@ export default async function PainelLayout({ children }: { children: ReactNode }
         </div>
 
         <BotaoNovoEstudo />
+        <BotaoNovoCliente />
 
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderTop: "1px solid rgba(255,255,255,.14)", paddingTop: 14 }}>
           {corretor.fotoUrl ? (

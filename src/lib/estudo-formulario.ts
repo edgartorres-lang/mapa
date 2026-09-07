@@ -16,7 +16,16 @@ export interface EstudoFormulario extends EstudoDados {
   revisado: boolean;
   whats: string;
   email: string;
+  /** Só usado pelo formulário público do lead (`mapearLeadParaEstudo`/`captacao/actions.ts`) —
+   * ali sim o checkbox é obrigatório por lei, e este campo é o transporte do "sim" do cliente até
+   * `Cliente.lgpdStatus`. No wizard do corretor não existe mais UI nenhuma pra isso: o
+   * consentimento nasce automático (`lgpdStatus: "verbal"`, ver `criarEstudoNovo` em
+   * src/app/estudo/actions.ts) e este campo fica sempre `false`, sem uso. */
   lgpd: boolean;
+  /** Etapa "Observações" — texto livre, opcional. Vai como contexto extra no payload da IA
+   * (Resumo para o cliente / Análise interna) — ex.: "filho autista", "sócio em empresa". Nunca
+   * bloqueia o Resultado. */
+  observacoes: string;
   assunto: string;
   anexos: { resumo: boolean; a4: boolean; slides: boolean; ia: boolean };
 }
@@ -55,6 +64,7 @@ export const ESTUDO_VAZIO: EstudoFormulario = {
   whats: "",
   email: "",
   lgpd: false,
+  observacoes: "",
   assunto: "",
   anexos: { resumo: true, a4: true, slides: false, ia: false },
 };
@@ -89,7 +99,10 @@ export const RELACOES_DEPENDENTE = ["Filho(a)", "Cônjuge", "Pai/Mãe", "Outro"]
 export const TIPOS_BEM = ["Imóvel", "Veículo", "Investimento", "Empresa", "Outro"] as const;
 
 /** Pendências por etapa (0-3) — porta de `pendencias()` do protótipo. Etapa 4 (Resultado) não
- * tem pendência própria: ela é bloqueada se qualquer uma das quatro anteriores tiver pendência. */
+ * tem pendência própria: ela é bloqueada se qualquer uma das anteriores tiver pendência (hoje só
+ * Perfil e Dependentes travam — ver OBRIGATORIAS em EstudoShell.tsx). A etapa 3 (Observações) é
+ * texto livre opcional; `p[3]` fica sempre vazio, mantido só pra não mudar o formato do array em
+ * quem consome as quatro posições. */
 export function pendenciasPorEtapa(d: EstudoFormulario, hoje: Date): string[][] {
   const p: string[][] = [[], [], [], []];
 
@@ -102,6 +115,7 @@ export function pendenciasPorEtapa(d: EstudoFormulario, hoje: Date): string[][] 
     (d.vinculos.autonomo.on && d.vinculos.autonomo.renda > 0);
   if (!temVinculoComRenda) p[0].push("vínculo com renda");
   if (!(d.profissao || "").trim()) p[0].push("profissão");
+  if (!(d.whats || "").trim() && !(d.email || "").trim()) p[0].push("WhatsApp ou e-mail");
 
   if (d.temDep) {
     const completos = d.deps.filter((x) => (x.nome || "").trim() && calcularIdade(x.nasc, hoje) !== null).length;
@@ -115,9 +129,6 @@ export function pendenciasPorEtapa(d: EstudoFormulario, hoje: Date): string[][] 
 
   if (!d.bens.some((b) => b.valor > 0)) p[2].push("pelo menos um bem");
   if (!d.revisado) p[2].push("confirmação de revisão");
-
-  if (!(d.whats || "").trim() && !(d.email || "").trim()) p[3].push("WhatsApp ou e-mail");
-  if (!d.lgpd) p[3].push("autorização LGPD");
 
   return p;
 }

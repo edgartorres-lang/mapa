@@ -55,7 +55,7 @@ export default async function PaginaProposta({ params }: { params: Promise<{ id:
               <br />
               Cobertura temporária {r.temporaria}
               <br />
-              Pensão de educação {r.pensaoMensal}/mês
+              Pensão de criação {r.pensaoMensal}/mês
             </div>
           </div>
 

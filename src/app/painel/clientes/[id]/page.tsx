@@ -328,8 +328,8 @@ function AbaComparar({ mapas }: { mapas: { estudo: { id: string }; mapa: { numer
     { rotulo: "Capital em seguro de vida", a: antes.mapa.capitalAProteger, b: depois.mapa.capitalAProteger },
     { rotulo: "Cobertura vitalícia", a: antes.mapa.vitalicia, b: depois.mapa.vitalicia },
     { rotulo: "Cobertura temporária", a: antes.mapa.temporaria, b: depois.mapa.temporaria },
-    { rotulo: "Custo educacional", a: antes.mapa.custoEducacionalTotal, b: depois.mapa.custoEducacionalTotal },
-    { rotulo: "Pensão de educação (mês)", a: antes.mapa.pensaoMensal, b: depois.mapa.pensaoMensal },
+    { rotulo: "Custo de criação", a: antes.mapa.custoEducacionalTotal, b: depois.mapa.custoEducacionalTotal },
+    { rotulo: "Pensão de criação (mês)", a: antes.mapa.pensaoMensal, b: depois.mapa.pensaoMensal },
   ];
 
   return (

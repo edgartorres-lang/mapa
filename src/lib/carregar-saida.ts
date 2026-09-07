@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { FatoresCalculo as FatoresCalculoDb } from "@prisma/client";
 import { prisma } from "./prisma";
 import type { CalcResultado } from "./calc";
 import { paraEstudoFormulario } from "./estudo-formulario";
@@ -22,7 +23,11 @@ export async function carregarSaida(estudoId: string) {
 
   const dados = paraEstudoFormulario(estudo.dados);
   const c = estudo.mapa.derivados as unknown as CalcResultado;
-  const r = construirApresentacao(dados, c, corretor, estudo.mapa.geradoEm);
+  const fatoresUsados = estudo.mapa.fatoresUsados as unknown as Pick<
+    FatoresCalculoDb,
+    "anosInvalidez" | "pctDit" | "fatorDoencasGraves"
+  >;
+  const r = construirApresentacao(dados, c, corretor, estudo.mapa.geradoEm, fatoresUsados);
 
   return { estudo, mapa: estudo.mapa, dados, c, r, corretor };
 }

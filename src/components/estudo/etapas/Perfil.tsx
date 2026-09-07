@@ -3,7 +3,7 @@
 import type { EstudoFormulario } from "@/lib/estudo-formulario";
 import { ESTADOS_CIVIS } from "@/lib/estudo-formulario";
 import type { VinculoKey } from "@/lib/calc";
-import { brl, idadeDe, mascaraData } from "@/lib/formato";
+import { brl, idadeDe, mascaraData, mascaraTelefone } from "@/lib/formato";
 import {
   Cartao,
   Campo,
@@ -82,6 +82,14 @@ export function Perfil({
           </Campo>
           <Campo rotulo="Aposenta aos">
             <CampoTexto placeholder="65" value={String(dados.idadeApos || "")} onChange={(v) => set({ idadeApos: parseInt(v, 10) || 0 })} />
+          </Campo>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 16 }}>
+          <Campo rotulo="WhatsApp">
+            <CampoTexto placeholder="(00) 00000-0000" value={dados.whats} onChange={(v) => set({ whats: mascaraTelefone(v) })} />
+          </Campo>
+          <Campo rotulo="E-mail">
+            <CampoTexto placeholder="nome@email.com" value={dados.email} onChange={(v) => set({ email: v })} />
           </Campo>
         </div>
       </Cartao>
@@ -223,7 +231,7 @@ export function Perfil({
           ))}
         </div>
         <div style={{ font: "400 11.5px/1.6 var(--font-interface)", color: "var(--marinho)", marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--azul-claro-borda)" }}>
-          A participação multiplica a manutenção do padrão de vida e a pensão de educação: o seguro do
+          A participação multiplica a manutenção do padrão de vida e a pensão de criação: o seguro do
           segurado cobre a fatia proporcional à contribuição dele na renda da casa.
         </div>
       </div>

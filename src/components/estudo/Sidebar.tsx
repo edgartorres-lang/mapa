@@ -3,8 +3,11 @@
 import type { CalcResultado } from "@/lib/calc";
 import { brl } from "@/lib/formato";
 
-const NOMES_ETAPA = ["Perfil", "Dependentes e objetivos", "Custos e patrimônio", "Contato e consentimento", "Resultado"];
-const OBRIGATORIAS = [0, 1, 3]; // Custos e patrimônio (2) não bloqueia — mesmo padrão do protótipo
+const NOMES_ETAPA = ["Perfil", "Dependentes e objetivos", "Custos e patrimônio", "Observações", "Resultado"];
+// Só Perfil (0) e Dependentes (1) bloqueiam — Custos e patrimônio (2) nunca bloqueou (mesmo
+// padrão do protótipo) e Observações (3) é texto livre opcional desde que o consentimento LGPD
+// deixou de ter checkbox no wizard do corretor (2026-09-06, ver EstudoShell.tsx).
+const OBRIGATORIAS = [0, 1];
 
 export function Sidebar({
   step,
@@ -25,7 +28,7 @@ export function Sidebar({
   const selos = [
     selo("Vitalícia", c.vitalicia > 0),
     selo(c.temDep ? "Temporária" : "Temporária — sem dependentes", c.temDep && c.temporaria > 0),
-    selo(c.pensaoMensal > 0 ? "Pensão de educação" : "Educação — falta plano", c.pensaoMensal > 0),
+    selo(c.pensaoMensal > 0 ? "Pensão de criação" : "Criação — falta plano", c.pensaoMensal > 0),
     selo(c.invalidezAplicavel ? "Invalidez + renda" : "Invalidez (sem renda vitalícia)", c.invalidezAcidente > 0),
     selo("DIT e doenças graves", c.dit > 0),
   ];

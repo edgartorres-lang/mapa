@@ -109,7 +109,7 @@ export function DependentesObjetivos({
 
       <Cartao>
         <LinhaCheckbox marcado={dados.planoEdu} onToggle={() => set({ planoEdu: !dados.planoEdu })}>
-          Planejamento educacional
+          Plano de criação
         </LinhaCheckbox>
         {dados.planoEdu && (
           <div>
@@ -143,7 +143,7 @@ export function DependentesObjetivos({
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--borda)" }}>
               <span style={{ font: "600 12px var(--font-interface)", color: "var(--texto-secundario)" }}>
-                Despesa de educação hoje, somando os filhos nas fases atuais
+                Despesa de criação hoje, somando os filhos nas fases atuais
               </span>
               <span style={{ font: "700 16px var(--font-interface)", color: "var(--marinho)" }}>{brl(eduHojeTotal)}</span>
             </div>
@@ -153,14 +153,15 @@ export function DependentesObjetivos({
 
       <Cartao>
         <div style={{ font: "600 13.5px var(--font-interface)", color: "var(--marinho)" }}>
-          Outras despesas de estudo{" "}
+          Outras despesas{" "}
           <span style={{ font: "600 10px var(--font-interface)", color: "var(--texto-terciario)", background: "var(--fundo)", padding: "3px 7px", borderRadius: 5, marginLeft: 6 }}>
             OPCIONAL
           </span>
         </div>
         <div style={{ font: "400 11.5px/1.5 var(--font-interface)", color: "var(--texto-terciario)", margin: "5px 0 14px" }}>
-          Inglês, esporte, música, intercâmbio. Some ao custo educacional pelo prazo escolhido — de 1 a 10
-          anos, ou tempo indeterminado (vai até o filho mais novo completar 25).
+          Inglês, esporte, música, intercâmbio, terapia, plano de saúde — tudo que vocês queiram garantir
+          pro filho. Some ao custo de criação pelo prazo escolhido — de 1 a 10 anos, ou tempo indeterminado
+          (vai até o filho mais novo completar 25).
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {dados.extras.map((x, i) => (

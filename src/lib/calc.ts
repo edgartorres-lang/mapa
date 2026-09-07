@@ -291,7 +291,9 @@ export function calc(
   const temporaria = temDep ? modManutencao + modObjetivos : modObjetivos;
   const totalVida = vitalicia + temporaria;
 
-  // Pensão de educação
+  // Pensão de Criação (nome do produto pro cliente; internamente ainda usa os mesmos campos de
+  // custo educacional — ver AGENTS.md/reference-calc-engine se um dia isso for expandido de
+  // verdade pra incluir despesas fora de escola no cálculo, não só no rótulo).
   const prazoPensao = d.prazoPensao || 15;
   const pensaoMensal =
     temDep && d.planoEdu && prazoPensao > 0

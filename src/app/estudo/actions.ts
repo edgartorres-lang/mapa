@@ -10,6 +10,18 @@ import { ESTUDO_VAZIO, paraEstudoFormulario, type EstudoFormulario } from "@/lib
 import { dispararWebhookComResposta } from "@/lib/webhooks";
 import { carregarSaida } from "@/lib/carregar-saida";
 
+/**
+ * Consentimento automático (2026-09-06): todo cliente criado direto pelo wizard do corretor —
+ * "+ Novo estudo" ou "+ Novo cliente" — nasce com `lgpdStatus: "verbal"`, sem checkbox nenhum na
+ * UI. Reflete que o consentimento aconteceu na conversa real entre corretor e cliente, fora de
+ * qualquer formulário. O formulário público do lead (`captacao/actions.ts`) continua com o
+ * checkbox explícito — ali sim é obrigatório por lei, ninguém consente "verbalmente" sozinho
+ * numa página da internet.
+ */
+function consentimentoVerbal() {
+  return { lgpdStatus: "verbal", lgpdOrigem: "Direto pelo corretor", lgpdAceitoEm: new Date() };
+}
+
 /** Botão "+ Novo estudo": cria o cliente e o estudo em aberto, e manda pro estudo. */
 export async function criarEstudoNovo() {
   const corretor = await obterCorretorAtual();
@@ -18,7 +30,7 @@ export async function criarEstudoNovo() {
   const dadosIniciais: EstudoFormulario = { ...ESTUDO_VAZIO, ...padroesPorEstudo(fatores) };
 
   const cliente = await prisma.cliente.create({
-    data: { corretorId: corretor.id, nome: "Novo estudo", estagioFunil: "estudo" },
+    data: { corretorId: corretor.id, nome: "Novo estudo", estagioFunil: "estudo", ...consentimentoVerbal() },
   });
   const estudo = await prisma.estudo.create({
     data: {
@@ -30,6 +42,34 @@ export async function criarEstudoNovo() {
   });
 
   redirect(`/estudo/${estudo.id}`);
+}
+
+/**
+ * Botão "+ Novo cliente": cadastro rápido, sem estudo nenhum — o cliente fica parado como "lead"
+ * até alguém (o corretor, ou o próprio cliente pelo botão que já existe na página dele) abrir o
+ * estudo de verdade com "+ Novo estudo" (que aí sim já vem pré-preenchido, ver
+ * `abrirOuCriarEstudoDoCliente`). Diferente de `criarEstudoNovo`, que já cria o estudo junto.
+ */
+export async function criarClienteRapido(dados: { nome: string; telefone: string; email: string; profissao: string }) {
+  const corretor = await obterCorretorAtual();
+  if (!(dados.nome || "").trim()) throw new Error("Nome é obrigatório.");
+
+  const cliente = await prisma.cliente.create({
+    data: {
+      corretorId: corretor.id,
+      nome: dados.nome.trim(),
+      telefone: dados.telefone.trim() || null,
+      email: dados.email.trim() || null,
+      profissao: dados.profissao.trim() || null,
+      estagioFunil: "lead",
+      estagioAtualizadoEm: new Date(),
+      origem: "Contato direto",
+      ...consentimentoVerbal(),
+    },
+  });
+
+  revalidatePath("/painel/clientes");
+  redirect(`/painel/clientes/${cliente.id}`);
 }
 
 /**
@@ -139,20 +179,35 @@ export async function gerarTextosEstudo(estudoId: string) {
   const payload = {
     perfil: { nome: dados.nome, nasc: dados.nasc, sexo: dados.sexo, estadoCivil: dados.estadoCivil, profissao: dados.profissao },
     dependentes: dados.temDep ? dados.deps.map((d) => ({ nome: d.nome, nasc: d.nasc, rel: d.rel })) : [],
+    // Texto livre da etapa "Observações" (opcional) — contexto extra pro Resumo/Análise interna,
+    // ex.: "filho autista", "sócio em empresa". Nunca inventar em cima disso, só usar se vier.
+    observacoes: dados.observacoes || null,
     numeros: {
       rendaMensal: c.rendaMensal,
+      // Renda do cônjuge e de terceiros, separadas do total — antes só o total (rendaFamiliar)
+      // chegava na IA; agora dá pra ela citar de onde vem cada pedaço, se fizer sentido no texto.
+      rendaConjuge: c.rendaConjugeIncl,
+      rendaTerceiros: c.terceirosIncl,
       rendaFamiliar: c.rendaFamiliar,
       participacao: c.participacao,
       vitalicia: c.vitalicia,
       temporaria: c.temporaria,
+      // Prazos em anos de cada proteção — mandados explícitos (em vez de a IA supor "5 anos" /
+      // "15 anos" fixo) porque são editáveis por corretor em Ajustes → Fatores de cálculo.
+      // Ver 01-gerar-texto-PROMPT.md ("lógica de prazos") pra como a IA deve usar isso no texto.
+      prazoManutencaoAnos: dados.prazoManutencao,
       pensaoMensal: c.pensaoMensal,
+      prazoPensaoAnos: c.prazoPensao,
       custoEducacaoTotal: c.custoEducacaoTotal,
       capitalAProteger: c.capitalAProteger,
       invalidezAcidente: c.invalidezAcidente,
+      anosInvalidezAcidente: fatoresDb.anosInvalidez,
       invalidezDoenca: c.invalidezDoenca,
       rendaInvalidezVitalicia: c.rendaInvalidezVitalicia,
       dit: c.dit,
+      pctDit: fatoresDb.pctDit,
       doencasGraves: c.doencasGraves,
+      anosDoencasGraves: fatoresDb.fatorDoencasGraves,
     },
   };
 
