@@ -109,6 +109,10 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
       nome: dados.nome,
       profissao: dados.profissao || null,
       origem: origemTexto,
+      // Contato do lead — pra você conseguir responder na hora, sem precisar abrir o painel
+      // primeiro (pedido real do Edgar, 2026-09-07: "deveria me enviar o contato do cliente").
+      telefone,
+      email,
       corretorWhatsapp: corretor.whatsapp,
     });
   }
@@ -153,7 +157,7 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
       data: { clienteId, corretorId: corretor.id, tipo: "sistema", texto: "Pediu para ser chamado no WhatsApp em vez de agendar um horário." },
     });
     if (corretor.integracaoWhatsappAtiva) {
-      await dispararWebhook(corretor.webhookNotificar, { tipo: "pediu_whatsapp", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem, corretorWhatsapp: corretor.whatsapp });
+      await dispararWebhook(corretor.webhookNotificar, { tipo: "pediu_whatsapp", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem, telefone: cliente.telefone, email: cliente.email, corretorWhatsapp: corretor.whatsapp });
     }
     revalidatePath(`/painel/clientes/${clienteId}`);
     return { canal: "whatsapp" as const };
@@ -196,7 +200,7 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
     });
   }
   if (corretor.integracaoWhatsappAtiva) {
-    await dispararWebhook(corretor.webhookNotificar, { tipo: "horario_escolhido", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem, corretorWhatsapp: corretor.whatsapp });
+    await dispararWebhook(corretor.webhookNotificar, { tipo: "horario_escolhido", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem, telefone: cliente.telefone, email: cliente.email, corretorWhatsapp: corretor.whatsapp });
   }
 
   revalidatePath("/painel/dashboard");

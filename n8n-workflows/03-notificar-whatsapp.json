@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Monta o texto da mensagem de acordo com o \"tipo\" do evento -- ver os 4 tipos que o Mapa\n// da Proteção dispara em src/app/captacao/actions.ts (comentário 01-gerar-texto-PROMPT.md\n// não se aplica aqui, é só referência de onde os campos vêm).\nconst d = $input.first().json.body;\n\nconst mensagens = {\n  lead_novo: `🆕 Lead novo: ${d.nome}${d.profissao ? ` (${d.profissao})` : ''} — via ${d.origem || 'link de captação'}.`,\n  lead_repetido: `🔁 ${d.nome} preencheu o link de novo (lead repetido) — via ${d.origem || 'link de captação'}.`,\n  pediu_whatsapp: `💬 ${d.nome} pediu pra ser chamado no WhatsApp em vez de agendar um horário.`,\n  horario_escolhido: `📅 ${d.nome} escolheu um horário de reunião — confira a agenda.`,\n};\n\nconst mensagem = mensagens[d.tipo] || `Mapa da Proteção: evento \"${d.tipo}\" de ${d.nome}.`;\n\nreturn [{ json: { mensagem, numero: d.corretorWhatsapp } }];"
+        "jsCode": "// Monta o texto da mensagem de acordo com o \"tipo\" do evento -- ver os 4 tipos que o Mapa\n// da Proteção dispara em src/app/captacao/actions.ts (comentário 01-gerar-texto-PROMPT.md\n// não se aplica aqui, é só referência de onde os campos vêm).\nconst d = $input.first().json.body;\n\nconst mensagens = {\n  lead_novo: `🆕 Lead novo: ${d.nome}${d.profissao ? ` (${d.profissao})` : ''} — via ${d.origem || 'link de captação'}.`,\n  lead_repetido: `🔁 ${d.nome} preencheu o link de novo (lead repetido) — via ${d.origem || 'link de captação'}.`,\n  pediu_whatsapp: `💬 ${d.nome} pediu pra ser chamado no WhatsApp em vez de agendar um horário.`,\n  horario_escolhido: `📅 ${d.nome} escolheu um horário de reunião — confira a agenda.`,\n};\n\nlet mensagem = mensagens[d.tipo] || `Mapa da Proteção: evento \"${d.tipo}\" de ${d.nome}.`;\n\n// Contato do lead junto, pra responder na hora sem precisar abrir o painel primeiro (pedido\n// real do Edgar, 2026-09-07). Só entra a linha se tiver telefone ou e-mail.\nconst contato = [d.telefone ? `📞 ${d.telefone}` : null, d.email ? `✉️ ${d.email}` : null].filter(Boolean).join(' · ');\nif (contato) mensagem += `\\n${contato}`;\n\n// corretorWhatsapp chega formatado, tipo \"(96) 98888-7777\" -- a Evolution API espera só dígitos\n// com código do país, tipo \"5596988887777\". Mesma lógica de linkWhatsapp() em\n// src/lib/formato.ts, portada aqui pro n8n.\nconst digitos = (d.corretorWhatsapp || '').replace(/\\D/g, '');\nconst numero = digitos.length === 11 ? `55${digitos}` : digitos;\n\nreturn [{ json: { mensagem, numero } }];"
       },
       "id": "c3c3c3c3-0002-4000-8000-000000000002",
       "name": "Montar mensagem",
@@ -28,7 +28,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=https://SEU-EVOLUTION-API.com/message/sendText/NOME-DA-INSTANCIA",
+        "url": "=https://evolution.setornorteseguros.com.br/message/sendText/agentesetornorte",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -38,7 +38,7 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ number: $json.numero, text: $json.mensagem }) }}",
-        "options": {}
+        "options": { "timeout": 15000 }
       },
       "id": "c3c3c3c3-0003-4000-8000-000000000003",
       "name": "Enviar WhatsApp (Evolution API)",

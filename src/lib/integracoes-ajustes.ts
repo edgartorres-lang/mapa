@@ -66,7 +66,7 @@ export const WEBHOOKS: DefinicaoWebhook[] = [
     nota: "A instância da Evolution fica configurada no n8n, não aqui.",
     rota: "POST /webhook/notificar",
     quando: "Lead novo, horário escolhido, lead repetido, pedido de retorno por WhatsApp.",
-    payload: "tipo do evento, nome, profissão, origem",
+    payload: "tipo do evento, nome, profissão, origem, telefone, e-mail",
   },
   {
     chave: "webhookEnviarMapa",
