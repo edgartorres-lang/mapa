@@ -12,21 +12,42 @@ ativo). Manda um e-mail curto de "recebemos seu contato" pro próprio lead, assi
 da corretora. Se o lead não deixou e-mail (só telefone), o node "Tem e-mail?" barra e nada é
 enviado — sem erro, só não faz nada.
 
-### Credencial que falta
+### Credencial que falta — Gmail via OAuth (não SMTP)
 
-O node **"Enviar e-mail"** precisa de uma credencial **SMTP** (tipo nativo do n8n, "Email Send
-(SMTP)"). Depois de importar:
+**Atualizado 2026-09-07**: descobrimos testando que sua conta é Google Workspace, e desde março
+de 2025 o Google não aceita mais usuário+senha (nem "senha de app") pra Workspace — só OAuth. Por
+isso o node "Enviar e-mail" usa o node **Gmail nativo do n8n** (não mais SMTP genérico) — dá mais
+trabalho de configurar uma vez só, mas depois de autorizado, funciona sozinho pra sempre, sem
+senha nenhuma trafegando.
 
-1. Clique no node "Enviar e-mail" → na credencial, clique **"+ Create New"** (o import nunca traz
-   credencial junto, por segurança — mesma regra do `gerar-texto`).
-2. Preencha com o servidor SMTP que você usa pra mandar e-mail (Gmail/Google Workspace, Hostinger,
-   Zoho, etc. — qualquer um serve, é só usuário/senha/servidor/porta padrão de SMTP). Se usar
-   Gmail/Workspace, normalmente precisa gerar uma "senha de app" nas configurações de segurança da
-   conta Google, não a senha normal.
-3. Salve a credencial com um nome tipo "SMTP Setor Norte".
+**Passo 1 — criar um projeto no Google Cloud (grátis, leva uns 5 minutos):**
+1. Acesse console.cloud.google.com, logado com `edgartorres@setornorteseguros.com.br`.
+2. No topo, clique em "Selecionar projeto" → "Novo projeto". Nome: algo como "Mapa da Proteção".
+   Criar.
+3. Com o projeto selecionado, vá em **"APIs e serviços" → "Biblioteca"**, busque **"Gmail API"**
+   e clique **"Ativar"**.
+4. Vá em **"APIs e serviços" → "Tela de permissão OAuth"**. Tipo de usuário: **"Interno"** (você
+   está numa organização Workspace, então essa opção existe e é a mais simples — só gente do seu
+   próprio domínio consegue usar, o que é exatamente o seu caso). Preenche nome do app ("Mapa da
+   Proteção") e e-mail de contato (o seu). Salvar.
+5. Vá em **"APIs e serviços" → "Credenciais"** → **"Criar credenciais" → "ID do cliente OAuth"**.
+   Tipo de aplicativo: **"Aplicativo da Web"**. Nome: qualquer um.
+6. **Antes de salvar**, abra o n8n numa aba separada, vá criar a credencial "Gmail OAuth2 API"
+   (próximo passo) — ela mostra uma **URL de redirecionamento** pronta pra copiar. Cole essa URL
+   no campo **"URIs de redirecionamento autorizados"** aqui no Google Cloud, aí sim clique
+   "Criar".
+7. O Google mostra um **ID do cliente** e uma **Chave secreta do cliente** — copia os dois.
 
-O campo "De" (`fromEmail`) hoje está fixo em `naoresponda@setornorteseguros.com.br` — troque pelo
-endereço de verdade que você quer usar, direto no node, se for outro.
+**Passo 2 — no n8n:**
+1. Clique no node "Enviar e-mail" → na credencial, **"+ Create New"** → escolha o tipo
+   **"Gmail OAuth2 API"**.
+2. Cole o **ID do cliente** e a **Chave secreta** que você copiou do Google Cloud.
+3. Clique **"Sign in with Google"** (ou "Conectar minha conta") — abre uma tela de login do
+   Google de verdade, você autoriza, e pronto — sem senha trafegando pro n8n nenhuma vez.
+4. Salve a credencial com um nome tipo "Gmail Setor Norte".
+
+Só precisa fazer isso uma vez. Se um dia o token expirar ou for revogado, o n8n avisa e é só
+clicar em "Reconectar" na credencial.
 
 ### Texto do e-mail
 

@@ -39,22 +39,21 @@
     },
     {
       "parameters": {
-        "fromEmail": "={{ $json.body.corretora }} <naoresponda@setornorteseguros.com.br>",
-        "toEmail": "={{ $json.body.email }}",
+        "sendTo": "={{ $json.body.email }}",
         "subject": "=Recebemos seu contato, {{ $json.body.nome.split(' ')[0] }}!",
-        "emailFormat": "text",
-        "text": "=Olá, {{ $json.body.nome.split(' ')[0] }}!\n\nRecebemos suas informações e {{ $json.body.corretorNome }}, da {{ $json.body.corretora }}, já foi avisado.\n\nEm breve entraremos em contato pra confirmar os próximos passos — fica de olho no WhatsApp e no e-mail.\n\nAté já,\n{{ $json.body.corretora }}",
+        "emailType": "text",
+        "message": "=Olá, {{ $json.body.nome.split(' ')[0] }}!\n\nRecebemos suas informações e {{ $json.body.corretorNome }}, da {{ $json.body.corretora }}, já foi avisado.\n\nEm breve entraremos em contato pra confirmar os próximos passos — fica de olho no WhatsApp e no e-mail.\n\nAté já,\n{{ $json.body.corretora }}",
         "options": {}
       },
       "id": "b2b2b2b2-0003-4000-8000-000000000003",
       "name": "Enviar e-mail",
-      "type": "n8n-nodes-base.emailSend",
+      "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [680, 220],
       "credentials": {
-        "smtp": {
+        "gmailOAuth2": {
           "id": "",
-          "name": "SMTP Setor Norte"
+          "name": "Gmail Setor Norte"
         }
       }
     }
