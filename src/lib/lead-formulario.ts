@@ -83,7 +83,7 @@ export const PERGUNTAS_LEAD: PerguntaLead[] = [
   { key: "deps", grupo: "Família", label: "Quem depende da sua renda hoje?", help: "Qualquer pessoa que sentiria falta desse dinheiro no mês seguinte.", tipo: "people" },
   { key: "rendaConj", grupo: "Família", label: "Quanto a outra pessoa da casa contribui por mês?", help: "Se preferir não informar, pode pular — conversamos depois.", tipo: "money", cond: (a) => a.civil === "Casado(a)" || a.civil === "União estável" },
   { key: "estudos", grupo: "Família", label: "Vocês pagam escola ou faculdade?", help: "Se sim, informe o valor de um filho só. Se dois estiverem na mesma fase, eu multiplico aqui.", tipo: "phases", cond: (a) => (a.deps || []).length > 0 },
-  { key: "extras", grupo: "Família", label: "Tem outras despesas de estudo que você quer incluir?", help: "Inglês, esporte, música, intercâmbio, cursinho. Opcional — só o que você quiser que entre na conta.", tipo: "extras", cond: (a) => (a.deps || []).length > 0 },
+  { key: "extras", grupo: "Família", label: "Tem outras despesas que você quer incluir?", help: "Inglês, esporte, música, intercâmbio, terapia, plano de saúde — tudo que vocês queiram garantir pro filho. Opcional — só o que você quiser que entre na conta.", tipo: "extras", cond: (a) => (a.deps || []).length > 0 },
   { key: "rendas", grupo: "Renda", label: "Entra alguma renda todo mês sem depender do seu trabalho?", help: "Aluguel, dividendos, sociedade. Continua entrando mesmo se você parar.", tipo: "items" },
   {
     key: "patr",

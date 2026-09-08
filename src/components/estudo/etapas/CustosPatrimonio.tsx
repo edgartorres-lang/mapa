@@ -35,7 +35,21 @@ export function CustosPatrimonio({
           Todo o patrimônio entra no custo de transmissão sucessória. O que está marcado como liquidável
           também abate a necessidade de capital, porque vira dinheiro rápido.
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {/* Só alterna o flag — nunca mexe em `bens` (nem limpa, nem recria linha em branco). O
+            calc() já ignora `bens` sozinho quando `semPatrimonio` é true (ver calc.ts), então não
+            precisa apagar nada pra "funcionar certo" — e apagar seria arriscar perder um bem de
+            verdade se a caixa for marcada sem querer. */}
+        <LinhaCheckbox marcado={dados.semPatrimonio} onToggle={() => set({ semPatrimonio: !dados.semPatrimonio })}>
+          Não possui patrimônio a declarar
+        </LinhaCheckbox>
+        {dados.semPatrimonio ? (
+          <div style={{ font: "400 11.5px/1.6 var(--font-interface)", color: "var(--texto-terciario)", marginTop: 12 }}>
+            Sem patrimônio informado — a proteção vitalícia neste estudo cobre só o ano de renda de fôlego,
+            sem custo de transmissão sucessória.
+          </div>
+        ) : (
+        <>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 14 }}>
           {dados.bens.map((b, i) => (
             <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 160px 150px 200px 34px", gap: 10, alignItems: "center" }}>
               <CampoTexto
@@ -109,6 +123,8 @@ export function CustosPatrimonio({
             </div>
           </div>
         </div>
+        </>
+        )}
       </Cartao>
 
       <Cartao>

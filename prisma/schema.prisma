@@ -185,6 +185,14 @@ model Estudo {
   // "aberto" | "gerado" — ver STATUS_ESTUDO em src/lib/enums.ts.
   status String @default("aberto")
 
+  // Caixa de entrada de leads (Ajustes → Link de captação), 2026-09-08. Default `true` de
+  // propósito: só o formulário público do lead (`enviarLead`) grava `false` explicitamente —
+  // todo estudo criado pelo próprio corretor (novo cliente, duplicar, etc.) já nasce "lido", não
+  // precisa de sinalização nenhuma. Vira `false` de novo se o lead reenviar o link com um estudo
+  // já em aberto (reaproveitado em vez de duplicado — ver `enviarLead`), porque chegou informação
+  // nova.
+  lido Boolean @default(true)
+
   duplicadoDeEstudoId String?  @map("duplicado_de_estudo_id")
   duplicadoDe         Estudo?  @relation("Duplicacao", fields: [duplicadoDeEstudoId], references: [id])
   duplicados          Estudo[] @relation("Duplicacao")

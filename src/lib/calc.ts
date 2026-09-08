@@ -79,6 +79,11 @@ export interface EstudoDados {
   teto: number;
   objetivos: ObjetivoInput[];
   bens: BemInput[];
+  /** "Não possui patrimônio a declarar" — quando true, `bens` é ignorado no cálculo (vitalícia
+   * conta só o ano de renda, sem custo de transmissão), mesmo que a lista ainda tenha itens
+   * (nunca limpa `bens` sozinho ao marcar/desmarcar — decisão 2026-09-08, depois de um caso real
+   * de perda de dado testando o toggle: marcar e desmarcar de novo apagava um bem de verdade). */
+  semPatrimonio: boolean;
   /** % de custo de transmissão sucessória, ex.: 15 */
   pctSucessao: number;
   fgts: number;
@@ -272,8 +277,8 @@ export function calc(
   const mediaAteFormar = anosAte25 ? custoEducacaoTotal / (anosAte25 * 12) : 0;
 
   // Vitalícia
-  const patrimonioTotal = d.bens.reduce((a, b) => a + b.valor, 0);
-  const patrimonioLiquidavel = d.bens.filter((b) => b.liquidavel).reduce((a, b) => a + b.valor, 0);
+  const patrimonioTotal = d.semPatrimonio ? 0 : d.bens.reduce((a, b) => a + b.valor, 0);
+  const patrimonioLiquidavel = d.semPatrimonio ? 0 : d.bens.filter((b) => b.liquidavel).reduce((a, b) => a + b.valor, 0);
   const modSucessao = patrimonioTotal * (d.pctSucessao / 100);
   const modUmAnoRenda = rendaMensal * 12;
   const vitalicia = modSucessao + modUmAnoRenda;

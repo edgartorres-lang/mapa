@@ -67,9 +67,17 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
     });
   }
 
-  const estudo = await prisma.estudo.create({
-    data: { clienteId: cliente.id, corretorId: corretor.id, status: "aberto", dados: dados as object },
-  });
+  // Achado real (2026-09-08): antes disto, todo reenvio do link criava um Estudo NOVO, mesmo com
+  // um já em aberto — a tela do cliente só mostra um estudo aberto por vez (o mais recente), então
+  // os anteriores ficavam órfãos, existindo no banco sem aparecer em lugar nenhum da interface.
+  // Mesma regra que já vale pro corretor (nunca dois estudos abertos ao mesmo tempo pro mesmo
+  // cliente — ver `abrirOuCriarEstudoDoCliente`): se já existe um estudo aberto pra este cliente,
+  // reaproveita ele (atualiza `dados` com as respostas novas) em vez de criar outro. `lido: false`
+  // de novo — reabre a notificação na caixa de entrada, informação nova chegou.
+  const estudoAberto = await prisma.estudo.findFirst({ where: { clienteId: cliente.id, status: "aberto" } });
+  const estudo = estudoAberto
+    ? await prisma.estudo.update({ where: { id: estudoAberto.id }, data: { dados: dados as object, lido: false } })
+    : await prisma.estudo.create({ data: { clienteId: cliente.id, corretorId: corretor.id, status: "aberto", dados: dados as object, lido: false } });
 
   const notaTexto = [
     respostas.cenario ? `Cenário (autoavaliação do lead): "${respostas.cenario}".` : null,
@@ -84,7 +92,11 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
         clienteId: cliente.id,
         corretorId: corretor.id,
         tipo: "sistema",
-        texto: leadRepetido ? "Preencheu o link de novo. Cadastro reaproveitado, estudo novo aberto." : "Preencheu o link de captação.",
+        texto: !leadRepetido
+          ? "Preencheu o link de captação."
+          : estudoAberto
+            ? "Preencheu o link de novo — respostas atualizadas no mesmo estudo em aberto."
+            : "Preencheu o link de novo. Cadastro reaproveitado, estudo novo aberto.",
       },
     }),
     ...(notaTexto ? [prisma.notaCrm.create({ data: { clienteId: cliente.id, corretorId: corretor.id, texto: notaTexto } })] : []),

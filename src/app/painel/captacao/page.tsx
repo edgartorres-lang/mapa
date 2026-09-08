@@ -1,3 +1,4 @@
+import Link from "next/link";
 import QRCode from "qrcode";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { prisma } from "@/lib/prisma";
@@ -9,10 +10,24 @@ import { BotaoCopiar } from "@/components/painel/BotaoCopiar";
  * Link de captação — porta de "Captação e Agendamento.dc.html", tela 1. Endereço único (com
  * `?utm_campaign=` por campanha), lista de campanhas com leads e taxa de agendamento, funil dos
  * últimos 30 dias.
+ *
+ * Caixa de entrada (2026-09-08, pedido do Edgar): antes disso, um pré-estudo que chegava pelo
+ * link público não tinha lugar nenhum pra ser visto em lista — só a página do cliente, um por
+ * vez. Lista aqui todo `Estudo` ainda "aberto" que veio do link público (`Cliente.origem`
+ * começando com "Link" — distingue de cadastro direto do corretor, que não entra aqui), estilo
+ * caixa de e-mail: não lido em negrito, `Estudo.lido` vira `true` sozinho quando o corretor abre
+ * o estudo (ver src/app/estudo/[id]/page.tsx).
  */
 export default async function PaginaCaptacaoCorretor() {
   const corretor = await obterCorretorAtual();
   const campanhas = await prisma.campanha.findMany({ where: { corretorId: corretor.id }, orderBy: { criadoEm: "desc" } });
+
+  const preEstudos = await prisma.estudo.findMany({
+    where: { corretorId: corretor.id, status: "aberto", cliente: { origem: { startsWith: "Link" } } },
+    orderBy: { atualizadoEm: "desc" },
+    include: { cliente: { include: { agendamentos: { select: { id: true }, take: 1 } } } },
+  });
+  const naoLidos = preEstudos.filter((e) => !e.lido).length;
 
   const trintaDiasAtras = dataDiasAtras(30);
   const clientesRecentes = await prisma.cliente.findMany({
@@ -105,6 +120,56 @@ export default async function PaginaCaptacaoCorretor() {
           />
           <div style={{ font: "400 11.5px/1.6 var(--font-interface)", color: "rgba(255,255,255,.7)", marginTop: 14, textAlign: "center" }}>Para material impresso — aponta pro mesmo endereço.</div>
         </div>
+      </div>
+
+      <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, overflow: "hidden", marginBottom: 20 }}>
+        <div style={{ padding: "18px 22px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)" }}>Caixa de entrada</div>
+          {naoLidos > 0 && (
+            <span style={{ font: "700 10.5px var(--font-interface)", color: "#fff", background: "var(--azul)", padding: "3px 9px", borderRadius: 99 }}>
+              {naoLidos} {naoLidos === 1 ? "novo" : "novos"}
+            </span>
+          )}
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1.1fr 0.9fr 1.2fr 0.8fr", gap: 12, padding: "8px 22px", borderTop: "1px solid var(--borda)", borderBottom: "1px solid var(--borda)", background: "var(--fundo)", font: "700 10px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".06em", color: "var(--texto-terciario)" }}>
+          <span>Cliente</span>
+          <span>Chegou em</span>
+          <span>Agendou</span>
+          <span>Origem</span>
+          <span></span>
+        </div>
+        {preEstudos.length === 0 && (
+          <div style={{ padding: "22px", font: "400 13px var(--font-interface)", color: "var(--texto-terciario)" }}>
+            Nenhum pré-estudo em aberto vindo do link público agora — os que já viraram Mapa saem daqui sozinhos.
+          </div>
+        )}
+        {preEstudos.map((e) => {
+          const naoLido = !e.lido;
+          const agendou = e.cliente.agendamentos.length > 0;
+          return (
+            <div
+              key={e.id}
+              style={{ display: "grid", gridTemplateColumns: "1.6fr 1.1fr 0.9fr 1.2fr 0.8fr", gap: 12, padding: "13px 22px", alignItems: "center", borderBottom: "1px solid var(--fundo-alt)", background: naoLido ? "var(--azul-claro-fundo)" : "transparent" }}
+            >
+              <span style={{ font: naoLido ? "700 13px var(--font-interface)" : "400 13px var(--font-interface)", color: "var(--texto)" }}>
+                {naoLido && <span style={{ display: "inline-block", width: 7, height: 7, borderRadius: "50%", background: "var(--azul)", marginRight: 8 }} />}
+                {e.cliente.nome}
+              </span>
+              <span style={{ font: "500 12px var(--font-interface)", color: "var(--texto-secundario)" }}>
+                {e.criadoEm.toLocaleDateString("pt-BR")} às {e.criadoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+              </span>
+              <span style={{ font: "600 11.5px var(--font-interface)", color: agendou ? "var(--verde-escuro)" : "var(--texto-terciario)" }}>
+                {agendou ? "Sim" : "Não"}
+              </span>
+              <span style={{ font: "400 11.5px var(--font-interface)", color: "var(--texto-terciario)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {e.cliente.utmCampanha ? `Campanha · ${e.cliente.utmCampanha}` : "Link direto"}
+              </span>
+              <Link href={`/estudo/${e.id}`} style={{ font: "700 11.5px var(--font-interface)", color: "var(--azul)", justifySelf: "end" }}>
+                Ver estudo →
+              </Link>
+            </div>
+          );
+        })}
       </div>
 
       <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "20px 22px" }}>

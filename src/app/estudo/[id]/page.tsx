@@ -11,6 +11,11 @@ export default async function PaginaEstudo({ params }: { params: Promise<{ id: s
   const estudo = await prisma.estudo.findUnique({ where: { id }, include: { mapa: true } });
   if (!estudo) notFound();
 
+  // Marca como lido ao abrir — é assim que a caixa de entrada de leads (Ajustes → Link de
+  // captação) sabe o que o corretor já viu. Só grava quando ainda não estava lido, pra não gerar
+  // um `atualizadoEm` novo em toda visita de um estudo que já foi aberto antes.
+  if (!estudo.lido) await prisma.estudo.update({ where: { id }, data: { lido: true } });
+
   const corretor = await obterCorretorAtual();
   const fatoresDb = await prisma.fatoresCalculo.findUniqueOrThrow({ where: { corretorId: corretor.id } });
 

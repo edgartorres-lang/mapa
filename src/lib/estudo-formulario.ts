@@ -55,6 +55,7 @@ export const ESTUDO_VAZIO: EstudoFormulario = {
   teto: 8,
   objetivos: [],
   bens: [{ desc: "", tipo: "Imóvel", valor: 0, liquidavel: false }],
+  semPatrimonio: false,
   pctSucessao: 15,
   fgts: 0,
   inss: 0,
@@ -128,7 +129,7 @@ export function pendenciasPorEtapa(d: EstudoFormulario, hoje: Date): string[][] 
     if (d.planoEdu && !Object.values(d.edu).some((v) => v > 0)) p[1].push("custo de alguma fase escolar");
   }
 
-  if (!d.bens.some((b) => b.valor > 0)) p[2].push("pelo menos um bem");
+  if (!d.semPatrimonio && !d.bens.some((b) => b.valor > 0)) p[2].push("pelo menos um bem (ou marque \"não possuo patrimônio\")");
   if (!d.revisado) p[2].push("confirmação de revisão");
 
   return p;

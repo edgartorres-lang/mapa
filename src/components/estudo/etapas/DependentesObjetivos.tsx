@@ -204,7 +204,7 @@ export function DependentesObjetivos({
           ))}
         </div>
         <BotaoAdicionar onClick={() => set({ extras: [...dados.extras, { nome: "", valor: 0, prazo: 1 }] })}>
-          + adicionar despesa de estudo
+          + adicionar despesa
         </BotaoAdicionar>
       </Cartao>
 

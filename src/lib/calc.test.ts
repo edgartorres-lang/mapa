@@ -44,6 +44,7 @@ const ESTUDO_MARINA: EstudoDados = {
     { desc: "Apartamento alugado", tipo: "Imóvel", valor: 350000, liquidavel: false },
     { desc: "Fundo de renda fixa", tipo: "Investimento", valor: 90000, liquidavel: true },
   ],
+  semPatrimonio: false,
   pctSucessao: 15,
   fgts: 25000,
   inss: 80000,
@@ -133,6 +134,7 @@ describe("calc() — casos de borda do racional", () => {
     teto: 8,
     objetivos: [],
     bens: [],
+    semPatrimonio: false,
     pctSucessao: 15,
     fgts: 0,
     inss: 0,
@@ -140,6 +142,22 @@ describe("calc() — casos de borda do racional", () => {
     seguroAtual: 0,
   };
   const hoje = new Date(2026, 7, 31);
+
+  it("semPatrimonio ignora bens no cálculo, mesmo que a lista ainda tenha itens (2026-09-08)", () => {
+    // Prova o comportamento que evita perda de dado: marcar/desmarcar a caixa não apaga `bens`
+    // (ver CustosPatrimonio.tsx) — quem faz o patrimônio contar ou não é só esta flag.
+    const d: EstudoDados = {
+      ...base,
+      vinculos: { ...base.vinculos, clt: { on: true, renda: 5000 } },
+      bens: [{ desc: "Casa", tipo: "Imóvel", valor: 500000, liquidavel: true }],
+      semPatrimonio: true,
+    };
+    const r = calc(d, FATORES_PADRAO, hoje);
+    expect(r.patrimonioTotal).toBe(0);
+    expect(r.patrimonioLiquidavel).toBe(0);
+    expect(r.modSucessao).toBe(0);
+    expect(r.vitalicia).toBe(r.modUmAnoRenda); // só o ano de renda, sem custo de transmissão
+  });
 
   it("servidor público sozinho: sem invalidez aplicável, fator de pensão 0,60", () => {
     const d: EstudoDados = { ...base, vinculos: { ...base.vinculos, servidor: { on: true, renda: 10000 } } };
