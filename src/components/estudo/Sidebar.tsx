@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { CalcResultado } from "@/lib/calc";
 import { brl } from "@/lib/formato";
 
@@ -14,11 +15,15 @@ export function Sidebar({
   setStep,
   pendencias,
   c,
+  estudoId,
+  status,
 }: {
   step: number;
   setStep: (i: number) => void;
   pendencias: string[][];
   c: CalcResultado;
+  estudoId: string;
+  status: "aberto" | "gerado";
 }) {
   const bloqueado = OBRIGATORIAS.some((i) => pendencias[i].length > 0);
   const completas = pendencias.filter((x) => x.length === 0).length;
@@ -139,6 +144,31 @@ export function Sidebar({
           ))}
         </div>
       </div>
+
+      {/* Fixo na Sidebar (2026-09-09, pedido do Edgar) — antes só aparecia na etapa Resultado, lá
+          embaixo; agora dá pra abrir qualquer formato de qualquer etapa, sem precisar navegar até
+          o final do wizard toda vez. Só aparece com o mapa já gerado (travado). */}
+      {status === "gerado" && (
+        <div style={{ marginTop: 12, padding: 14, borderRadius: 9, background: "var(--sucesso-fundo)", border: "1px solid var(--sucesso-borda)" }}>
+          <div style={{ font: "700 10px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".08em", color: "var(--texto-terciario)", marginBottom: 8 }}>
+            Mapa gerado
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <Link href={`/estudo/${estudoId}/apresentacao`} style={{ display: "block", padding: "9px 10px", borderRadius: 7, background: "#fff", border: "1px solid var(--borda)", font: "700 12px var(--font-interface)", color: "var(--marinho)" }}>
+              Apresentação
+            </Link>
+            <Link href={`/estudo/${estudoId}/proposta`} style={{ display: "block", padding: "9px 10px", borderRadius: 7, background: "#fff", border: "1px solid var(--borda)", font: "700 12px var(--font-interface)", color: "var(--marinho)" }}>
+              Proposta A4
+            </Link>
+            <Link href={`/estudo/${estudoId}/email`} style={{ display: "block", padding: "9px 10px", borderRadius: 7, background: "#fff", border: "1px solid var(--borda)", font: "700 12px var(--font-interface)", color: "var(--marinho)" }}>
+              E-mail
+            </Link>
+          </div>
+          <Link href={`/estudo/${estudoId}/memoria`} style={{ display: "block", marginTop: 8, font: "600 11px var(--font-interface)", color: "var(--azul)" }}>
+            Ver memória de cálculo →
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

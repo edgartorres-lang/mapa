@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import type { EstudoFormulario } from "@/lib/estudo-formulario";
 import type { CalcResultado, FatoresCalculo } from "@/lib/calc";
 import { brl, brlCurto } from "@/lib/formato";
@@ -242,38 +241,19 @@ export function Resultado({
         </div>
       </div>
 
-      {status === "aberto" ? (
+      {/* Estudo "gerado": os links pra Apresentação/Proposta/E-mail (e memória de cálculo) saíram
+          daqui — moraram só nesta etapa antes, agora ficam fixos na Sidebar, sempre visíveis,
+          abaixo de "Módulos ativos" (2026-09-09, pedido do Edgar: dava pra abrir o mapa gerado só
+          voltando até aqui; assim dá pra abrir de qualquer etapa). Aqui não sobra nada pra
+          mostrar nesse caso — o resto da etapa (números, resumo, análise interna) já aparece
+          acima independente do status. */}
+      {status === "aberto" && (
         <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "22px 24px" }}>
           <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)" }}>Gerar o mapa</div>
           <div style={{ font: "400 11.5px var(--font-interface)", color: "var(--texto-secundario)", margin: "3px 0 14px" }}>
             Ao gerar, estes números travam — não mudam mais, nem se os fatores de cálculo mudarem depois.
           </div>
           <ModalGerar c={c} gerando={gerando} onConfirmar={onGerar} />
-        </div>
-      ) : (
-        <div style={{ background: "#fff", border: "1px solid var(--sucesso-borda)", borderRadius: 12, padding: "22px 24px" }}>
-          <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)", marginBottom: 4 }}>Mapa da Proteção gerado · travado</div>
-          <div style={{ font: "400 11.5px var(--font-interface)", color: "var(--texto-secundario)", marginBottom: 14 }}>
-            Os três formatos usam os mesmos números do estudo. Não existe botão de editar — a correção é
-            duplicar o estudo, na página do cliente.
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: 10 }}>
-            <Link href={`/estudo/${estudoId}/apresentacao`} style={{ border: "1.5px solid var(--borda)", borderRadius: 12, padding: "15px 16px", display: "block" }}>
-              <div style={{ font: "700 13px var(--font-interface)", color: "var(--marinho)" }}>Apresentação</div>
-              <div style={{ font: "400 11.5px/1.55 var(--font-interface)", color: "var(--texto-secundario)", marginTop: 3 }}>16:9 para a reunião. Dez telas.</div>
-            </Link>
-            <Link href={`/estudo/${estudoId}/proposta`} style={{ border: "1.5px solid var(--borda)", borderRadius: 12, padding: "15px 16px", display: "block" }}>
-              <div style={{ font: "700 13px var(--font-interface)", color: "var(--marinho)" }}>Proposta</div>
-              <div style={{ font: "400 11.5px/1.55 var(--font-interface)", color: "var(--texto-secundario)", marginTop: 3 }}>A4 em 3 páginas, pra imprimir.</div>
-            </Link>
-            <Link href={`/estudo/${estudoId}/email`} style={{ border: "1.5px solid var(--borda)", borderRadius: 12, padding: "15px 16px", display: "block" }}>
-              <div style={{ font: "700 13px var(--font-interface)", color: "var(--marinho)" }}>E-mail</div>
-              <div style={{ font: "400 11.5px/1.55 var(--font-interface)", color: "var(--texto-secundario)", marginTop: 3 }}>Resumo no corpo, A4 anexado.</div>
-            </Link>
-          </div>
-          <Link href={`/estudo/${estudoId}/memoria`} style={{ font: "600 12px var(--font-interface)", color: "var(--azul)" }}>
-            Ver memória de cálculo →
-          </Link>
         </div>
       )}
     </div>

@@ -128,7 +128,7 @@ export function EstudoShell({
       </div>
 
       <div style={{ display: "flex", background: "var(--fundo)", alignItems: "stretch" }}>
-        <Sidebar step={step} setStep={setStep} pendencias={pendencias} c={c} />
+        <Sidebar step={step} setStep={setStep} pendencias={pendencias} c={c} estudoId={estudoId} status={statusInicial} />
 
         <div style={{ flex: 1, minWidth: 0, padding: "26px 30px", maxWidth: 920 }}>
           <div style={{ font: "700 10px var(--font-interface)", textTransform: "uppercase", letterSpacing: ".09em", color: "var(--texto-terciario)" }}>

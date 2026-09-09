@@ -109,5 +109,12 @@ textarea:focus {
     break-after: page;
     page-break-after: always;
     margin: 0 auto !important;
+    /* Achado real (2026-09-09): sem isto, o slide (960×540) imprimia do tamanho original numa
+       folha maior, sobrando margem em branco. `zoom` (não `transform: scale`) porque também
+       recalcula o layout — filhos com posição absoluta (as bolhas decorativas do slide de capa,
+       por exemplo) escalam junto corretamente. A folha em si (`@page`, ver src/lib/imprimir.ts)
+       já é do tamanho exato de 960×1,2 × 540×1,2, então isto preenche a página inteira, sem
+       sobra. Só vale dentro de @media print — a tela normal da Apresentação não muda em nada. */
+    zoom: 1.2;
   }
 }
