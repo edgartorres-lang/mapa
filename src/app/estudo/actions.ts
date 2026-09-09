@@ -112,7 +112,10 @@ export async function abrirOuCriarEstudoDoCliente(clienteId: string) {
   const cliente = await prisma.cliente.findUniqueOrThrow({ where: { id: clienteId } });
   if (cliente.corretorId !== corretor.id) throw new Error("Cliente não pertence a este corretor.");
 
-  const estudoAberto = await prisma.estudo.findFirst({ where: { clienteId, status: "aberto" } });
+  // `orderBy` (2026-09-09): mesma blindagem de `enviarLead` em captacao/actions.ts — se por algum
+  // motivo existir mais de um estudo "aberto" pro cliente (não deveria, mas resíduo de bug antigo
+  // já mostrou que acontece), pega sempre o mais recente, nunca um qualquer.
+  const estudoAberto = await prisma.estudo.findFirst({ where: { clienteId, status: "aberto" }, orderBy: { criadoEm: "desc" } });
   if (estudoAberto) redirect(`/estudo/${estudoAberto.id}`);
 
   const temMapa = await prisma.mapa.count({ where: { clienteId } });
@@ -169,6 +172,10 @@ export async function salvarDados(estudoId: string, dados: EstudoFormulario) {
         profissao: dados.profissao || null,
         estadoCivil: dados.estadoCivil || null,
         sexo: dados.sexo || null,
+        // Achado real (2026-09-09): faltava aqui — data de nascimento ficava só dentro do JSON
+        // de `dados` do estudo, nunca chegava no cadastro do cliente (`Cliente.nascimento`), que é
+        // o que a lista de clientes e o pré-preenchimento de um próximo estudo (`abrirOuCriarEstudoDoCliente`) leem.
+        nascimento: dataBrParaDate(dados.nasc),
       },
     }),
   ]);

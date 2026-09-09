@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { mapearLeadParaEstudo, type LeadRespostas } from "@/lib/lead-formulario";
-import { dispararWebhook } from "@/lib/webhooks";
+import { dispararWebhook, dispararWebhookComResposta } from "@/lib/webhooks";
 import { padroesPorEstudo } from "@/lib/fatores-calculo";
 
 /**
@@ -74,7 +74,13 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
   // cliente — ver `abrirOuCriarEstudoDoCliente`): se já existe um estudo aberto pra este cliente,
   // reaproveita ele (atualiza `dados` com as respostas novas) em vez de criar outro. `lido: false`
   // de novo — reabre a notificação na caixa de entrada, informação nova chegou.
-  const estudoAberto = await prisma.estudo.findFirst({ where: { clienteId: cliente.id, status: "aberto" } });
+  // `orderBy` (2026-09-09): achado real testando com o Francisco — resíduo de reenvios repetidos
+  // ANTES desta proteção existir deixou mais de um estudo "aberto" pro mesmo cliente no banco. Sem
+  // ordenação, `findFirst` podia devolver qualquer um deles (inclusive um rascunho velho e vazio)
+  // em vez do que estava sendo preenchido de verdade — parecia que as respostas "sumiam". Pega
+  // sempre o mais recente; não resolve o resíduo já existente (limpeza manual, ver AGENTS.md), mas
+  // evita reproduzir o sintoma daqui pra frente mesmo se algum dia houver mais de um aberto de novo.
+  const estudoAberto = await prisma.estudo.findFirst({ where: { clienteId: cliente.id, status: "aberto" }, orderBy: { criadoEm: "desc" } });
   const estudo = estudoAberto
     ? await prisma.estudo.update({ where: { id: estudoAberto.id }, data: { dados: dados as object, lido: false } })
     : await prisma.estudo.create({ data: { clienteId: cliente.id, corretorId: corretor.id, status: "aberto", dados: dados as object, lido: false } });
@@ -188,7 +194,7 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
     origem = "campo_aberto";
   }
 
-  await prisma.$transaction([
+  const [agendamento] = await prisma.$transaction([
     prisma.agendamento.create({ data: { clienteId, dataHora, textoLivre, origem } }),
     prisma.eventoHistorico.create({
       data: {
@@ -200,9 +206,15 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
     }),
   ]);
 
-  // Evento da agenda leva só nome e contato — nenhum valor do estudo (não-negociável).
+  // Evento da agenda leva só nome e contato — nenhum valor do estudo (não-negociável). Espera
+  // resposta (em vez de só disparar) porque precisa do `googleEventId` de volta — é o que o
+  // `webhookEsquecer` usa depois pra cancelar esse compromisso específico se o cliente pedir
+  // exclusão LGPD (ver `registrarExclusaoLgpd` em painel/ajustes/actions.ts). Best-effort: se o
+  // n8n não responder ou não vier `googleEventId` (ex.: proposta em campo aberto, sem data
+  // resolvida — o workflow decide não criar evento nenhum), o agendamento fica salvo do mesmo
+  // jeito, só sem o vínculo com a agenda.
   if (corretor.integracaoAgendaAtiva) {
-    await dispararWebhook(corretor.webhookAgendar, {
+    const respostaAgenda = await dispararWebhookComResposta<{ googleEventId?: string }>(corretor.webhookAgendar, {
       nome: cliente.nome,
       contato: cliente.telefone || cliente.email,
       data: dataHora ? dataHora.toISOString() : null,
@@ -210,6 +222,9 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
       duracao: 45,
       sugestaoLivre: textoLivre,
     });
+    if (respostaAgenda.ok && respostaAgenda.dados.googleEventId) {
+      await prisma.agendamento.update({ where: { id: agendamento.id }, data: { googleEventId: respostaAgenda.dados.googleEventId } });
+    }
   }
   if (corretor.integracaoWhatsappAtiva) {
     await dispararWebhook(corretor.webhookNotificar, { tipo: "horario_escolhido", nome: cliente.nome, profissao: cliente.profissao, origem: cliente.origem, telefone: cliente.telefone, email: cliente.email, corretorWhatsapp: corretor.whatsapp });
