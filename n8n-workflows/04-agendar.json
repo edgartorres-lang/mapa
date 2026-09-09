@@ -1,0 +1,172 @@
+{
+  "name": "Mapa da Proteção - Agendar (Google Agenda)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agendar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "d4d4d4d4-0001-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "mapa-agendar"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.body.data }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d4d4d4d4-0002-4000-8000-000000000002",
+      "name": "Tem data resolvida?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ summary: `Reunião — ${$json.body.nome}`, description: `Contato: ${$json.body.contato || 'não informado'}`, start: { dateTime: $json.body.data, timeZone: 'America/Belem' }, end: { dateTime: new Date(new Date($json.body.data).getTime() + ($json.body.duracao || 45) * 60000).toISOString(), timeZone: 'America/Belem' } }) }}",
+        "options": {}
+      },
+      "id": "d4d4d4d4-0003-4000-8000-000000000003",
+      "name": "Criar evento",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 220],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "",
+          "name": "Google Calendar Setor Norte"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, googleEventId: $json.id }) }}",
+        "options": {}
+      },
+      "id": "d4d4d4d4-0004-4000-8000-000000000004",
+      "name": "Responder com o id do evento",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 140]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, googleEventId: null }) }}",
+        "options": {}
+      },
+      "id": "d4d4d4d4-0005-4000-8000-000000000005",
+      "name": "Responder sem evento (sugestão livre)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [680, 460]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "c2",
+              "leftValue": "={{ $('Webhook').item.json.body.emailAtivo && $('Webhook').item.json.body.email ? 'sim' : '' }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d4d4d4d4-0006-4000-8000-000000000006",
+      "name": "Tem e-mail pra confirmar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Roda só quando já existe data/hora resolvida e o cliente tem e-mail (ver node \"Tem e-mail pra\n// confirmar?\"). Referencia o Webhook original (`$('Webhook')`) porque o node anterior (\"Criar\n// evento\") substitui `$json` pela resposta da API do Google, que não tem mais os campos que\n// vieram do app.\nconst body = $('Webhook').item.json.body;\nconst dataObj = new Date(body.data);\nconst dataFmt = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Belem' });\nconst horaFmt = body.hora || dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Belem' });\nconst corretorNome = body.corretorNome || 'seu corretor';\n\nconst texto = [\n  `Olá, ${body.nome}!`,\n  '',\n  `Seu horário está confirmado: ${dataFmt}, às ${horaFmt}.`,\n  '',\n  `Vai ser com ${corretorNome}. Qualquer imprevisto, é só responder este e-mail.`,\n  '',\n  'Até lá!',\n].join('\\n');\n\nreturn [{ json: { destinatario: body.email, assunto: 'Seu horário está confirmado', corpoTexto: texto } }];"
+      },
+      "id": "d4d4d4d4-0007-4000-8000-000000000007",
+      "name": "Montar texto de confirmação",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 220]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.destinatario }}",
+        "subject": "={{ $json.assunto }}",
+        "emailType": "text",
+        "message": "={{ $json.corpoTexto }}",
+        "options": {}
+      },
+      "id": "d4d4d4d4-0008-4000-8000-000000000008",
+      "name": "Enviar confirmação (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1340, 220],
+      "webhookId": "d4d4d4d4-gmail",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail Setor Norte"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Tem data resolvida?", "type": "main", "index": 0 }]]
+    },
+    "Tem data resolvida?": {
+      "main": [
+        [{ "node": "Criar evento", "type": "main", "index": 0 }],
+        [{ "node": "Responder sem evento (sugestão livre)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Criar evento": {
+      "main": [
+        [
+          { "node": "Responder com o id do evento", "type": "main", "index": 0 },
+          { "node": "Tem e-mail pra confirmar?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Tem e-mail pra confirmar?": {
+      "main": [
+        [{ "node": "Montar texto de confirmação", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Montar texto de confirmação": {
+      "main": [[{ "node": "Enviar confirmação (Gmail)", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

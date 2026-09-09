@@ -217,6 +217,14 @@ export async function confirmarAgendamento(clienteId: string, escolha: EscolhaAg
     const respostaAgenda = await dispararWebhookComResposta<{ googleEventId?: string }>(corretor.webhookAgendar, {
       nome: cliente.nome,
       contato: cliente.telefone || cliente.email,
+      // `email` separado de `contato` (2026-09-09): `contato` prioriza telefone pro texto do
+      // evento na agenda, então quando o cliente tem os dois, o e-mail nunca chegava no n8n — e
+      // o n8n precisa dele à parte pra poder confirmar o horário por e-mail pro lead, além de
+      // criar o evento. `emailAtivo` deixa isso condicionado à chave "Integração de E-mail"
+      // também (não só "Integração de Agenda"), pro corretor poder ligar/desligar cada uma.
+      email: cliente.email,
+      emailAtivo: corretor.integracaoEmailAtiva,
+      corretorNome: corretor.nome,
       data: dataHora ? dataHora.toISOString() : null,
       hora: dataHora ? dataHora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : null,
       duracao: 45,

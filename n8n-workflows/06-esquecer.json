@@ -1,0 +1,93 @@
+{
+  "name": "Mapa da Proteção - Esquecer (LGPD, cancela eventos da agenda)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "esquecer",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "f6f6f6f6-0001-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "mapa-esquecer"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.eventosFuturos",
+        "destinationFieldName": "googleEventId",
+        "options": {}
+      },
+      "id": "f6f6f6f6-0002-4000-8000-000000000002",
+      "name": "Separar eventos",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.googleEventId }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f6f6f6f6-0004-4000-8000-000000000004",
+      "name": "Tem id de evento?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://www.googleapis.com/calendar/v3/calendars/primary/events/{{ $json.googleEventId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api",
+        "options": {
+          "timeout": 15000,
+          "ignoreHttpStatusErrors": true
+        }
+      },
+      "id": "f6f6f6f6-0003-4000-8000-000000000003",
+      "name": "Cancelar evento",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 220],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "",
+          "name": "Google Calendar Setor Norte"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Separar eventos", "type": "main", "index": 0 }]]
+    },
+    "Separar eventos": {
+      "main": [[{ "node": "Tem id de evento?", "type": "main", "index": 0 }]]
+    },
+    "Tem id de evento?": {
+      "main": [
+        [{ "node": "Cancelar evento", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}

@@ -1,0 +1,114 @@
+{
+  "name": "Mapa da Proteção - Enviar Mapa por email (HTML)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "enviar-mapa",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "e5e5e5e5-0001-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "mapa-enviar-mapa"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $json.body;\nconst c = b.corpo || {};\nconst corretor = b.corretor || {};\n\n// Os valores que chegam aqui (totalVida, vitalicia, temporaria, pensaoMensal, e o `valor` de cada\n// categoria) já vêm formatados como texto pelo app (ex.: \"R$ 1.043.500\") — ver `apresentacao.ts`,\n// função `construirApresentacao`. Não são números: não dá pra somar nem reformatar aqui, é só\n// usar direto como string.\nconst fmt = (v) => (v === undefined || v === null || v === '') ? '—' : String(v);\nconst esc = (v) => String(v ?? '')\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;');\n\nconst MARINHO = '#0f3d63';\nconst FUNDO = '#f3f6fa';\nconst BORDA = '#dee7ef';\nconst TEXTO = '#1a2733';\nconst TEXTO_SEC = '#5b6b7a';\n\nconst linhaResumo = (rotulo, valor) => `\n  <tr>\n    <td style=\"padding:10px 0;border-bottom:1px solid ${BORDA};font:400 13px/1.4 Arial, sans-serif;color:${TEXTO_SEC};\">${esc(rotulo)}</td>\n    <td style=\"padding:10px 0;border-bottom:1px solid ${BORDA};font:700 13px/1.4 Arial, sans-serif;color:${MARINHO};text-align:right;\">${esc(valor)}</td>\n  </tr>`;\n\nconst linhasResumo = [\n  linhaResumo('Proteção vitalícia', fmt(c.vitalicia)),\n  linhaResumo('Proteção temporária', fmt(c.temporaria)),\n  ...(c.pensaoMensal ? [linhaResumo('Pensão de Criação (mensal)', fmt(c.pensaoMensal) + '/mês')] : []),\n].join('');\n\nconst linhaCategoria = (cat) => `\n  <tr>\n    <td style=\"padding:9px 0;\">\n      <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"width:100%;\">\n        <tr>\n          <td style=\"width:10px;\">\n            <div style=\"width:8px;height:8px;border-radius:50%;background:${esc(cat.cor || MARINHO)};\"></div>\n          </td>\n          <td style=\"padding-left:8px;font:400 13px Arial, sans-serif;color:${TEXTO};\">${esc(cat.rotulo)}</td>\n          <td style=\"font:700 13px Arial, sans-serif;color:${MARINHO};text-align:right;\">${esc(cat.valor)}</td>\n        </tr>\n      </table>\n    </td>\n  </tr>`;\n\nconst linhasCategorias = Array.isArray(c.categorias) ? c.categorias.map(linhaCategoria).join('') : '';\n\nconst resumoHtml = (Array.isArray(c.resumoParaOCliente) && c.resumoParaOCliente.length)\n  ? `\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${FUNDO};border-radius:10px;margin:24px 0;\">\n      <tr>\n        <td style=\"padding:18px 20px;font:400 13px/1.7 Arial, sans-serif;color:${TEXTO};\">\n          ${c.resumoParaOCliente.map((linha) => esc(linha)).join('<br>')}\n        </td>\n      </tr>\n    </table>`\n  : '';\n\nconst html = `\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${FUNDO};padding:32px 0;font-family:Arial, sans-serif;\">\n  <tr>\n    <td align=\"center\">\n      <table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid ${BORDA};\">\n        <tr>\n          <td style=\"background:${MARINHO};padding:28px 32px;\">\n            <div style=\"font:700 20px Arial, sans-serif;color:#ffffff;\">Mapa da Proteção</div>\n            <div style=\"font:400 13px Arial, sans-serif;color:rgba(255,255,255,.75);margin-top:4px;\">Preparado para ${esc(c.nome)}</div>\n          </td>\n        </tr>\n        <tr>\n          <td style=\"padding:32px;\">\n            <p style=\"font:400 14px/1.6 Arial, sans-serif;color:${TEXTO};margin:0 0 22px;\">\n              Olá, ${esc(c.nome)}! Segue o resumo do seu Mapa da Proteção, preparado com base nas informações que você compartilhou.\n            </p>\n\n            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:${FUNDO};border-radius:10px;margin-bottom:24px;\">\n              <tr>\n                <td style=\"padding:20px 24px;\">\n                  <div style=\"font:600 11px Arial, sans-serif;color:${TEXTO_SEC};text-transform:uppercase;letter-spacing:.05em;\">Capital total em seguro de vida sugerido</div>\n                  <div style=\"font:700 28px Arial, sans-serif;color:${MARINHO};margin-top:4px;\">${fmt(c.totalVida)}</div>\n                </td>\n              </tr>\n            </table>\n\n            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n              ${linhasResumo}\n            </table>\n\n            ${linhasCategorias ? `\n            <div style=\"font:600 13px Arial, sans-serif;color:${MARINHO};margin:24px 0 10px;\">Como esse valor se distribui</div>\n            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n              ${linhasCategorias}\n            </table>` : ''}\n\n            ${resumoHtml}\n\n            <p style=\"font:400 14px/1.6 Arial, sans-serif;color:${TEXTO};margin:22px 0 0;\">\n              Qualquer dúvida, estou à disposição.\n            </p>\n          </td>\n        </tr>\n        <tr>\n          <td style=\"padding:20px 32px;border-top:1px solid ${BORDA};\">\n            <div style=\"font:700 13px Arial, sans-serif;color:${MARINHO};\">${esc(corretor.nome || 'Setor Norte Seguros')}</div>\n            ${corretor.contato ? `<div style=\"font:400 12px Arial, sans-serif;color:${TEXTO_SEC};margin-top:2px;\">${esc(corretor.contato)}</div>` : ''}\n          </td>\n        </tr>\n      </table>\n    </td>\n  </tr>\n</table>`;\n\nreturn [{\n  json: {\n    destinatario: b.destinatario,\n    assunto: b.assunto || 'Seu Mapa da Proteção',\n    corpoHtml: html,\n  },\n}];"
+      },
+      "id": "e5e5e5e5-0002-4000-8000-000000000002",
+      "name": "Montar texto do email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.destinatario }}",
+        "subject": "={{ $json.assunto }}",
+        "emailType": "html",
+        "message": "={{ $json.corpoHtml }}",
+        "options": {}
+      },
+      "id": "e5e5e5e5-0003-4000-8000-000000000003",
+      "name": "Enviar email (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        680,
+        300
+      ],
+      "webhookId": "e5e5e5e5-gmail",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail Setor Norte"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true }) }}",
+        "options": {}
+      },
+      "id": "e5e5e5e5-0004-4000-8000-000000000004",
+      "name": "Responder ok",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Montar texto do email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar texto do email": {
+      "main": [
+        [
+          {
+            "node": "Enviar email (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar email (Gmail)": {
+      "main": [
+        [
+          {
+            "node": "Responder ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
