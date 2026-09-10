@@ -309,14 +309,14 @@ function AbaAcesso({ corretor }: { corretor: Corretor }) {
           </div>
         </div>
         <div style={{ background: "var(--nota-fundo)", border: "1px solid var(--nota-borda)", borderRadius: 12, padding: "18px 20px", font: "400 11.5px/1.7 var(--font-interface)", color: "var(--nota-texto)" }}>
-          Esta tela é referência — mostra como a recuperação de senha vai funcionar quando existir login de verdade. Hoje há um corretor só, sem senha nem sessão (ver AGENTS.md, &quot;Acesso e Identidade&quot; e o TODO em src/lib/corretor-atual.ts). Quando abrir para outros corretores, aqui também ganha o convite por e-mail e a lista de quem tem acesso.
+          Esta tela é referência — mostra como a recuperação de senha vai funcionar quando existir login de verdade. Hoje há só você, sem senha nem sessão. Quando abrir para outros corretores, aqui também ganha o convite por e-mail e a lista de quem tem acesso.
         </div>
       </div>
 
       <div style={{ width: "100%", marginTop: 8, paddingTop: 28, borderTop: "1px solid var(--borda)" }}>
         <div style={{ font: "600 20px var(--font-titulo)", color: "var(--marinho)", marginBottom: 4 }}>Integrações</div>
         <div style={{ font: "400 13px/1.6 var(--font-interface)", color: "var(--texto-secundario)", marginBottom: 20, maxWidth: 660 }}>
-          Os 7 endereços de webhook que ligam a ferramenta ao n8n — agenda (mais disponibilidade), WhatsApp/Evolution, e-mail, IA, lead e exclusão LGPD. Sem eles, cada disparo cai no branch &quot;não configurado&quot; e só loga (ver AGENTS.md).
+          Os 7 endereços de webhook que ligam a ferramenta ao n8n — agenda (mais disponibilidade), WhatsApp/Evolution, e-mail, IA, lead e exclusão LGPD. Sem eles, essas notificações simplesmente não são enviadas — o resto do sistema continua funcionando normal.
         </div>
         <IntegracoesForm
           urlsIniciais={{

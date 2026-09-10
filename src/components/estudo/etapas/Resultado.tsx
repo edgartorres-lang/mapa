@@ -197,7 +197,7 @@ export function Resultado({
           <div>
             <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)" }}>Resumo para o cliente</div>
             <div style={{ font: "400 11.5px var(--font-interface)", color: "var(--texto-terciario)", marginTop: 2 }}>
-              Texto do cliente, escrito a partir dos números já calculados, pelo webhook de IA. Pode gerar de novo à vontade enquanto o estudo está aberto.
+              Texto do cliente, escrito a partir dos números já calculados, por IA. Pode gerar de novo à vontade enquanto o estudo está aberto.
             </div>
           </div>
           {status === "aberto" && (

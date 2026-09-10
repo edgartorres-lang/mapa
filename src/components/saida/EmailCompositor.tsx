@@ -126,7 +126,7 @@ export function EmailCompositor({ estudoId, r }: { estudoId: string; r: Apresent
         )}
         {enviado && (
           <div style={{ background: "var(--sucesso-fundo)", border: "1px solid var(--sucesso-borda)", borderRadius: 9, padding: "11px 13px", font: "500 12px/1.6 var(--font-interface)", color: "var(--verde-escuro)" }}>
-            Enviado — o n8n recebeu o pedido e cuida do envio de verdade.
+            E-mail enviado.
           </div>
         )}
       </div>

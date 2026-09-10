@@ -270,7 +270,7 @@ export async function gerarTextosEstudo(estudoId: string) {
 
   const cliente = Array.isArray(r.dados.cliente) ? r.dados.cliente : [];
   const interna = Array.isArray(r.dados.interna) ? r.dados.interna : [];
-  if (!cliente.length && !interna.length) return { sucesso: false as const, erro: "O webhook respondeu, mas sem os parágrafos esperados (campos cliente/interna)." };
+  if (!cliente.length && !interna.length) return { sucesso: false as const, erro: "A IA respondeu num formato inesperado — tente gerar de novo." };
 
   await prisma.estudo.update({ where: { id: estudoId }, data: { resumoParaVoce: cliente.join("\n"), analiseInterna: interna.join("\n") } });
   revalidatePath(`/estudo/${estudoId}`);

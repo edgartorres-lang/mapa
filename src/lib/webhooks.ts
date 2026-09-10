@@ -44,12 +44,12 @@ export async function dispararWebhookComResposta<T = unknown>(url: string | null
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(timeoutMs),
     });
-    if (!resposta.ok) return { ok: false, erro: `O webhook respondeu ${resposta.status}.` };
+    if (!resposta.ok) return { ok: false, erro: `A integração respondeu com erro (${resposta.status}).` };
     const dados = (await resposta.json()) as T;
     return { ok: true, dados };
   } catch (erro) {
     console.warn(`[webhook] falha ao chamar ${url}:`, erro);
-    return { ok: false, erro: "Não consegui falar com o webhook — confira a URL e se o n8n está no ar." };
+    return { ok: false, erro: "Não consegui falar com a integração configurada — confira o endereço em Ajustes." };
   }
 }
 
