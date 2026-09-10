@@ -1,6 +1,7 @@
 import type { EstudoDados, VinculoKey } from "./calc";
 import { ESTUDO_VAZIO, type EstudoFormulario } from "./estudo-formulario";
 import { digitosParaInteiro } from "./formato";
+import { CENARIOS_INVALIDEZ } from "./enums";
 
 /**
  * Formulário público do lead — porta de `Link do Cliente - Protótipo.dc.html`. Coleta menos do
@@ -93,7 +94,7 @@ export const PERGUNTAS_LEAD: PerguntaLead[] = [
     tipo: "items",
   },
   { key: "res", grupo: "Reservas", label: "Vocês já têm alguma reserva guardada?", help: "Isso reduz o que falta proteger — vale informar.", tipo: "group" },
-  { key: "cenario", grupo: "Cenário", label: "Se você ficasse um ano sem poder trabalhar, quem sustentaria a casa?", help: "Escolha a opção mais próxima da sua realidade.", tipo: "choice", opts: ["Ninguém — a renda é toda minha", "Meu cônjuge, em parte", "Temos reservas para um tempo", "Não sei dizer"] },
+  { key: "cenario", grupo: "Cenário", label: "Se você ficasse um ano sem poder trabalhar, quem sustentaria a casa?", help: "Escolha a opção mais próxima da sua realidade.", tipo: "choice", opts: CENARIOS_INVALIDEZ },
   { key: "obs", grupo: "Para terminar", label: "Quer deixar alguma observação para o corretor?", help: "Opcional. Pode seguir sem escrever nada.", tipo: "note" },
 ];
 
@@ -114,8 +115,10 @@ const ROTULO_PARA_VINCULO: Record<VinculoLead, VinculoKey | null> = {
 /**
  * Monta o `EstudoFormulario` de partida a partir das respostas do lead. Campos que o formulário
  * público não pergunta (profissão, aposenta aos, sexo, tipo/liquidável de cada bem, INSS) ficam
- * no padrão de `ESTUDO_VAZIO` — o corretor completa na reunião. `cenario`/`obs` não fazem parte
- * do cálculo; quem chama isto grava os dois como NotaCrm à parte.
+ * no padrão de `ESTUDO_VAZIO` — o corretor completa na reunião. `cenario` não entra no cálculo,
+ * mas desde 2026-09-09 é campo estruturado (mapeado aqui pro `EstudoFormulario` e sincronizado
+ * pro Cliente por quem chama isto — ver `enviarLead`/`salvarDados`); `obs` continua sendo só
+ * observação livre, gravada como `NotaCrm` à parte.
  */
 export function mapearLeadParaEstudo(a: LeadRespostas): EstudoFormulario {
   const vinculos: EstudoDados["vinculos"] = {
@@ -159,5 +162,6 @@ export function mapearLeadParaEstudo(a: LeadRespostas): EstudoFormulario {
     whats: a.contato.wpp,
     email: a.contato.email,
     lgpd: a.lgpd,
+    cenario: a.cenario || "",
   };
 }

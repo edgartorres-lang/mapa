@@ -137,6 +137,11 @@ model Cliente {
   // do link de captação (lead repetido, mesmo telefone/e-mail) nunca mais sobrescreve o nome. Ver
   // AGENTS.md, "Captação pública", e editarNomeCliente em src/app/painel/clientes/[id]/actions.ts.
   nomeEditadoManualmente Boolean @default(false) @map("nome_editado_manualmente")
+  // Mesma ideia do campo acima, generalizada (2026-09-09) pro resto do Cadastro — telefone/
+  // e-mail/nascimento/profissão/estado civil/cenarioResposta. Marca true tanto editando pela
+  // página do cliente (editarCadastroCliente) quanto digitando direto no wizard (salvarDados) —
+  // as duas são "o corretor corrigiu manualmente", não só uma UI específica.
+  cadastroEditadoManualmente Boolean @default(false) @map("cadastro_editado_manualmente")
   telefone           String?
   email              String?
   // Sem @db.Date (atributo específico do Postgres, inválido no SQLite) — só data, sem hora,
@@ -146,6 +151,10 @@ model Cliente {
   estadoCivil        String?   @map("estado_civil")
   profissao          String?
   idadeAposentadoria Int?      @map("idade_aposentadoria")
+  // Uma das 4 opções fixas de CENARIOS_INVALIDEZ (src/lib/enums.ts) — "Se você ficasse um ano
+  // sem poder trabalhar, quem sustentaria a casa?". Vinha só do formulário público, virando nota
+  // solta; agora é campo estruturado do cliente, também perguntado no wizard (Perfil).
+  cenarioResposta    String?   @map("cenario_resposta")
 
   origem      String? // "Link · campanha família" | "Indicação · Marina" | "Contato direto" etc.
   utmCampanha String? @map("utm_campanha")
@@ -188,10 +197,24 @@ model Estudo {
   // Caixa de entrada de leads (Ajustes → Link de captação), 2026-09-08. Default `true` de
   // propósito: só o formulário público do lead (`enviarLead`) grava `false` explicitamente —
   // todo estudo criado pelo próprio corretor (novo cliente, duplicar, etc.) já nasce "lido", não
-  // precisa de sinalização nenhuma. Vira `false` de novo se o lead reenviar o link com um estudo
-  // já em aberto (reaproveitado em vez de duplicado — ver `enviarLead`), porque chegou informação
-  // nova.
+  // precisa de sinalização nenhuma.
   lido Boolean @default(true)
+
+  // Nome de exibição do card na lista "Estudos em andamento" (página do cliente). Gerado
+  // automaticamente na criação ("Estudo · Nome · DD/MM HHhMM" — ver gerarApelidoEstudo em
+  // src/lib/estudo-formulario.ts), editável depois via renomearEstudo. Achado real (2026-09-09):
+  // antes disto, um cliente só podia ter um Estudo "aberto" por vez — reenvio do link ou "Iniciar
+  // novo estudo" reaproveitava (sobrescrevia) o único existente, e informação já digitada podia
+  // sumir sem aviso (caso real do Francisco Oliveira). Agora múltiplos estudos abertos convivem
+  // ao mesmo tempo, e precisam de um jeito de distinguir um do outro na lista.
+  apelido String?
+
+  // Espelha Cliente.origem, mas por estudo — não por cliente. Necessário porque agora um mesmo
+  // cliente pode ter, ao mesmo tempo, um estudo que veio do link E outro que o corretor criou na
+  // hora; "Cliente.origem" sozinho não diferencia mais qual estudo é qual. Valores: mesma string
+  // que Cliente.origem recebe quando vem do link ("Link de captação" / "Link · campanha X"),
+  // "Direto pelo corretor" (botão "Novo Estudo"), "Duplicado — correção" (duplicarEstudo).
+  origem String?
 
   duplicadoDeEstudoId String?  @map("duplicado_de_estudo_id")
   duplicadoDe         Estudo?  @relation("Duplicacao", fields: [duplicadoDeEstudoId], references: [id])
@@ -230,6 +253,14 @@ model Mapa {
   corretorId String @map("corretor_id") // denormalizado
 
   numeroVersao Int @map("numero_versao") // 1, 2, 3... por cliente
+
+  // "criado" | "apresentado" | "negociando" | "fechado" | "descartado" — ver
+  // STATUS_COMERCIAL_MAPA em src/lib/enums.ts. Status comercial DESTE Mapa especificamente —
+  // resolve a ambiguidade de um cliente com vários Mapas ter só um Cliente.estagioFunil (fechado
+  // de qual proposta?). Editar o status do Mapa mais recente também atualiza
+  // Cliente.estagioFunil (ver alterarStatusMapa em painel/clientes/[id]/actions.ts), então o
+  // Funil/Dashboard continuam funcionando sem mudança nenhuma neles.
+  statusComercial String @default("criado") @map("status_comercial")
 
   // Números principais (glossário) — também replicados dentro de `derivados`, mas ficam como
   // colunas próprias por serem usados em listagens/filtros (funil, dashboard, comparar mapas).

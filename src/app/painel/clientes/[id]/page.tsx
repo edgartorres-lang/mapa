@@ -1,20 +1,24 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { ESTAGIO_INFO, corDoEstagio, textoDias, fundoSuaveDoEstagio, nomeDoEstagio, diasDesde } from "@/lib/funil";
+import { ESTAGIO_INFO, corDoEstagio, fundoSuaveDoEstagio, nomeDoEstagio, diasDesde } from "@/lib/funil";
 import { brl } from "@/lib/formato";
-import type { EstagioFunil } from "@/lib/enums";
+import type { EstagioFunil, StatusComercialMapa } from "@/lib/enums";
 import { ModalExclusao } from "@/components/painel/ModalExclusao";
 import { ModalDuplicar } from "@/components/painel/ModalDuplicar";
 import { NomeEditavel } from "@/components/painel/NomeEditavel";
-import { duplicarEstudo, abrirOuCriarEstudoDoCliente } from "@/app/estudo/actions";
-import { mudarEstagio, criarNota, excluirMapaIsolado, excluirCadastroSemMapa } from "./actions";
+import { EstudoApelidoEditavel } from "@/components/painel/EstudoApelidoEditavel";
+import { CadastroEditavel } from "@/components/painel/CadastroEditavel";
+import { SeletorStatusMapa } from "@/components/painel/SeletorStatusMapa";
+import { duplicarEstudo, criarNovoEstudo } from "@/app/estudo/actions";
+import { mudarEstagio, criarNota, excluirMapaIsolado, excluirCadastroSemMapa, apagarEstudoAberto } from "./actions";
 
 const PASSOS_FUNIL: EstagioFunil[] = ["lead", "estudo", "apresentado", "cotando", "fechado"];
 const ABAS = [
   { chave: "resumo", rotulo: "Resumo" },
   { chave: "comparar", rotulo: "Comparar mapas" },
   { chave: "anotacoes", rotulo: "Anotações" },
+  { chave: "historico", rotulo: "Histórico" },
 ] as const;
 
 export default async function PaginaCliente({
@@ -37,8 +41,19 @@ export default async function PaginaCliente({
   });
   if (!cliente) notFound();
 
-  const mapas = cliente.estudos.filter((e) => e.mapa).map((e) => ({ estudo: e, mapa: e.mapa! })).sort((a, b) => b.mapa.numeroVersao - a.mapa.numeroVersao);
-  const estudoAberto = cliente.estudos.find((e) => e.status === "aberto");
+  // `geradoEm` como desempate (2026-09-09): mesma ordenação que `alterarStatusMapa` usa pra achar
+  // "o Mapa mais recente" — sem isso, um empate de `numeroVersao` (visto de verdade num cliente
+  // de teste, resíduo de bug antigo em `gerarMapa`) podia fazer a tela marcar um Mapa como
+  // "atual" e a ação de status considerar OUTRO como o mais recente.
+  const mapas = cliente.estudos
+    .filter((e) => e.mapa)
+    .map((e) => ({ estudo: e, mapa: e.mapa! }))
+    .sort((a, b) => b.mapa.numeroVersao - a.mapa.numeroVersao || b.mapa.geradoEm.getTime() - a.mapa.geradoEm.getTime());
+  // "Estudos em andamento" (2026-09-09): antes só existia UM estudo aberto por cliente (achado
+  // real testando com o Francisco Oliveira: reaproveitar esse slot único apagava respostas
+  // silenciosamente). Agora convivem vários ao mesmo tempo, listados aqui — cada um com seu
+  // próprio apelido/origem, renomeável e apagável.
+  const estudosAbertos = cliente.estudos.filter((e) => e.status === "aberto");
   const idadeCliente = cliente.nascimento ? Math.floor(diasDesde(cliente.nascimento) / 365.2425) : null;
   const ultimoMovimento = cliente.eventos[0]?.criadoEm ?? cliente.criadoEm;
   const diasParado = diasDesde(ultimoMovimento);
@@ -81,33 +96,26 @@ export default async function PaginaCliente({
                 corBotao="var(--texto-terciario)"
                 titulo={`Excluir o cadastro de ${cliente.nome}?`}
                 subtitulo="Sem mapa gerado nenhum — não é pedido de exclusão LGPD, é só apagar um cadastro de teste ou engano."
-                vaiEmbora={["O cadastro inteiro, com telefone/e-mail.", "Estudo em aberto, se houver.", "Histórico e anotações."]}
+                vaiEmbora={["O cadastro inteiro, com telefone/e-mail.", "Estudo(s) em aberto, se houver.", "Histórico e anotações."]}
                 oQueFica={["Nada — some por completo, sem deixar rastro nenhum."]}
                 rotuloConfirmar="Excluir cadastro"
                 acaoConfirmar={excluirCadastroSemMapa.bind(null, cliente.id)}
               />
             )}
-            {!estudoAberto && mapas[0] && (
-              <ModalDuplicar clienteNome={cliente.nome} acaoConfirmar={duplicarEstudo.bind(null, mapas[0].estudo.id)} />
-            )}
-            {(estudoAberto || mapas[0]) && (
-              <Link
-                href={`/estudo/${(estudoAberto ?? mapas[0].estudo).id}`}
-                style={{ font: "700 12.5px var(--font-interface)", color: "#fff", background: "var(--azul)", border: "none", padding: "11px 18px", borderRadius: 999, whiteSpace: "nowrap" }}
+            {/* Duplicar não exige mais "nenhum estudo aberto" (2026-09-09) — múltiplos estudos
+                abertos convivem normalmente agora, Duplicar é só mais um. */}
+            {mapas[0] && <ModalDuplicar clienteNome={cliente.nome} acaoConfirmar={duplicarEstudo.bind(null, mapas[0].estudo.id)} />}
+            {/* "Novo Estudo" sempre cria — não reaproveita mais nenhum estudo existente (ver
+                criarNovoEstudo). Pra abrir um estudo/mapa já existente, é pelos cards abaixo
+                ("Estudos em andamento" / "Mapas gerados"). */}
+            <form action={criarNovoEstudo.bind(null, cliente.id)}>
+              <button
+                type="submit"
+                style={{ font: "700 12.5px var(--font-interface)", color: "#fff", background: "var(--verde)", border: "none", padding: "11px 18px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap" }}
               >
-                Abrir {estudoAberto ? "estudo" : "mapa atual"}
-              </Link>
-            )}
-            {!estudoAberto && !mapas[0] && (
-              <form action={abrirOuCriarEstudoDoCliente.bind(null, cliente.id)}>
-                <button
-                  type="submit"
-                  style={{ font: "700 12.5px var(--font-interface)", color: "#fff", background: "var(--verde)", border: "none", padding: "11px 18px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap" }}
-                >
-                  Iniciar novo estudo
-                </button>
-              </form>
-            )}
+                Novo Estudo
+              </button>
+            </form>
           </div>
         </div>
       </div>
@@ -169,6 +177,7 @@ export default async function PaginaCliente({
                           >
                             {atual ? "atual" : "anterior"}
                           </span>
+                          <SeletorStatusMapa mapaId={mapa.id} statusAtual={mapa.statusComercial as StatusComercialMapa} />
                         </div>
                         <span style={{ font: "700 14px var(--font-interface)", color: "var(--marinho)" }}>{brl(mapa.capitalAProteger)}</span>
                       </div>
@@ -189,12 +198,11 @@ export default async function PaginaCliente({
                           <Link href={`/estudo/${estudo.id}/memoria`} style={{ font: "600 11px var(--font-interface)", color: "var(--marinho)", border: "1.5px solid var(--borda)", padding: "6px 10px", borderRadius: 999 }}>
                             Memória
                           </Link>
-                          {atual && !estudoAberto && (
-                            <ModalDuplicar rotuloBotao="Duplicar" clienteNome={cliente.nome} acaoConfirmar={duplicarEstudo.bind(null, estudo.id)} />
-                          )}
+                          {atual && <ModalDuplicar rotuloBotao="Duplicar" clienteNome={cliente.nome} acaoConfirmar={duplicarEstudo.bind(null, estudo.id)} />}
                         </div>
                         <ModalExclusao
-                          rotuloBotao="Excluir mapa"
+                          rotuloBotao="🗑"
+                          tituloBotao="Excluir mapa"
                           titulo={`Excluir o Mapa da Proteção v${mapa.numeroVersao}?`}
                           subtitulo={`${cliente.nome} · gerado em ${mapa.geradoEm.toLocaleDateString("pt-BR")} às ${mapa.geradoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} · ${brl(mapa.capitalAProteger)}`}
                           vaiEmbora={[
@@ -217,15 +225,44 @@ export default async function PaginaCliente({
             </div>
 
             <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "20px 22px" }}>
-              <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)", marginBottom: 14 }}>Histórico</div>
-              {cliente.eventos.length === 0 && <div style={{ font: "400 13px var(--font-interface)", color: "var(--texto-terciario)" }}>Sem movimento ainda.</div>}
+              <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)", marginBottom: 14 }}>Estudos em andamento</div>
+              {estudosAbertos.length === 0 && <div style={{ font: "400 13px var(--font-interface)", color: "var(--texto-terciario)" }}>Nenhum estudo em andamento.</div>}
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {cliente.eventos.map((ev) => (
-                  <div key={ev.id} style={{ display: "grid", gridTemplateColumns: "52px 1fr", gap: 12, font: "400 12px/1.5 var(--font-interface)" }}>
-                    <span style={{ color: "var(--texto-terciario)" }}>{ev.criadoEm.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</span>
-                    <span style={{ color: "var(--texto)" }}>{ev.texto}</span>
-                  </div>
-                ))}
+                {estudosAbertos.map((e) => {
+                  const preEstudo = (e.origem ?? "").startsWith("Link");
+                  return (
+                    <div key={e.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, border: "1px solid var(--borda)", borderRadius: 10, padding: "12px 14px" }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                          <EstudoApelidoEditavel estudoId={e.id} apelido={e.apelido || "Estudo sem nome"} />
+                          {preEstudo && (
+                            <span style={{ font: "700 9px var(--font-interface)", color: "var(--azul)", background: "var(--azul-claro-fundo)", padding: "2px 7px", borderRadius: 999, flex: "none" }}>
+                              Pré-estudo
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ font: "400 11px var(--font-interface)", color: "var(--texto-terciario)" }}>
+                          {e.criadoEm.toLocaleDateString("pt-BR")} às {e.criadoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: 6, flex: "none" }}>
+                        <Link href={`/estudo/${e.id}`} style={{ font: "600 11px var(--font-interface)", color: "var(--marinho)", border: "1.5px solid var(--borda)", padding: "6px 10px", borderRadius: 999 }}>
+                          Abrir
+                        </Link>
+                        <ModalExclusao
+                          rotuloBotao="🗑"
+                          tituloBotao="Apagar estudo"
+                          titulo={`Apagar "${e.apelido || "este estudo"}"?`}
+                          subtitulo="Ainda não virou Mapa — as respostas deste rascunho se perdem."
+                          vaiEmbora={["Todas as respostas deste estudo em aberto."]}
+                          oQueFica={[`O cadastro de ${cliente.nome} e os demais estudos/mapas dele.`]}
+                          rotuloConfirmar="Apagar estudo"
+                          acaoConfirmar={apagarEstudoAberto.bind(null, e.id)}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -233,64 +270,81 @@ export default async function PaginaCliente({
           <div>
             <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "20px 22px", marginBottom: 16 }}>
               <div style={{ font: "600 13.5px var(--font-interface)", color: "var(--marinho)", marginBottom: 12 }}>Estágio no funil</div>
-              <div style={{ display: "flex", gap: 6 }}>
-                {PASSOS_FUNIL.map((estagio) => {
-                  const ativo = cliente.estagioFunil === estagio;
-                  const acao = mudarEstagio.bind(null, cliente.id, estagio);
-                  return (
-                    <form key={estagio} action={acao} style={{ flex: 1 }}>
-                      <button
-                        type="submit"
-                        style={{
-                          width: "100%",
-                          font: "600 10.5px var(--font-interface)",
-                          padding: "8px 4px",
-                          borderRadius: 8,
-                          color: ativo ? "#fff" : "var(--texto-secundario)",
-                          background: ativo ? ESTAGIO_INFO[estagio].cor : "#fff",
-                          border: `1.5px solid ${ativo ? ESTAGIO_INFO[estagio].cor : "var(--borda)"}`,
-                          cursor: "pointer",
-                        }}
-                      >
-                        {ESTAGIO_INFO[estagio].nome}
-                      </button>
-                    </form>
-                  );
-                })}
-              </div>
-              <div style={{ marginTop: 10 }}>
-                {cliente.estagioFunil !== "perdido" ? (
-                  <form action={mudarEstagio.bind(null, cliente.id, "perdido")}>
-                    <button type="submit" style={{ font: "600 11px var(--font-interface)", color: "var(--alerta-texto)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-                      Marcar como perdido
-                    </button>
-                  </form>
-                ) : (
-                  <span style={{ font: "600 11px var(--font-interface)", color: "var(--alerta-texto)" }}>Perdido</span>
-                )}
-              </div>
+              {mapas.length === 0 ? (
+                <>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {PASSOS_FUNIL.map((estagio) => {
+                      const ativo = cliente.estagioFunil === estagio;
+                      const acao = mudarEstagio.bind(null, cliente.id, estagio);
+                      return (
+                        <form key={estagio} action={acao} style={{ flex: 1 }}>
+                          <button
+                            type="submit"
+                            style={{
+                              width: "100%",
+                              font: "600 10.5px var(--font-interface)",
+                              padding: "8px 4px",
+                              borderRadius: 8,
+                              color: ativo ? "#fff" : "var(--texto-secundario)",
+                              background: ativo ? ESTAGIO_INFO[estagio].cor : "#fff",
+                              border: `1.5px solid ${ativo ? ESTAGIO_INFO[estagio].cor : "var(--borda)"}`,
+                              cursor: "pointer",
+                            }}
+                          >
+                            {ESTAGIO_INFO[estagio].nome}
+                          </button>
+                        </form>
+                      );
+                    })}
+                  </div>
+                  <div style={{ marginTop: 10 }}>
+                    {cliente.estagioFunil !== "perdido" ? (
+                      <form action={mudarEstagio.bind(null, cliente.id, "perdido")}>
+                        <button type="submit" style={{ font: "600 11px var(--font-interface)", color: "var(--alerta-texto)", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+                          Marcar como perdido
+                        </button>
+                      </form>
+                    ) : (
+                      <span style={{ font: "600 11px var(--font-interface)", color: "var(--alerta-texto)" }}>Perdido</span>
+                    )}
+                  </div>
+                </>
+              ) : (
+                // A partir do primeiro Mapa gerado, o estágio segue o status comercial do Mapa
+                // mais recente (ver SeletorStatusMapa acima / alterarStatusMapa) — evita duas
+                // superfícies editando a mesma coisa. Só leitura aqui.
+                <>
+                  <span
+                    style={{
+                      display: "inline-block",
+                      font: "600 11px var(--font-interface)",
+                      padding: "6px 12px",
+                      borderRadius: 999,
+                      color: corDoEstagio(cliente.estagioFunil),
+                      background: fundoSuaveDoEstagio(cliente.estagioFunil),
+                    }}
+                  >
+                    {nomeDoEstagio(cliente.estagioFunil)}
+                  </span>
+                  <div style={{ font: "400 11px/1.5 var(--font-interface)", color: "var(--texto-terciario)", marginTop: 8 }}>
+                    Segue o status comercial do Mapa mais recente — muda pelo seletor em &quot;Mapas gerados&quot;.
+                  </div>
+                </>
+              )}
             </div>
 
-            <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "20px 22px" }}>
-              <div style={{ font: "600 13.5px var(--font-interface)", color: "var(--marinho)", marginBottom: 12 }}>Cadastro</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-                {[
-                  ["Nascimento", cliente.nascimento?.toLocaleDateString("pt-BR") ?? "—"],
-                  ["Telefone", cliente.telefone ?? "—"],
-                  ["E-mail", cliente.email ?? "—"],
-                  ["Profissão", cliente.profissao ?? "—"],
-                  ["Estado civil", cliente.estadoCivil ?? "—"],
-                  ["Origem", cliente.origem ?? "—"],
-                  ["Cliente desde", cliente.criadoEm.toLocaleDateString("pt-BR")],
-                  ["Último movimento", `${textoDias(diasParado)} atrás`],
-                ].map(([rotulo, valor]) => (
-                  <div key={rotulo} style={{ display: "flex", justifyContent: "space-between", gap: 12, font: "400 12px var(--font-interface)" }}>
-                    <span style={{ color: "var(--texto-terciario)" }}>{rotulo}</span>
-                    <span style={{ color: "var(--texto)", fontWeight: 500, textAlign: "right" }}>{valor}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <CadastroEditavel
+              clienteId={cliente.id}
+              telefone={cliente.telefone}
+              email={cliente.email}
+              nascimento={cliente.nascimento}
+              profissao={cliente.profissao}
+              estadoCivil={cliente.estadoCivil}
+              cenarioResposta={cliente.cenarioResposta}
+              origem={cliente.origem}
+              clienteDesde={cliente.criadoEm}
+              diasParado={diasParado}
+            />
           </div>
         </div>
       )}
@@ -324,6 +378,21 @@ export default async function PaginaCliente({
               <div key={nota.id} style={{ borderLeft: "3px solid var(--verde)", paddingLeft: 14 }}>
                 <div style={{ font: "400 10.5px var(--font-interface)", color: "var(--texto-terciario)", marginBottom: 3 }}>{nota.criadoEm.toLocaleDateString("pt-BR")}</div>
                 <div style={{ font: "400 12.5px/1.6 var(--font-interface)", color: "var(--texto)" }}>{nota.texto}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {aba === "historico" && (
+        <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "20px 22px", maxWidth: 720 }}>
+          <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)", marginBottom: 14 }}>Histórico</div>
+          {cliente.eventos.length === 0 && <div style={{ font: "400 13px var(--font-interface)", color: "var(--texto-terciario)" }}>Sem movimento ainda.</div>}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {cliente.eventos.map((ev) => (
+              <div key={ev.id} style={{ display: "grid", gridTemplateColumns: "52px 1fr", gap: 12, font: "400 12px/1.5 var(--font-interface)" }}>
+                <span style={{ color: "var(--texto-terciario)" }}>{ev.criadoEm.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</span>
+                <span style={{ color: "var(--texto)" }}>{ev.texto}</span>
               </div>
             ))}
           </div>

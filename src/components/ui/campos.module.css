@@ -78,6 +78,29 @@
   border-color: var(--azul);
 }
 
+/* Radio-style (bolinha), pra GrupoOpcoesEmpilhadas — mesma linha (.linha) das outras opções
+   clicáveis, só o indicador redondo em vez de quadrado (escolha única, não múltipla). */
+.bolinha {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--cinza-inativo);
+  background: transparent;
+}
+.bolinha.marcada {
+  border-color: var(--azul);
+}
+.bolinha.marcada::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--azul);
+}
+
 .pill {
   flex: 1;
   text-align: center;

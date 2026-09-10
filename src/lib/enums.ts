@@ -27,3 +27,26 @@ export type StatusEstudo = (typeof STATUS_ESTUDO)[number];
 /** Canal do pedido de exclusão LGPD (ExclusaoLgpd.canal) — Ajustes → LGPD e retenção. */
 export const CANAIS_LGPD = ["whatsapp", "email", "verbal"] as const;
 export type CanalLgpd = (typeof CANAIS_LGPD)[number];
+
+/**
+ * Status comercial de um Mapa específico (Mapa.statusComercial), 2026-09-09 — diferente de
+ * ESTAGIOS_FUNIL (que é por Cliente): resolve a ambiguidade de "fechado" não dizer qual dos
+ * vários Mapas de um cliente foi fechado. Editar o do Mapa mais recente também atualiza
+ * Cliente.estagioFunil — ver alterarStatusMapa em painel/clientes/[id]/actions.ts.
+ */
+export const STATUS_COMERCIAL_MAPA = ["criado", "apresentado", "negociando", "fechado", "descartado"] as const;
+export type StatusComercialMapa = (typeof STATUS_COMERCIAL_MAPA)[number];
+
+/**
+ * "Se você ficasse um ano sem poder trabalhar, quem sustentaria a casa?" — pergunta de
+ * percepção de risco. Vivia só no formulário público (lead-formulario.ts); 2026-09-09 virou
+ * campo estruturado do cliente (Cliente.cenarioResposta) e passou a ser perguntada também no
+ * wizard do corretor (Perfil.tsx) — texto idêntico nos dois lugares, fonte única aqui.
+ */
+export const CENARIOS_INVALIDEZ = [
+  "Ninguém — a renda é toda minha",
+  "Meu cônjuge, em parte",
+  "Temos reservas para um tempo",
+  "Não sei dizer",
+] as const;
+export type CenarioInvalidez = (typeof CENARIOS_INVALIDEZ)[number];

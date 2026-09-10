@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { calc } from "@/lib/calc";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { paraFatoresCalc, padroesPorEstudo } from "@/lib/fatores-calculo";
-import { ESTUDO_VAZIO, paraEstudoFormulario, type EstudoFormulario } from "@/lib/estudo-formulario";
+import { ESTUDO_VAZIO, paraEstudoFormulario, gerarApelidoEstudo, type EstudoFormulario } from "@/lib/estudo-formulario";
 import { dispararWebhookComResposta } from "@/lib/webhooks";
 import { carregarSaida } from "@/lib/carregar-saida";
 import { dataBrParaDate, dataParaBr } from "@/lib/formato";
@@ -26,7 +26,7 @@ function consentimentoVerbal() {
 /**
  * Botão "+ Novo cliente" (único jeito de criar alguém a partir da sidebar desde 2026-09-07 — o
  * antigo "+ Novo estudo" da barra lateral saiu; a página do cliente tem seu próprio botão pra
- * iniciar o estudo, ver `abrirOuCriarEstudoDoCliente`). Cadastro rápido — nome e telefone são os
+ * iniciar o estudo, ver `criarNovoEstudo`). Cadastro rápido — nome e telefone são os
  * únicos obrigatórios, o resto é o que já se sabe na hora.
  *
  * `iniciarEstudo`: quando true (botão "Salvar e iniciar novo estudo"), cria o cliente E o estudo
@@ -79,7 +79,14 @@ export async function criarClienteRapido(
     estadoCivil: estadoCivil ?? ESTUDO_VAZIO.estadoCivil,
   };
   const estudo = await prisma.estudo.create({
-    data: { clienteId: cliente.id, corretorId: corretor.id, status: "aberto", dados: dadosIniciais as object },
+    data: {
+      clienteId: cliente.id,
+      corretorId: corretor.id,
+      status: "aberto",
+      dados: dadosIniciais as object,
+      apelido: gerarApelidoEstudo(nome, new Date()),
+      origem: "Direto pelo corretor",
+    },
   });
 
   await prisma.$transaction([
@@ -94,57 +101,57 @@ export async function criarClienteRapido(
 }
 
 /**
- * Botão "Iniciar novo estudo" na página de um cliente específico — corrige um bug real: o antigo
- * botão do menu lateral sempre criava um cliente novo em branco, mesmo com o corretor olhando pra
- * um cliente já aberto na tela.
- *
- * Três casos, igual à lógica que "Duplicar" já usa pra decidir quando aparecer:
- * 1. Cliente já tem estudo em aberto → só abre ele, não cria nada (evita dois estudos abertos ao
- *    mesmo tempo pro mesmo cliente, mesma regra do botão Duplicar).
- * 2. Cliente já tem Mapa gerado mas nenhum estudo aberto → o caminho certo é "Duplicar" (mantém
- *    a linhagem via `duplicadoDeEstudoId`), não criar um estudo solto por fora dela — manda de
- *    volta pra página do cliente, onde o botão de duplicar já está.
- * 3. Cliente novo, sem estudo nem mapa nenhum → cria de verdade, pré-preenchido com o que já se
- *    sabe do cadastro (nome/nascimento/contato/profissão/estado civil/sexo).
+ * Botão "Novo Estudo" na página de um cliente (2026-09-09, substitui `abrirOuCriarEstudoDoCliente`
+ * — antes só criava se não houvesse nenhum estudo aberto/Mapa, senão redirecionava pro que já
+ * existia). Achado real (caso do Francisco Oliveira): esse "reaproveitar" escondia informação —
+ * agora múltiplos estudos abertos convivem por cliente (ver lista "Estudos em andamento" na
+ * página dele), então este botão sempre cria um estudo novo, pré-preenchido com o que já se sabe
+ * do cadastro (nome/nascimento/contato/profissão/estado civil/sexo).
  */
-export async function abrirOuCriarEstudoDoCliente(clienteId: string) {
+export async function criarNovoEstudo(clienteId: string) {
   const corretor = await obterCorretorAtual();
   const cliente = await prisma.cliente.findUniqueOrThrow({ where: { id: clienteId } });
   if (cliente.corretorId !== corretor.id) throw new Error("Cliente não pertence a este corretor.");
 
-  // `orderBy` (2026-09-09): mesma blindagem de `enviarLead` em captacao/actions.ts — se por algum
-  // motivo existir mais de um estudo "aberto" pro cliente (não deveria, mas resíduo de bug antigo
-  // já mostrou que acontece), pega sempre o mais recente, nunca um qualquer.
-  const estudoAberto = await prisma.estudo.findFirst({ where: { clienteId, status: "aberto" }, orderBy: { criadoEm: "desc" } });
-  if (estudoAberto) redirect(`/estudo/${estudoAberto.id}`);
-
-  const temMapa = await prisma.mapa.count({ where: { clienteId } });
-  if (temMapa > 0) redirect(`/painel/clientes/${clienteId}`);
+  // Só empurra o cliente pro estágio "estudo" se ele ainda não tem Mapa nenhum — a partir do
+  // primeiro Mapa gerado, o estágio passa a seguir o status comercial do Mapa mais recente (ver
+  // alterarStatusMapa), então iniciar mais um estudo exploratório não deve "regredir" um cliente
+  // que já está, por exemplo, "cotando" ou "fechado".
+  const temMapa = (await prisma.mapa.count({ where: { clienteId } })) > 0;
 
   const fatores = await prisma.fatoresCalculo.findUniqueOrThrow({ where: { corretorId: corretor.id } });
+  const nomeInicial = cliente.nome === "Novo estudo" ? "" : cliente.nome;
   const dadosIniciais: EstudoFormulario = {
     ...ESTUDO_VAZIO,
     ...padroesPorEstudo(fatores),
     // "Novo estudo" era o nome-placeholder do antigo botão "+ Novo estudo" da sidebar (removido
     // 2026-09-07) — cadastros antigos com esse nome literal ainda existem no banco; o check
     // continua aqui só por retrocompatibilidade com eles.
-    nome: cliente.nome === "Novo estudo" ? "" : cliente.nome,
+    nome: nomeInicial,
     nasc: dataParaBr(cliente.nascimento),
     whats: cliente.telefone ?? "",
     email: cliente.email ?? "",
     profissao: cliente.profissao ?? "",
     estadoCivil: cliente.estadoCivil ?? ESTUDO_VAZIO.estadoCivil,
     sexo: cliente.sexo === "M" || cliente.sexo === "F" ? cliente.sexo : ESTUDO_VAZIO.sexo,
+    cenario: cliente.cenarioResposta ?? "",
   };
 
   const estudo = await prisma.estudo.create({
-    data: { clienteId, corretorId: corretor.id, status: "aberto", dados: dadosIniciais as object },
+    data: {
+      clienteId,
+      corretorId: corretor.id,
+      status: "aberto",
+      dados: dadosIniciais as object,
+      apelido: gerarApelidoEstudo(nomeInicial || cliente.nome, new Date()),
+      origem: "Direto pelo corretor",
+    },
   });
 
   await prisma.$transaction([
-    prisma.cliente.update({ where: { id: clienteId }, data: { estagioFunil: "estudo", estagioAtualizadoEm: new Date() } }),
+    ...(temMapa ? [] : [prisma.cliente.update({ where: { id: clienteId }, data: { estagioFunil: "estudo", estagioAtualizadoEm: new Date() } })]),
     prisma.eventoHistorico.create({
-      data: { clienteId, corretorId: corretor.id, tipo: "sistema", texto: "Estudo iniciado pelo corretor." },
+      data: { clienteId, corretorId: corretor.id, tipo: "sistema", texto: "Novo estudo iniciado pelo corretor." },
     }),
   ]);
 
@@ -174,8 +181,13 @@ export async function salvarDados(estudoId: string, dados: EstudoFormulario) {
         sexo: dados.sexo || null,
         // Achado real (2026-09-09): faltava aqui — data de nascimento ficava só dentro do JSON
         // de `dados` do estudo, nunca chegava no cadastro do cliente (`Cliente.nascimento`), que é
-        // o que a lista de clientes e o pré-preenchimento de um próximo estudo (`abrirOuCriarEstudoDoCliente`) leem.
+        // o que a lista de clientes e o pré-preenchimento de um próximo estudo (`criarNovoEstudo`) leem.
         nascimento: dataBrParaDate(dados.nasc),
+        cenarioResposta: dados.cenario || null,
+        // Digitar direto no wizard é tão "manual" quanto usar o botão dedicado de editar cadastro
+        // na página do cliente — as duas contam como correção do corretor, então as duas protegem
+        // os mesmos campos contra reenvio do link público sobrescrever depois (ver `enviarLead`).
+        cadastroEditadoManualmente: true,
       },
     }),
   ]);
@@ -335,6 +347,7 @@ export async function duplicarEstudo(estudoId: string) {
     throw new Error("Só faz sentido duplicar um estudo que já virou Mapa da Proteção.");
   }
 
+  const dadosCopiados = paraEstudoFormulario(estudo.dados);
   const novoEstudo = await prisma.estudo.create({
     data: {
       clienteId: estudo.clienteId,
@@ -345,7 +358,9 @@ export async function duplicarEstudo(estudoId: string) {
       // paraEstudoFormulario (não copia o JSON cru) — um `dados` incompleto no estudo original
       // (visto de verdade em cliente de teste antigo, `dados: {}`) faria o estudo duplicado
       // nascer quebrado e derrubar calc() ao abrir. Ver o comentário em paraEstudoFormulario.
-      dados: paraEstudoFormulario(estudo.dados) as object,
+      dados: dadosCopiados as object,
+      apelido: gerarApelidoEstudo(dadosCopiados.nome, new Date()),
+      origem: "Duplicado — correção",
     },
   });
 

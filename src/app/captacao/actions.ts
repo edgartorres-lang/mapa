@@ -6,6 +6,8 @@ import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { mapearLeadParaEstudo, type LeadRespostas } from "@/lib/lead-formulario";
 import { dispararWebhook, dispararWebhookComResposta } from "@/lib/webhooks";
 import { padroesPorEstudo } from "@/lib/fatores-calculo";
+import { gerarApelidoEstudo } from "@/lib/estudo-formulario";
+import { dataBrParaDate } from "@/lib/formato";
 
 /**
  * Fim do formulário público (deixar a tela de revisão): grava cliente + estudo, dispara
@@ -34,17 +36,23 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
   const leadRepetido = !!cliente;
   const origemTexto = utmCampanha ? `Link · campanha ${utmCampanha}` : "Link de captação";
 
+  const nascimento = dataBrParaDate(dados.nasc);
+
   if (cliente) {
-    // Se o corretor já corrigiu o nome manualmente pela página do cliente, um reenvio do link
-    // (mesmo telefone/e-mail) nunca mais sobrescreve — só telefone/e-mail e o novo estudo. Ver
-    // editarNomeCliente em src/app/painel/clientes/[id]/actions.ts e AGENTS.md.
+    // Se o corretor já editou o cadastro manualmente (pela página do cliente, ou digitando no
+    // wizard) desde a última vez, um reenvio do link nunca mais sobrescreve nenhum desses campos
+    // — `cadastroEditadoManualmente` generaliza o que antes só existia pro nome
+    // (`nomeEditadoManualmente`). Ver AGENTS.md, "Captação pública".
+    const protegido = cliente.cadastroEditadoManualmente;
     cliente = await prisma.cliente.update({
       where: { id: cliente.id },
       data: {
         nome: cliente.nomeEditadoManualmente ? cliente.nome : dados.nome || cliente.nome,
-        telefone: telefone || cliente.telefone,
-        email: email || cliente.email,
-        estadoCivil: dados.estadoCivil || cliente.estadoCivil,
+        telefone: protegido ? cliente.telefone : telefone || cliente.telefone,
+        email: protegido ? cliente.email : email || cliente.email,
+        estadoCivil: protegido ? cliente.estadoCivil : dados.estadoCivil || cliente.estadoCivil,
+        nascimento: protegido ? cliente.nascimento : nascimento || cliente.nascimento,
+        cenarioResposta: protegido ? cliente.cenarioResposta : dados.cenario || cliente.cenarioResposta,
         lgpdStatus: dados.lgpd ? "aceito" : cliente.lgpdStatus,
         lgpdAceitoEm: dados.lgpd ? new Date() : cliente.lgpdAceitoEm,
       },
@@ -57,6 +65,8 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
         telefone,
         email,
         estadoCivil: dados.estadoCivil || null,
+        nascimento,
+        cenarioResposta: dados.cenario || null,
         origem: origemTexto,
         utmCampanha,
         estagioFunil: "lead",
@@ -67,30 +77,18 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
     });
   }
 
-  // Achado real (2026-09-08): antes disto, todo reenvio do link criava um Estudo NOVO, mesmo com
-  // um já em aberto — a tela do cliente só mostra um estudo aberto por vez (o mais recente), então
-  // os anteriores ficavam órfãos, existindo no banco sem aparecer em lugar nenhum da interface.
-  // Mesma regra que já vale pro corretor (nunca dois estudos abertos ao mesmo tempo pro mesmo
-  // cliente — ver `abrirOuCriarEstudoDoCliente`): se já existe um estudo aberto pra este cliente,
-  // reaproveita ele (atualiza `dados` com as respostas novas) em vez de criar outro. `lido: false`
-  // de novo — reabre a notificação na caixa de entrada, informação nova chegou.
-  // `orderBy` (2026-09-09): achado real testando com o Francisco — resíduo de reenvios repetidos
-  // ANTES desta proteção existir deixou mais de um estudo "aberto" pro mesmo cliente no banco. Sem
-  // ordenação, `findFirst` podia devolver qualquer um deles (inclusive um rascunho velho e vazio)
-  // em vez do que estava sendo preenchido de verdade — parecia que as respostas "sumiam". Pega
-  // sempre o mais recente; não resolve o resíduo já existente (limpeza manual, ver AGENTS.md), mas
-  // evita reproduzir o sintoma daqui pra frente mesmo se algum dia houver mais de um aberto de novo.
-  const estudoAberto = await prisma.estudo.findFirst({ where: { clienteId: cliente.id, status: "aberto" }, orderBy: { criadoEm: "desc" } });
-  const estudo = estudoAberto
-    ? await prisma.estudo.update({ where: { id: estudoAberto.id }, data: { dados: dados as object, lido: false } })
-    : await prisma.estudo.create({ data: { clienteId: cliente.id, corretorId: corretor.id, status: "aberto", dados: dados as object, lido: false } });
+  // Achado real (2026-09-09, caso do Francisco Oliveira): antes disto, reenvio do link
+  // reaproveitava (sobrescrevia) o único estudo "aberto" existente — parecia seguro (evita
+  // rascunho órfão), mas na prática apagava silenciosamente respostas já digitadas quando o
+  // mesmo cliente preenchia o link mais de uma vez. Agora sempre cria um Estudo novo,
+  // identificado por `apelido`/`origem` — o corretor vê todos na lista "Estudos em andamento" da
+  // página do cliente e decide o que fazer (abrir, renomear, apagar os repetidos).
+  const apelido = gerarApelidoEstudo(dados.nome || cliente.nome, new Date());
+  const estudo = await prisma.estudo.create({
+    data: { clienteId: cliente.id, corretorId: corretor.id, status: "aberto", dados: dados as object, lido: false, apelido, origem: origemTexto },
+  });
 
-  const notaTexto = [
-    respostas.cenario ? `Cenário (autoavaliação do lead): "${respostas.cenario}".` : null,
-    respostas.obs ? `Observação: ${respostas.obs}` : null,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const notaTexto = respostas.obs ? `Observação: ${respostas.obs}` : "";
 
   await prisma.$transaction([
     prisma.eventoHistorico.create({
@@ -98,11 +96,7 @@ export async function enviarLead(respostas: LeadRespostas, utmCampanha: string |
         clienteId: cliente.id,
         corretorId: corretor.id,
         tipo: "sistema",
-        texto: !leadRepetido
-          ? "Preencheu o link de captação."
-          : estudoAberto
-            ? "Preencheu o link de novo — respostas atualizadas no mesmo estudo em aberto."
-            : "Preencheu o link de novo. Cadastro reaproveitado, estudo novo aberto.",
+        texto: !leadRepetido ? "Preencheu o link de captação." : `Preencheu o link de novo. Novo pré-estudo: "${apelido}".`,
       },
     }),
     ...(notaTexto ? [prisma.notaCrm.create({ data: { clienteId: cliente.id, corretorId: corretor.id, texto: notaTexto } })] : []),

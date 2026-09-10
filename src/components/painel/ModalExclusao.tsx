@@ -11,6 +11,7 @@ import { useState } from "react";
  */
 export function ModalExclusao({
   rotuloBotao,
+  tituloBotao,
   corBotao = "var(--alerta-texto)",
   titulo,
   subtitulo,
@@ -20,6 +21,9 @@ export function ModalExclusao({
   acaoConfirmar,
 }: {
   rotuloBotao: string;
+  /** Tooltip (atributo `title` nativo) do botão-gatilho — útil quando `rotuloBotao` é só um
+   * ícone (ex.: 🗑) e não tem texto legível sozinho. Opcional. */
+  tituloBotao?: string;
   corBotao?: string;
   titulo: string;
   subtitulo?: string;
@@ -35,6 +39,7 @@ export function ModalExclusao({
       <button
         type="button"
         onClick={() => setAberto(true)}
+        title={tituloBotao}
         style={{ font: "600 11.5px var(--font-interface)", color: corBotao, border: `1.5px solid ${corBotao}`, background: "#fff", padding: "6px 12px", borderRadius: 999, cursor: "pointer" }}
       >
         {rotuloBotao}

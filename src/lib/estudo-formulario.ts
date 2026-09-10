@@ -28,6 +28,11 @@ export interface EstudoFormulario extends EstudoDados {
   observacoes: string;
   assunto: string;
   anexos: { resumo: boolean; a4: boolean; slides: boolean; ia: boolean };
+  /** Uma das 4 opções de CENARIOS_INVALIDEZ (src/lib/enums.ts) — "Se você ficasse um ano sem
+   * poder trabalhar, quem sustentaria a casa?". Etapa Perfil; sincronizado pra
+   * Cliente.cenarioResposta pelo autosave (salvarDados) e também pelo formulário público
+   * (mapearLeadParaEstudo/enviarLead). Vazio ("") = não respondido. */
+  cenario: string;
 }
 
 export const ESTUDO_VAZIO: EstudoFormulario = {
@@ -68,6 +73,7 @@ export const ESTUDO_VAZIO: EstudoFormulario = {
   observacoes: "",
   assunto: "",
   anexos: { resumo: true, a4: true, slides: false, ia: false },
+  cenario: "",
 };
 
 /**
@@ -76,7 +82,7 @@ export const ESTUDO_VAZIO: EstudoFormulario = {
  * `anexos`, que são objetos aninhados.
  *
  * Rede de segurança, não o caminho normal: todo estudo criado pela aplicação (`criarClienteRapido`,
- * `abrirOuCriarEstudoDoCliente`, `enviarLead`) já nasce com o formato completo. Existe por causa
+ * `criarNovoEstudo`, `enviarLead`) já nasce com o formato completo. Existe por causa
  * de dados legados/semeados com `dados` incompleto ou `{}` (visto de verdade: um cliente de teste
  * da Etapa 1 com `dados: {}`
  * quebrava `calc()` — "Cannot read properties of undefined (reading 'clt')" — tanto ao abrir o
@@ -142,4 +148,19 @@ function calcularIdade(str: string, hoje: Date): number | null {
   if (isNaN(d.getTime())) return null;
   const anos = (hoje.getTime() - d.getTime()) / (365.2425 * 24 * 3600 * 1000);
   return anos < 0 || anos > 110 ? null : anos;
+}
+
+/**
+ * Apelido automático de um Estudo novo (2026-09-09) — "Estudo · Nome · DD/MM HHhMM". Todo
+ * estudo nasce com isto (o corretor pode renomear depois, ver `renomearEstudo` em
+ * painel/clientes/[id]/actions.ts); é o que diferencia um do outro na lista "Estudos em
+ * andamento", agora que um cliente pode ter mais de um aberto ao mesmo tempo.
+ */
+export function gerarApelidoEstudo(nome: string, data: Date): string {
+  const dia = String(data.getDate()).padStart(2, "0");
+  const mes = String(data.getMonth() + 1).padStart(2, "0");
+  const hora = String(data.getHours()).padStart(2, "0");
+  const minuto = String(data.getMinutes()).padStart(2, "0");
+  const nomeLimpo = (nome || "").trim() || "sem nome";
+  return `Estudo · ${nomeLimpo} · ${dia}/${mes} ${hora}h${minuto}`;
 }

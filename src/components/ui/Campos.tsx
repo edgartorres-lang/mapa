@@ -139,6 +139,36 @@ export function GrupoPill<T extends string>({
   );
 }
 
+/**
+ * Escolha única entre opções de texto longo, empilhadas (uma por linha) em vez de lado a lado —
+ * `GrupoPill` fica ruim quando os rótulos são frases, não palavras curtas (quebra feio). Mesmo
+ * visual de `LinhaCheckbox`, mas com indicador redondo (radio) em vez de quadrado (marcar uma
+ * desmarca a outra). Criado pra pergunta "Cenário" em Perfil.tsx, reaproveitável.
+ */
+export function GrupoOpcoesEmpilhadas<T extends string>({
+  opcoes,
+  valor,
+  onEscolher,
+}: {
+  opcoes: readonly T[];
+  valor: T | "";
+  onEscolher: (v: T) => void;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {opcoes.map((o) => {
+        const marcada = valor === o;
+        return (
+          <div key={o} onClick={() => onEscolher(o)} className={`${styles.linha} ${marcada ? styles.marcada : ""}`}>
+            <span className={`${styles.bolinha} ${marcada ? styles.marcada : ""}`} />
+            <span style={{ font: "600 12.5px var(--font-interface)", color: "var(--marinho)" }}>{o}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function BotaoRemover({ onClick }: { onClick: () => void }) {
   return (
     <button type="button" onClick={onClick} className={styles.botaoRemover} aria-label="Remover">

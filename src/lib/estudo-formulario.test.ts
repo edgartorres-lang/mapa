@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { paraEstudoFormulario, ESTUDO_VAZIO } from "./estudo-formulario";
+import { paraEstudoFormulario, ESTUDO_VAZIO, gerarApelidoEstudo } from "./estudo-formulario";
 
 /**
  * Bug real (2026-09-03): um cliente de teste antigo tinha `Estudo.dados` gravado como `{}`
@@ -35,5 +35,23 @@ describe("paraEstudoFormulario", () => {
 
   it("um EstudoFormulario já completo passa intacto", () => {
     expect(paraEstudoFormulario(ESTUDO_VAZIO)).toEqual(ESTUDO_VAZIO);
+  });
+});
+
+/**
+ * 2026-09-09 — agora que um cliente pode ter vários estudos "aberto" ao mesmo tempo (ver
+ * AGENTS.md, "Estudos em andamento"), cada um precisa de um nome de exibição pra se diferenciar
+ * dos outros na lista. Formato: "Estudo · Nome · DD/MM HHhMM".
+ */
+describe("gerarApelidoEstudo", () => {
+  it("monta o apelido com nome, data e hora com zero à esquerda", () => {
+    const data = new Date(2026, 8, 9, 8, 5); // 09/09/2026 08:05
+    expect(gerarApelidoEstudo("Francisco Oliveira", data)).toBe("Estudo · Francisco Oliveira · 09/09 08h05");
+  });
+
+  it("cai em 'sem nome' quando o nome vem vazio", () => {
+    const data = new Date(2026, 0, 1, 23, 59);
+    expect(gerarApelidoEstudo("", data)).toBe("Estudo · sem nome · 01/01 23h59");
+    expect(gerarApelidoEstudo("   ", data)).toBe("Estudo · sem nome · 01/01 23h59");
   });
 });

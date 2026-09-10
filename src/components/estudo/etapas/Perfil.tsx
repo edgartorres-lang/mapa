@@ -3,6 +3,7 @@
 import type { EstudoFormulario } from "@/lib/estudo-formulario";
 import { ESTADOS_CIVIS } from "@/lib/estudo-formulario";
 import type { VinculoKey } from "@/lib/calc";
+import { CENARIOS_INVALIDEZ } from "@/lib/enums";
 import { brl, idadeDe, mascaraData, mascaraTelefone } from "@/lib/formato";
 import {
   Cartao,
@@ -12,6 +13,7 @@ import {
   CampoSelect,
   LinhaCheckbox,
   GrupoPill,
+  GrupoOpcoesEmpilhadas,
   BotaoRemover,
   BotaoAdicionar,
 } from "@/components/ui/Campos";
@@ -92,6 +94,15 @@ export function Perfil({
             <CampoTexto placeholder="nome@email.com" value={dados.email} onChange={(v) => set({ email: v })} />
           </Campo>
         </div>
+      </Cartao>
+
+      <Cartao>
+        <div style={{ font: "600 13.5px var(--font-interface)", color: "var(--marinho)" }}>Cenário de risco</div>
+        <div style={{ font: "400 11.5px/1.5 var(--font-interface)", color: "var(--texto-terciario)", margin: "5px 0 14px" }}>
+          Se você ficasse um ano sem poder trabalhar, quem sustentaria a casa? Ajuda a conversar sobre o
+          quanto a família já está (ou não) preparada — não entra no cálculo.
+        </div>
+        <GrupoOpcoesEmpilhadas opcoes={CENARIOS_INVALIDEZ} valor={dados.cenario as (typeof CENARIOS_INVALIDEZ)[number] | ""} onEscolher={(v) => set({ cenario: v })} />
       </Cartao>
 
       <Cartao>
