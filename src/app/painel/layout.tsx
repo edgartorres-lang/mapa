@@ -3,6 +3,7 @@ import Link from "next/link";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { prisma } from "@/lib/prisma";
 import { BotaoNovoCliente } from "@/components/painel/BotaoNovoCliente";
+import { sair } from "./actions";
 
 /**
  * Barra lateral fixa de 216px (README, "Painel do Corretor"). Cinco itens.
@@ -79,10 +80,19 @@ export default async function PainelLayout({ children }: { children: ReactNode }
               {corretor.nome.charAt(0)}
             </div>
           )}
-          <div style={{ minWidth: 0 }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ font: "600 12px var(--font-interface)", color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{corretor.nome}</div>
             <div style={{ font: "400 10.5px var(--font-interface)", color: "rgba(255,255,255,.55)" }}>{corretor.corretora}</div>
           </div>
+          <form action={sair}>
+            <button
+              type="submit"
+              title="Sair"
+              style={{ font: "600 11px var(--font-interface)", color: "rgba(255,255,255,.6)", background: "none", border: "none", cursor: "pointer", padding: "4px 2px", flex: "none" }}
+            >
+              Sair
+            </button>
+          </form>
         </div>
       </div>
 

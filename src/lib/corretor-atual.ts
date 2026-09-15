@@ -1,20 +1,20 @@
 import { prisma } from "./prisma";
+import { lerSessaoCookie } from "./sessao-cookie";
 
 /**
- * Substituto temporário de autenticação: V1 ainda não tem a tela de login (Acesso e
- * Identidade não foi construída nesta etapa). Todo o app assume que existe um corretor só —
- * o que o `prisma/seed.ts` cria — e todo código de servidor que precisaria de "o corretor
- * logado" chama isto em vez disso.
+ * "O corretor logado" — lê o `corretorId` da sessão (cookie assinado, ver `sessao.ts`/
+ * `sessao-cookie.ts`) e busca esse corretor específico. Já preparado pro dia de multi-corretor
+ * (busca por id, não "o único que existe"), mesmo sendo só um hoje.
  *
- * TODO(login): quando Acesso e Identidade existir, trocar por sessão de verdade e apagar este
- * arquivo. Buscar por todas as chamadas a `obterCorretorAtual` pra achar onde plugar a sessão.
+ * O gate principal fica no `middleware.ts` (bloqueia `/painel/*`/`/estudo/*` sem sessão válida,
+ * antes até de a página renderizar) — isto aqui nunca deveria rodar sem sessão. Lança erro nesse
+ * caso só como defesa em profundidade, não como fluxo esperado.
  */
 export async function obterCorretorAtual() {
-  const corretor = await prisma.corretor.findFirst({ orderBy: { criadoEm: "asc" } });
-  if (!corretor) {
-    throw new Error(
-      "Nenhum corretor cadastrado. Rode `npm run db:seed` pra criar o corretor da V1 antes de usar o app.",
-    );
+  const corretorId = await lerSessaoCookie();
+  if (!corretorId) {
+    throw new Error("Sem sessão ativa — isto não deveria acontecer numa rota protegida pelo middleware.");
   }
-  return corretor;
+
+  return prisma.corretor.findUniqueOrThrow({ where: { id: corretorId } });
 }

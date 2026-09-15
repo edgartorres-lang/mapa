@@ -9,6 +9,7 @@ import { HorariosForm } from "@/components/painel/ajustes/HorariosForm";
 import { RetencaoInput, ExclusaoLgpdForm } from "@/components/painel/ajustes/LgpdInterativo";
 import { PerfilMarcaForm } from "@/components/painel/ajustes/PerfilMarcaForm";
 import { IntegracoesForm } from "@/components/painel/ajustes/IntegracoesForm";
+import { TrocarSenhaForm } from "@/components/painel/ajustes/TrocarSenhaForm";
 
 const ABAS = [
   { n: 1, nome: "Fatores de cálculo", sub: "o racional, editável", titulo: "Fatores de cálculo", sub2: "Os parâmetros do racional saem do código e ficam aqui. Estudos em aberto recalculam ao salvar; mapas gerados não mudam." },
@@ -297,6 +298,7 @@ function AbaAcesso({ corretor }: { corretor: Corretor }) {
       ))}
 
       <div style={{ flex: 1, minWidth: 280, display: "flex", flexDirection: "column", gap: 16 }}>
+        <TrocarSenhaForm />
         <div style={{ background: "#fff", border: "1px solid var(--borda)", borderRadius: 12, padding: "22px 24px" }}>
           <div style={{ font: "600 15px var(--font-titulo)", color: "var(--marinho)", marginBottom: 14 }}>Regras do acesso</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
@@ -309,7 +311,10 @@ function AbaAcesso({ corretor }: { corretor: Corretor }) {
           </div>
         </div>
         <div style={{ background: "var(--nota-fundo)", border: "1px solid var(--nota-borda)", borderRadius: 12, padding: "18px 20px", font: "400 11.5px/1.7 var(--font-interface)", color: "var(--nota-texto)" }}>
-          Esta tela é referência — mostra como a recuperação de senha vai funcionar quando existir login de verdade. Hoje há só você, sem senha nem sessão. Quando abrir para outros corretores, aqui também ganha o convite por e-mail e a lista de quem tem acesso.
+          Login e "Trocar senha" (acima) já funcionam de verdade. Os três cartões abaixo continuam
+          sendo referência visual — mostram como a recuperação de senha por e-mail vai funcionar
+          quando existir. Quando abrir para outros corretores, aqui também ganha o convite por
+          e-mail e a lista de quem tem acesso.
         </div>
       </div>
 

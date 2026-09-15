@@ -1,9 +1,12 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { obterCorretorAtual } from "@/lib/corretor-atual";
 import { dispararWebhook, testarWebhook } from "@/lib/webhooks";
+import { hashSenha, verificarSenha } from "@/lib/senha";
+import { apagarSessaoCookie } from "@/lib/sessao-cookie";
 import { CANAIS_LGPD, type CanalLgpd } from "@/lib/enums";
 import type { FatoresCalculoEditavel } from "@/lib/fatores-ajustes";
 import { CAMPOS_WEBHOOK_URL, CAMPOS_INTEGRACAO_ATIVA, type CampoWebhookUrl, type CampoIntegracaoAtiva } from "@/lib/integracoes-ajustes";
@@ -198,4 +201,28 @@ export async function alternarIntegracao(campo: CampoIntegracaoAtiva, ativo: boo
  * sendo digitada, tanto faz) responde a um POST. */
 export async function testarWebhookAction(url: string) {
   return testarWebhook(url);
+}
+
+/**
+ * Trocar senha (2026-09-13, Ajustes → Acesso e Integrações) — confere a senha atual antes de
+ * trocar (não deixa alguém com a sessão aberta e sem querer aberta numa tela pública trocar a
+ * senha sem digitar a de novo). Mesmo limite de 8 caracteres já anunciado na prévia da tela
+ * ("Regras do acesso"). Força logout depois — a sessão é um cookie assinado sem tabela no banco
+ * (ver sessao.ts), então não dá pra invalidar à distância; sair e pedir login de novo com a
+ * senha nova é o jeito de garantir que "esta sessão aqui" já está usando a senha certa.
+ */
+export async function trocarSenha(senhaAtual: string, novaSenha: string) {
+  const corretor = await obterCorretorAtual();
+
+  if (!(await verificarSenha(senhaAtual, corretor.senhaHash))) {
+    throw new Error("Senha atual incorreta.");
+  }
+  if (novaSenha.length < 8) {
+    throw new Error("A nova senha precisa ter pelo menos 8 caracteres.");
+  }
+
+  await prisma.corretor.update({ where: { id: corretor.id }, data: { senhaHash: await hashSenha(novaSenha) } });
+
+  await apagarSessaoCookie();
+  redirect("/login");
 }
